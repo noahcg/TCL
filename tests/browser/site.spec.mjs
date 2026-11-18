@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { loadContent } from '../../src/build/content.mjs';
 
-const articles = (await loadContent()).filter(entry => entry.type === 'article').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+const published = await loadContent();
+const articles = published.filter(entry => entry.type === 'article').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+const quickWins = published.filter(entry => entry.type === 'quick-win');
 
 test('every article has a unique loaded hero and the archive feature uses the same file', async ({ page, request }) => {
   const images = new Map();
@@ -380,7 +382,7 @@ test('Quick Wins is a compact three-column toolkit with copyable source snippets
   await page.goto('/quick-wins/');
   expect((await page.locator('.quick-workbench').boundingBox()).y).toBeLessThan(360);
   const cards = page.locator('.quick-card');
-  await expect(cards).toHaveCount(9);
+  await expect(cards).toHaveCount(quickWins.length);
   const first = await cards.nth(0).boundingBox();
   const second = await cards.nth(1).boundingBox();
   const third = await cards.nth(2).boundingBox();
@@ -409,7 +411,7 @@ test('Quick Wins combines topic and keyword filters, preserves URLs, and recover
   await page.getByRole('searchbox', { name: 'Find a quick win', exact: true }).fill('no-matching-technique');
   await expect(page.getByRole('heading', { name: 'No quick wins found.' })).toBeVisible();
   await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
-  await expect(page.locator('.quick-grid > li:visible')).toHaveCount(9);
+  await expect(page.locator('.quick-grid > li:visible')).toHaveCount(quickWins.length);
   await expect(page.getByRole('radio', { name: 'All wins', exact: true })).toBeChecked();
   expect(new URL(page.url()).search).toBe('');
 });

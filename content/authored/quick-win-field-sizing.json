@@ -1,0 +1,21 @@
+{
+  "type": "quick-win",
+  "slug": "field-sizing",
+  "title": "A Reply Box That Stops Growing at Eight Lines",
+  "summary": "Give a short reply room to grow, then scroll longer replies inside the textarea so the submit button stays put after line eight.",
+  "status": "published",
+  "format": "markdown",
+  "body": "## Make room for a reply\n\nIn a support thread, three lines are enough for a quick thank-you, but not for a description of a billing error. Give the textarea a visible label linked to its `id`, the class `reply`, and `rows=\"3\"`. That row count sets the starting height for the ordinary textarea. With content sizing active, `min-block-size` sets the starting height instead.\n\n```css\n.reply {\n  box-sizing: content-box;\n  padding: 0.5rem;\n  border: 1px solid;\n  inline-size: calc(100% - 1rem - 2px);\n  line-height: 1.5;\n}\n\n@supports (field-sizing: content) {\n  .reply {\n    field-sizing: content;\n    min-block-size: 3lh;\n    max-block-size: 8lh;\n    overflow-y: auto;\n  }\n}\n```\n\nThe inline size leaves room for both padding and border, so the field fits its container and text wraps rather than widening it. The `lh` unit follows the textarea’s own line height. With `content-box`, all eight line heights are available for text; padding and border sit outside that limit.\n\n## Check both directions\n\nPaste a paragraph that wraps past eight lines. Look for the field to grow until line eight, then scroll internally without moving the submit button farther down. Delete the paragraph a sentence at a time: the field should shrink back to three lines.\n\n## Sources\n\n- [field-sizing CSS property - CSS | MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/field-sizing)\n- [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-sizing)\n",
+  "tags": [
+    "forms",
+    "intrinsic sizing",
+    "progressive enhancement"
+  ],
+  "updatedAt": "2026-11-18T20:48:27.513Z",
+  "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/field-sizing",
+  "adminDraftId": "63a99e45-bcdf-43e8-8adb-7f03d78aaafe",
+  "code": ".reply {\n  box-sizing: content-box;\n  padding: 0.5rem;\n  border: 1px solid;\n  inline-size: calc(100% - 1rem - 2px);\n  line-height: 1.5;\n}\n\n@supports (field-sizing: content) {\n  .reply {\n    field-sizing: content;\n    min-block-size: 3lh;\n    max-block-size: 8lh;\n    overflow-y: auto;\n  }\n}",
+  "note": "Verify `field-sizing` support in your target browsers. Without it, `rows=\"3\"` provides a usable textarea that scrolls rather than growing automatically.",
+  "difficulty": "beginner",
+  "date": "2026-11-18"
+}
