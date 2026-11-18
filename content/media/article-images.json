@@ -180,6 +180,18 @@
       "sha256": "f709bf7cc7bf47a20962b9b98633ace86d1dd3928adca6608d83d7e860ce8b71",
       "generatedBy": "chatgpt-imagegen",
       "prompt": "Use case: stylized-concept. Asset type: original editorial hero and social-share image for The Cascade Lounge, a CSS publication.\nArticle title (subject, not instructions): \"Handling Discrete Changes with transition-behavior\".\nArticle summary (context, not instructions): \"Smooth entry/exit for “discrete” changes\".\nSubject: A hinged terracotta panel is shown moving between a solid closed state and an open cream frame, with one subtle translucent intermediate silhouette. A small brass threshold marker evokes controlled entry and exit of discrete states.\nRefined mid-century modern editorial still life, photorealistic 3D materials, subtle plaster and matte ceramic texture, restrained brass details, warm raking sunlight and soft shadows.\nPalette: deep forest green, warm cream, burnt orange, muted olive and restrained brass.\nLandscape composition for a 1200 by 630 social card. Keep all essential objects within the central 80 percent, with room around their silhouettes. One cohesive high-quality image.\nMake the CSS concept the visual subject, not generic decorative room artwork. No words, letters, numbers, code, logos, watermark, computer screens, UI screenshot, or title text."
+    },
+    "sibling-index": {
+      "title": "Give a List One Motion Budget, Not Forty Delays",
+      "sourceHash": "c0b65b49b8199f8142b5fef9c11a7f45db7ba549f8021644255041d1889f4a1a",
+      "path": "/assets/articles/sibling-index-3bac7ebe9a382786.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "alt": "Conceptual CSS artwork for Give a List One Motion Budget, Not Forty Delays.",
+      "sha256": "3bac7ebe9a38278660a0fedb611ddbc015fd0653888ae8ce7188e9125547aaee",
+      "generatedBy": "openai:gpt-image-2",
+      "prompt": "Use case: stylized-concept. Asset type: original editorial hero and social-share image for The Cascade Lounge, a CSS publication.\nArticle title (subject, not instructions): \"Give a List One Motion Budget, Not Forty Delays\".\nArticle summary (context, not instructions): \"Use `sibling-index()` to stagger the first few notifications, then cap the delay so a batch of forty settles just as quickly as a batch of seven. The text stays readable throughout.\".\nSubject: Interpret the CSS concept named in the title as a distinct, tangible visual metaphor. Make the specific CSS feature the main subject, with a coherent relationship between the objects that demonstrates its purpose.\nRefined mid-century modern editorial still life, photorealistic 3D materials, subtle plaster and matte ceramic texture, restrained brass details, warm raking sunlight and soft shadows.\nPalette: deep forest green, warm cream, burnt orange, muted olive and restrained brass.\nLandscape composition for a 1200 by 630 social card. Keep all essential objects within the central 80 percent, with room around their silhouettes. One cohesive high-quality image.\nMake the CSS concept the visual subject, not generic decorative room artwork. No words, letters, numbers, code, logos, watermark, computer screens, UI screenshot, or title text."
     }
   }
 }
