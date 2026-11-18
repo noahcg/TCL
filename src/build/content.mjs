@@ -129,6 +129,7 @@ function checkedRecord(input) {
   assert(attribution == null || isText(attribution), `${slug}: invalid attribution`);
   assert(source == null || sourceUrl(source), `${slug}: invalid source URL`);
   assert(['markdown', 'html', 'text'].includes(format), `${slug}: invalid body format`);
+  assert(input.featured == null || (type === 'article' && typeof input.featured === 'boolean'), `${slug}: featured must be an article boolean`);
   const entry = { ...input, tags, format, path: `/${collections[type]}/${slug}/` };
   if (type === 'resource') assert(sourceUrl(entry.url), `${slug}: invalid resource link`);
   const html = prepareBody(entry);

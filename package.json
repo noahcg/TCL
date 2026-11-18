@@ -18,7 +18,11 @@
     "verify:all": "npm run verify && npm run test:browser",
     "content:verify": "node scripts/migration/import-apex.mjs",
     "content:import": "node scripts/migration/import-apex.mjs --apply",
-    "content:capture": "node scripts/migration/capture-apex.mjs"
+    "content:capture": "node scripts/migration/capture-apex.mjs",
+    "images:plan": "node scripts/article-images.mjs --plan",
+    "images:generate": "node --env-file-if-exists=.env.local scripts/article-images.mjs",
+    "images:import": "node scripts/article-images.mjs --import",
+    "content:prepare": "npm run images:generate && npm run verify"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.3.0",
@@ -27,7 +31,8 @@
     "marked": "15.0.12",
     "mdn-data": "2.38.0",
     "parse5": "8.1.1",
-    "sanitize-html": "2.18.2"
+    "sanitize-html": "2.18.2",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

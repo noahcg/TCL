@@ -23,3 +23,9 @@ The angle brackets are fields to replace. The example belongs in this guide. It 
 - Use plain text for metadata. Active HTML features need a reviewed first-party component. Imported code stays readable and copyable as text. The original example and code source are kept in the source snapshot where applicable.
 
 Open a pull request with the source, preview and accessibility checks. Use `npm run content:verify`, `npm test`, and `npm run build` locally. Accept the changes after verifying the detail route, heading links, source credit and search result. For migrated records, update through the [migration workflow](apex-migration.md).
+
+## Article images and featuring
+
+Every published article requires a unique hero/share image. Run `npm run content:prepare` to generate missing or changed title-based artwork once `OPENAI_API_KEY` is configured privately, or import artwork generated with Codex’s imagegen tool. Commit the image and catalog alongside the content. See [article artwork](article-images.md) for prompts, caching, alt text, and social previews.
+
+Choose the featured article in `content/editorial.json`, or set `"featured": true` on one authored published article. Its own image is automatically used in the archive feature and default site sharing card.

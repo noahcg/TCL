@@ -4,6 +4,8 @@
 *.md whitespace=-blank-at-eol
 
 *.png binary
+*.jpg binary
+*.jpeg binary
 *.webp binary
 *.ico binary
 *.zip binary

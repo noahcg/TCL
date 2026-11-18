@@ -1,6 +1,7 @@
 import { escapeHtml as e, nodeText, walk } from './content.mjs';
 import { parseFragment } from 'parse5';
 import { highlightCode, highlightCodeBlocks } from './highlight.mjs';
+import { featuredArticle } from './article-media.mjs';
 
 export const site = 'The Cascade Lounge';
 const nav = [
@@ -71,14 +72,15 @@ function credit(entry) {
   return `<footer class="credit">${attribution ? `<p>${e(attribution)}</p>` : ''}${source ? `<p>Source <a href="${e(source)}">${e(new URL(source).hostname)}</a></p>` : ''}</footer>`;
 }
 
-export function page({ path, title, intro, body, siteUrl, robots, homepage = false }) {
+export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article }) {
   const metadata = title ? `${title} · ${site}` : site;
   const description = intro || 'CSS articles, practical techniques, and resources for front-end developers.';
   const url = siteUrl && path ? new URL(path, siteUrl).href : null;
+  const imageUrl = siteUrl && image ? new URL(image.path, siteUrl).href : null;
   const interior = interiorVariant(path);
   const stageArt = interior && (interior === 'articles-index' ? 'articles' : interior === 'resources-index' ? 'resources' : interior.startsWith('quick') ? 'quick-win' : 'article');
   return `<!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -93,8 +95,24 @@ ${robots ? `<meta name="robots" content="${robots}">` : ''}
 ${url ? `<link rel="canonical" href="${e(url)}"><meta property="og:url" content="${e(url)}">` : ''}
 <meta property="og:title" content="${e(metadata)}">
 <meta property="og:description" content="${e(description)}">
+<meta property="og:site_name" content="${e(site)}">
+<meta property="og:type" content="${article ? 'article' : 'website'}">
+${article?.date ? `<meta property="article:published_time" content="${e(article.date)}">` : ''}
+${article?.updatedAt ? `<meta property="article:modified_time" content="${e(article.updatedAt)}">` : ''}
+${imageUrl ? `<meta property="og:image" content="${e(imageUrl)}">
+<meta property="og:image:secure_url" content="${e(imageUrl)}">
+<meta property="og:image:type" content="${e(image.type)}">
+<meta property="og:image:width" content="${image.width}">
+<meta property="og:image:height" content="${image.height}">
+<meta property="og:image:alt" content="${e(image.alt)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${e(metadata)}">
+<meta name="twitter:description" content="${e(description)}">
+<meta name="twitter:image" content="${e(imageUrl)}">
+<meta name="twitter:image:alt" content="${e(image.alt)}">` : ''}
 ${homepage ? '<link rel="preload" as="image" href="/assets/tcl-homepage-background.webp" fetchpriority="high">' : ''}
 ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.webp" fetchpriority="high">` : ''}
+${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
 <link rel="stylesheet" href="/assets/site.css">
 <script type="module" src="/assets/site.js"></script>
 </head>
@@ -163,7 +181,6 @@ const articleDisplay = {
   'container-query-units': {
     category: 'Layout',
     deck: 'The missing half of component-responsive CSS.',
-    thumbnail: 'tcl-cq-feature.webp', cover: 'tcl-cq-cover.webp',
     lede: 'Container query units (CQ units) let components respond to the size of their container, not the viewport. They’re a powerful addition to modern CSS, and they open up new, more predictable layout patterns.',
   },
   'modern-resets': { category: 'Styling', deck: 'A practical approach to cleaner, more predictable foundations.' },
@@ -183,15 +200,15 @@ function interiorLead(kicker, title, deck, extraClass = '', titleHTML = '') {
 }
 
 export function articlesPage(entries) {
-  const featured = entries.find(entry => entry.slug === 'container-query-units') || entries[0];
+  const featured = featuredArticle(entries);
   const rest = entries.filter(entry => entry !== featured);
   const reset = rest.find(entry => entry.slug === 'modern-resets');
   const ordered = reset ? [reset, ...rest.filter(entry => entry !== reset)] : rest;
   const display = articleDisplay[featured?.slug] || {};
   return `${interiorLead('Articles', 'In-depth CSS for real-world builders.', 'Guides, deep dives, and thoughtful explorations of modern CSS.', 'archive-lead', 'In-depth CSS for <span class="title-phrase">real-world builders.</span>')}
   <div class="interior-paper archive-sheet">
-    ${featured ? `<a class="archive-feature${display.thumbnail ? '' : ' without-thumbnail'}" href="${featured.path}" aria-labelledby="archive-feature-title">
-      ${display.thumbnail ? `<img src="/assets/${display.thumbnail}" width="504" height="284" alt="" fetchpriority="high">` : ''}
+    ${featured ? `<a class="archive-feature${featured.image ? '' : ' without-thumbnail'}" href="${featured.path}" aria-labelledby="archive-feature-title">
+      ${featured.image ? `<img src="${e(featured.image.path)}" width="${featured.image.width}" height="${featured.image.height}" alt="${e(featured.image.alt)}" fetchpriority="high">` : ''}
       <div class="archive-feature-copy"><p class="interior-eyebrow">Featured</p><h2 id="archive-feature-title">${e(featured.title)}</h2><p class="archive-feature-deck">${e(display.deck || featured.summary || '')}</p><div class="entry-meta">${dateLabel(featured.date)}<span aria-hidden="true">·</span>${readingTime(featured)}</div></div>
       <span class="circle-arrow">${icon('arrow')}</span>
     </a>` : ''}
@@ -283,7 +300,7 @@ function articleActions(entry) {
 
 function articleHero(entry) {
   const display = articleDisplay[entry.slug] || {};
-  return `<header class="interior-article-lead${display.cover ? ' has-cover' : ''}">
+  return `<header class="interior-article-lead${entry.image ? ' has-cover' : ''}">
     <nav class="article-breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/articles/">Articles</a></li>${display.category ? `<li>${e(display.category)}</li>` : ''}<li aria-current="location">${e(entry.title)}</li></ol></nav>
     <div class="article-hero-grid">
       <div class="article-hero-copy">${display.category ? `<p class="article-category">${e(display.category)}</p>` : ''}
@@ -291,7 +308,7 @@ function articleHero(entry) {
         ${display.deck || entry.summary ? `<p class="interior-deck">${e(display.deck || entry.summary)}</p>` : ''}
         <div class="article-hero-meta"><div class="entry-meta">${entry.author ? `<span>By ${e(entry.author)}</span>` : ''}${dateLabel(entry.date)}<span aria-hidden="true">·</span>${readingTime(entry)}${entry.updatedAt ? `<span>Updated ${dateLabel(new Date(entry.updatedAt).toISOString().slice(0, 10))}</span>` : ''}</div>${articleActions(entry)}</div>
       </div>
-      ${display.cover ? `<img class="article-cover" src="/assets/${display.cover}" width="524" height="428" alt="" fetchpriority="high">` : ''}
+      ${entry.image ? `<img class="article-cover" src="${e(entry.image.path)}" width="${entry.image.width}" height="${entry.image.height}" alt="${e(entry.image.alt)}" fetchpriority="high">` : ''}
     </div>
   </header>`;
 }

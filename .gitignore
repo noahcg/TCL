@@ -16,6 +16,8 @@
 # Import locks and atomic writes
 /content/imported/watercooler/published.json.lock
 /content/imported/watercooler/published.json.*.tmp
+/content/media/.article-images.lock
+/content/media/article-images.json.*.tmp
 
 # OS, editor, and Python caches
 .DS_Store

@@ -52,6 +52,8 @@ artifacts/               Local handoffs, migration data, test output (ignored)
 | `npm run verify` | Verify the content snapshot, run unit tests, and build |
 | `npm run verify:all` | Run all verification, including browser checks |
 | `npm run clean` | Remove generated build and test output |
+| `npm run images:plan` | Inspect title-based artwork prompts and cache status |
+| `npm run content:prepare` | Generate missing artwork and verify content before publishing |
 
 Install the test browsers once with `npx playwright install chromium webkit`. Browser checks use port 8869 and save reports under `artifacts/`. Run project commands from this directory.
 
@@ -60,6 +62,7 @@ Install the test browsers once with `npx playwright install chromium webkit`. Br
 - [Contributing](CONTRIBUTING.md): setup, validation, and preparing the first Git commit.
 - [Architecture](docs/architecture.md): build flow, source boundaries, routes, and assets.
 - [Authoring](docs/authoring.md): adding and publishing content.
+- [Article images](docs/article-images.md): unique AI hero artwork, publishing automation, and social cards.
 - [Deployment](docs/deployment.md): Vercel and Netlify configuration, production metadata, and rollback.
 - [Repository organization](docs/repository.md): file moves, Git exclusions, and local archives.
 - [APEX migration](docs/apex-migration.md): refreshing the reviewed legacy snapshot.

@@ -374,7 +374,7 @@ th { background:var(--soft) }
 .article-hero-copy { padding-top:3.125vw; min-width:0 }
 .article-category { display:inline-flex; padding:.35rem 1.1rem; background:#aa4408; border-radius:2rem; font-size:1.25rem; line-height:1.4; font-weight:700; text-transform:uppercase; margin-bottom:1.5rem }
 .article-hero-copy h1 { font-size:clamp(2.8rem,4.6875vw,4.5rem); font-weight:600; line-height:.96; letter-spacing:-.025em; max-width:25ch }
-.article-cover { width:100%; aspect-ratio:262 / 214; object-fit:cover; border:2px solid var(--interior-cream); border-radius:2.08vw }
+.article-cover { width:100%; aspect-ratio:1200 / 630; align-self:center; object-fit:cover; border:2px solid var(--interior-cream); border-radius:2.08vw }
 .article-hero-copy > .interior-deck { margin-top:1.15rem }
 .article-hero-meta { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-top:2.5rem }
 .article-hero-meta > .entry-meta { flex:1 1 17rem }

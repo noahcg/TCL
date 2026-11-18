@@ -12,6 +12,8 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `src/build/pages.mjs` | Shared page shell, route templates, article presentation, reading guide |
 | `src/build/highlight.mjs` | Build-time CSS, HTML, and JavaScript highlighting |
 | `src/build/environment.mjs` | Production/preview detection and canonical origins for Vercel and Netlify |
+| `src/build/article-media.mjs` | Featured article selection, image prompts, catalog validation, image optimization, and caching |
+| `src/build/image-generation.mjs` | Publishing-only OpenAI Images API adapter; never loaded by browser code |
 | `src/assets/site.css` | Typography, layout, component styles, responsive/print/forced-color rules |
 | `src/assets/site.js` | Search, copy actions, topic filters, local bookmarks, sharing, reading progress, demo |
 | `src/assets/` | Images and icons copied to `/assets/` |
@@ -28,7 +30,7 @@ Assets deliberately retain a flat published `/assets/` namespace. Their source n
 2. Validate records, slugs, metadata, duplicate routes, source fidelity, snippets, and section IDs. Select published records.
 3. Render the homepage, collection pages, detail pages, search, and 404 using the shared templates. Highlight code during rendering.
 4. Generate the content and MDN CSS search index using the installed `mdn-data` package.
-5. Replace `dist/`, write HTML and search data, and copy browser assets, fonts, and license notices.
+5. Validate each published article’s unique hero/social JPEG, replace `dist/`, write HTML and search data, and copy browser assets, fonts, and license notices. Only the published collection’s article images enter the output.
 6. For production builds, write canonicals and a sitemap using the configured HTTPS origin.
 
 Draft and archived records are excluded from published pages and search. Raw imported bodies remain in the snapshot; sanitization creates a separate renderable projection. Imports use a write lock and atomic replacement and reject unreviewed route removals.

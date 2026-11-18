@@ -14,6 +14,11 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 [[headers]]
+  for = "/assets/articles/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
   for = "/search-index.json"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"

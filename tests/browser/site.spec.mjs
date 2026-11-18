@@ -4,6 +4,26 @@ import { loadContent } from '../../src/build/content.mjs';
 
 const articles = (await loadContent()).filter(entry => entry.type === 'article').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
+test('every article has a unique loaded hero and the archive feature uses the same file', async ({ page, request }) => {
+  const images = new Map();
+  for (const article of articles) {
+    await page.goto(article.path);
+    const image = page.locator('.article-cover');
+    await expect(image).toBeVisible();
+    await expect(image).toHaveAttribute('alt', /\S/);
+    await expect.poll(() => image.evaluate(img => img.naturalWidth)).toBe(1200);
+    expect(await image.evaluate(img => img.naturalHeight)).toBe(630);
+    const source = await image.getAttribute('src');
+    const response = await request.get(source);
+    expect(response.headers()['content-type']).toBe('image/jpeg');
+    images.set(article.path, source);
+  }
+  expect(new Set(images.values()).size).toBe(articles.length);
+  await page.goto('/articles/');
+  const feature = page.locator('.archive-feature');
+  expect(await feature.locator('img').getAttribute('src')).toBe(images.get(await feature.getAttribute('href')));
+});
+
 test('article syntax highlighting is rendered in HTML and copies the original code', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.copiedCode = text; } } });

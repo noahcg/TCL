@@ -1,18 +1,22 @@
-import { copyFile, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, join, resolve } from 'node:path';
 import mdnData from 'mdn-data';
 import { loadContent, sourceUrl } from '../src/build/content.mjs';
 import { buildEnvironment } from '../src/build/environment.mjs';
+import { featuredArticle, loadArticleImages } from '../src/build/article-media.mjs';
 import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, searchPage } from '../src/build/pages.mjs';
 
 const directory = resolve('dist');
 const { publishing, siteUrl } = buildEnvironment();
 
-const content = await loadContent();
+const loaded = await loadContent();
+const images = await loadArticleImages(loaded.filter(entry => entry.type === 'article'));
+const content = loaded.map(entry => entry.type === 'article' ? { ...entry, image: images.get(entry.slug) } : entry);
 const byType = (type) => content.filter(record => record.type === type);
 const articles = byType('article').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 const quick = byType('quick-win');
 const resources = byType('resource');
+const defaultImage = featuredArticle(articles)?.image;
 
 const routes = [
   { path: '/', body: home(articles), homepage: true },
@@ -21,7 +25,8 @@ const routes = [
   { path: '/resources/', title: 'Resources', body: resourcesPage(resources) },
   { path: '/search/', title: 'Search', body: searchPage(), noIndex: true },
   { path: null, title: 'Page not found', body: notFound(), noIndex: true },
-  ...content.map(entry => ({ path: entry.path, title: entry.title, intro: entry.summary, body: detail(entry) })),
+  ...content.map(entry => ({ path: entry.path, title: entry.title, intro: entry.summary, body: detail(entry),
+    image: entry.image, article: entry.type === 'article' ? entry : null })),
 ];
 
 const reference = new Map();
@@ -53,12 +58,17 @@ for (const route of routes) {
   const output = route.path ? join(directory, route.path, 'index.html') : join(directory, '404.html');
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, page({
-    ...route, siteUrl: publishing ? siteUrl : null,
+    ...route, image: route.image || defaultImage, siteUrl: publishing ? siteUrl : null,
     robots: route.noIndex || !publishing ? 'noindex, follow' : null,
   }));
 }
-for (const filename of await readdir('src/assets')) {
-  await copyFile(join('src/assets', filename), join(directory, 'assets', filename));
+await cp('src/assets', join(directory, 'assets'), {
+  recursive: true,
+  filter: source => basename(source) !== 'articles' && basename(source) !== '.DS_Store',
+});
+await mkdir(join(directory, 'assets/articles'), { recursive: true });
+for (const image of images.values()) {
+  await copyFile(image.source, join(directory, image.path));
 }
 await copyFile('src/assets/favicon.ico', join(directory, 'favicon.ico'));
 const fonts = [
