@@ -23,20 +23,47 @@ test('article syntax highlighting is rendered in HTML and copies the original co
   expect(colorCount).toBe(1);
 });
 
-test('interior paper keeps rounded corners over a continuous dark backdrop', async ({ page }) => {
-  for (const width of [1440, 390]) {
+test('interior paper is centered with outer gutters and rounded corners', async ({ page }) => {
+  for (const width of [320, 768, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of ['/articles/', '/articles/container-query-units/', '/quick-wins/', '/resources/', '/search/']) {
       await page.goto(path);
       const shape = await page.locator('.interior-paper').evaluate(paper => {
         const style = getComputedStyle(paper);
-        return { radius: parseFloat(style.borderTopLeftRadius), overflow: style.overflow, background: style.backgroundColor };
+        const box = paper.getBoundingClientRect();
+        return { radius: parseFloat(style.borderTopLeftRadius), overflow: style.overflow, background: style.backgroundColor,
+          left: box.left, right: innerWidth - box.right, width: box.width };
       });
       expect(shape.radius).toBeGreaterThanOrEqual(32);
       expect(shape.overflow).toBe('visible');
       expect(shape.background).toBe('rgb(250, 236, 218)');
+      expect(shape.left).toBeGreaterThanOrEqual(12);
+      expect(Math.abs(shape.left - shape.right)).toBeLessThan(1);
+      expect(shape.width).toBeLessThanOrEqual(1392);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     }
+  }
+});
+
+test('article opening follows the reading column and the footer clears the content panel', async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/articles/container-query-units/');
+    const opening = page.locator('.article-opening');
+    const prose = await page.locator('.prose').boundingBox();
+    const intro = await opening.boundingBox();
+    expect(Math.abs(intro.x - prose.x)).toBeLessThan(1);
+    expect(intro.width).toBeLessThanOrEqual(prose.width);
+    const letter = await opening.locator('p').evaluate(p => ({
+      float: getComputedStyle(p, '::first-letter').float,
+      size: parseFloat(getComputedStyle(p, '::first-letter').fontSize),
+      textSize: parseFloat(getComputedStyle(p).fontSize),
+    }));
+    expect(letter.float).toBe('none');
+    expect(letter.size).toBeLessThanOrEqual(letter.textSize * 1.1);
+    const paper = await page.locator('.interior-paper').boundingBox();
+    const footer = await page.getByRole('contentinfo').boundingBox();
+    expect(footer.y - (paper.y + paper.height)).toBeGreaterThanOrEqual(40);
   }
 });
 

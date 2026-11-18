@@ -333,7 +333,6 @@ export function detail(entry) {
       ${meta ? `<div class="article-meta">${meta}</div>` : ''}
     </div></header>`}
     <div class="interior-paper">
-      ${entry.type === 'article' && display.lede ? `<div class="article-opening"><p>${e(display.lede)}</p></div>` : ''}
       ${showcase ? quickShowcase() : ''}
     <div class="shell article-layout${contents ? ' with-contents' : ''}">
       ${contents ? `<nav class="contents" aria-label="On this page"><details open>
@@ -343,6 +342,7 @@ export function detail(entry) {
         <a class="contents-top" href="#article-title">Back to article <span aria-hidden="true">↑</span></a>
       </details></nav>` : ''}
       <div class="prose">
+        ${entry.type === 'article' && display.lede ? `<div class="article-opening"><p>${e(display.lede)}</p></div>` : ''}
         ${entry.type === 'quick-win' ? `<p class="quick-published">Published ${dateLabel(entry.date)}</p>` : ''}
         ${codeControls(html).replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, table => `<div class="table-scroll" tabindex="0" role="region" aria-label="Article table">${table}</div>`)}
         ${entry.url ? `<p><a class="text-link" href="${e(entry.url)}">Visit ${e(entry.title)} ${arrow}</a></p>` : ''}
