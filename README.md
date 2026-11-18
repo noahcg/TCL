@@ -1,0 +1,68 @@
+# The Cascade Lounge
+
+A static CSS publication with articles, Quick Wins, curated resources, and local search. Node.js generates complete HTML pages, a search index, and self-hosted assets into `dist/`. The deployed site runs as static files.
+
+## Get started
+
+Use Node.js 22.12 or newer. The project’s `.nvmrc`, CI, and Netlify target Node 22.
+
+```sh
+# If you use nvm:
+nvm install
+nvm use
+
+npm ci
+npm run dev
+```
+
+Open `http://127.0.0.1:4173/`. Set `PORT` to use another port, for example `PORT=4180 npm run dev`. The command builds once and starts a local server; rebuild after editing source files, then refresh the browser.
+
+## Project structure
+
+```text
+content/
+  authored/              New editorial records, one JSON file per item
+  imported/watercooler/   Reviewed legacy publication snapshot
+src/
+  assets/                Browser CSS, JavaScript, images, and icons
+  build/                 Content validation, HTML templates, highlighting
+scripts/
+  migration/             Optional APEX capture, export, and import tools
+  build.mjs              Static-site build entry point
+  clean.mjs              Generated-output cleanup
+  serve.mjs              Local static preview server
+tests/
+  unit/                  Content integrity and rendering tests
+  browser/               Chromium and mobile WebKit interaction/a11y tests
+docs/                    Architecture, publishing, migration, and history
+.github/                 Verification workflow and pull request template
+dist/                    Generated deployable site (ignored by Git)
+artifacts/               Local handoffs, migration data, test output (ignored)
+```
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Build and serve locally |
+| `npm run build` | Regenerate `dist/` |
+| `npm run preview` | Serve the existing build |
+| `npm test` | Run unit tests |
+| `npm run test:browser` | Build, start a test server, and run browser checks |
+| `npm run verify` | Verify the content snapshot, run unit tests, and build |
+| `npm run verify:all` | Run all verification, including browser checks |
+| `npm run clean` | Remove generated build and test output |
+
+Install the test browsers once with `npx playwright install chromium webkit`. Browser checks use port 8869 and save reports under `artifacts/`. Run project commands from this directory.
+
+## Working on the project
+
+- [Contributing](CONTRIBUTING.md): setup, validation, and preparing the first Git commit.
+- [Architecture](docs/architecture.md): build flow, source boundaries, routes, and assets.
+- [Authoring](docs/authoring.md): adding and publishing content.
+- [Deployment](docs/deployment.md): Netlify configuration, production metadata, and rollback.
+- [Repository organization](docs/repository.md): file moves, Git exclusions, and local archives.
+- [APEX migration](docs/apex-migration.md): refreshing the reviewed legacy snapshot.
+- [Historical references](docs/archive/README.md): original briefs, brand notes, and roadmap.
+
+Search uses a pinned build-time copy of [MDN Data](https://github.com/mdn/data). Newsreader, DM Sans, and MDN Data license notices are copied into the published assets. Application dependencies stay pinned in `package-lock.json`.

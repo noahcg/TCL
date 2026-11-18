@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <linearGradient id="olive"><stop stop-color="#6a6e43"/><stop offset="1" stop-color="#92916b"/></linearGradient>
+    <linearGradient id="orange"><stop stop-color="#b8440b"/><stop offset="1" stop-color="#e6660d"/></linearGradient>
+    <linearGradient id="gold"><stop stop-color="#ec9b42"/><stop offset="1" stop-color="#f7d18c"/></linearGradient>
+    <linearGradient id="amber"><stop stop-color="#b65308"/><stop offset="1" stop-color="#e77d09"/></linearGradient>
+  </defs>
+  <rect x="16" y="33.5" width="13" height="29" rx="6.5" fill="url(#olive)"/>
+  <rect x="33" y="21.5" width="13" height="53" rx="6.5" fill="url(#orange)"/>
+  <rect x="50" y="7.5" width="13" height="81" rx="6.5" fill="url(#gold)"/>
+  <rect x="67" y="24" width="13" height="48" rx="6.5" fill="url(#amber)"/>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "name": "the-cascade-lounge",
+  "description": "A static CSS publication with articles, Quick Wins, resources, and local search.",
+  "version": "2.15.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs",
+    "clean": "node scripts/clean.mjs",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:browser": "playwright test",
+    "verify": "npm run content:verify && npm test && npm run build",
+    "verify:all": "npm run verify && npm run test:browser",
+    "content:verify": "node scripts/migration/import-apex.mjs",
+    "content:import": "node scripts/migration/import-apex.mjs --apply",
+    "content:capture": "node scripts/migration/capture-apex.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/newsreader": "5.3.0",
+    "highlight.js": "11.12.0",
+    "marked": "15.0.12",
+    "mdn-data": "2.38.0",
+    "parse5": "8.1.1",
+    "sanitize-html": "2.18.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.59.1"
+  }
+}
