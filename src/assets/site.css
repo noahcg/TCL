@@ -58,13 +58,13 @@ p { margin:0 }
 .masthead-inner { min-height:var(--masthead-height); display:flex; flex-wrap:wrap; align-items:center; gap:clamp(2rem,6.22vw,6.5rem); padding-inline:4.785vw 5.263vw; max-width:120rem; margin-inline:auto }
 /* Keep the decorative wordmark's proportions independent of text enlargement. */
 .lounge-brand { display:inline-flex; align-items:center; gap:20px; width:max-content; max-width:100%; color:inherit; text-decoration:none; margin-inline-end:auto }
-.lounge-brand-bars { display:flex; gap:4px; align-items:center; flex:none; transform:translateY(10px) }
+.lounge-brand-bars { display:flex; gap:4px; align-items:center; flex:none }
 .lounge-brand-bars i { width:13px; border-radius:9px; height:29px; background:linear-gradient(90deg,#6a6e43,#92916b) }
 .lounge-brand-bars i:nth-child(2) { height:53px; background:linear-gradient(90deg,#b8440b,#e6660d) }
 .lounge-brand-bars i:nth-child(3) { height:81px; background:linear-gradient(90deg,#ec9b42,#f7d18c) }
 .lounge-brand-bars i:nth-child(4) { height:48px; background:linear-gradient(90deg,#b65308,#e77d09) }
 .lounge-wordmark { display:grid; position:relative; padding-top:1.6px; padding-right:40px }
-.lounge-wordmark-the { font:650 italic 34px/.8 var(--serif); padding-left:6.4px; transform:translateY(12.8px) }
+.lounge-wordmark-the { font:650 italic 34px/.8 var(--serif); padding-left:6.4px; margin-bottom:4px; transform:translateY(12.8px) }
 .lounge-wordmark-name { font:650 italic 50px/.95 var(--serif); letter-spacing:-.035em; white-space:nowrap; transform:translateY(9.6px) }
 .lounge-brand-star { position:absolute; width:51.2px; height:54.4px; top:6.4px; right:-10px; background:var(--home-gold); clip-path:polygon(50% 0,54% 39%,77% 23%,61% 45%,100% 50%,61% 54%,77% 77%,54% 61%,50% 100%,46% 61%,23% 77%,39% 54%,0 50%,39% 45%,23% 23%,46% 39%) }
 .lounge-wordmark-caption { display:flex; align-items:center; gap:13.6px; margin-top:10.4px; font:500 15px/1.2 var(--sans); letter-spacing:.34em; white-space:nowrap }
