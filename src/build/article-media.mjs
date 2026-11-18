@@ -33,7 +33,8 @@ export function featuredArticle(articles, preferredSlug = editorial.featuredArti
   if (selected[0]) return selected[0];
   const preferred = preferredSlug && articles.find(article => article.slug === preferredSlug);
   assert(!preferredSlug || preferred || !articles.length, `Featured article ${preferredSlug} is not published`);
-  return preferred || articles[0];
+  return preferred || [...articles].sort((a, b) => (b.date || '').localeCompare(a.date || '')
+    || (Date.parse(b.updatedAt) || 0) - (Date.parse(a.updatedAt) || 0))[0];
 }
 
 export async function readMediaCatalog() {

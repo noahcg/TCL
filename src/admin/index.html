@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="studio-session" content="STUDIO_SESSION_TOKEN">
+  <title>Editorial Studio · The Cascade Lounge</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/admin/studio.css">
+  <script type="module" src="/admin/studio.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="/admin/" aria-label="The Cascade Lounge editorial studio"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>The Cascade Lounge<span class="brand-caption">EDITORIAL STUDIO</span></span></a>
+    <div class="topbar-end"><span class="private-label"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Private · this computer</span><a href="/" target="_blank" rel="noopener">View local site</a></div>
+  </header>
+  <main id="main" class="workspace">
+    <section class="intro" aria-labelledby="studio-title"><div><p class="eyebrow">A LITTLE RESEARCH. YOUR NEXT GREAT POST.</p><h1 id="studio-title">Fresh CSS, <em>on your radar.</em></h1><p class="intro-copy">Find what’s worth knowing. Turn it into something worth sharing.</p></div><div class="edition"><span>YOUR EDITOR’S DESK</span><strong id="today"></strong></div></section>
+    <div id="connection" class="notice" role="status" hidden></div>
+    <div id="message" class="notice" role="status" tabindex="-1" hidden></div>
+    <div class="studio-grid">
+      <aside class="research-panel" aria-labelledby="research-title">
+        <div class="panel-heading"><span class="radar-icon" aria-hidden="true">◎</span><div><p class="eyebrow">THE RESEARCH DESK</p><h2 id="research-title">Cast your net.</h2></div></div>
+        <p class="panel-copy">A fresh look at modern CSS, from the people who know it best.</p>
+        <form id="scan-form">
+          <fieldset><legend>Look in these places</legend><div id="sources" class="source-options"><p>Loading sources…</p></div></fieldset>
+          <label for="focus">Anything in particular? <span class="optional">Optional</span></label>
+          <textarea id="focus" rows="3" maxlength="500" placeholder="e.g. scroll animations, better forms, clever grid patterns…"></textarea>
+          <label for="days">Research window</label><select id="days"><option value="30">Last 30 days</option><option value="90" selected>Last 90 days</option><option value="180">Last 6 months</option><option value="365">Last year</option></select>
+          <p class="field-hint">Recent discoveries, with older docs for context.</p>
+          <button class="primary scan-button" id="scan-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4Z"/></svg><span>Scan the CSS web</span></button>
+          <p class="billing-note">Uses your OpenAI API credits. You choose what gets written.</p>
+        </form>
+        <details class="studio-notes"><summary>How this works</summary><p>Live web research becomes source-linked ideas, checked against your existing coverage. Generate a draft, edit it, then save it or add it to your local site.</p><p>“Add to local site” builds your preview. When you’re happy with it, choose “Review live publication” to check and approve the update for the live website.</p></details>
+      </aside>
+      <section class="results-panel" aria-labelledby="results-title">
+        <div class="results-heading"><div><p class="eyebrow">FROM RESEARCH TO ROUGH DRAFT</p><h2 id="results-title">The idea board</h2></div><span id="scan-date" class="scan-date">Ready when you are</span></div>
+        <div class="board-controls"><div class="view-tabs" role="group" aria-label="Board view"><button type="button" data-view="ideas" aria-pressed="true">Discoveries <span id="idea-count">0</span></button><button type="button" data-view="drafts" aria-pressed="false">Drafts <span id="draft-count">0</span></button><button type="button" data-view="dismissed" aria-pressed="false">Set aside <span id="dismissed-count">0</span></button></div><label class="filter-label" for="type-filter"><span class="sr-only">Content type</span><select id="type-filter"><option value="all">All formats</option><option value="article">Articles</option><option value="quick-win">Quick Wins</option></select></label></div>
+        <div id="progress" class="progress" role="status" hidden><span class="spinner" aria-hidden="true"></span><div><strong id="progress-title">Searching the CSS web…</strong><p id="progress-detail">Following sources and finding useful angles. This can take a few minutes.</p></div></div>
+        <div id="board" class="board" aria-busy="true"><div class="empty-state"><span class="empty-art" aria-hidden="true">{ <i>✳</i> }</span><h3>Good ideas start with curiosity.</h3><p>Choose your sources and run a scan.<br>Your next article or little CSS aha! starts here.</p><div class="empty-formats"><span>In-depth articles</span><span>Quick Wins</span><span>Verified source links</span></div></div></div>
+        <details id="scan-history" class="scan-history" hidden><summary>Research history & source coverage</summary><div id="history-list"></div></details>
+      </section>
+    </div>
+    <footer class="studio-footer"><span>A quiet corner of The Cascade Lounge.</span><span id="model-info">Private editorial tools</span></footer>
+  </main>
+  <dialog id="editor" aria-labelledby="editor-heading">
+    <form id="editor-form">
+      <div class="editor-header"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="editor-heading">Review your draft</h2></div><button type="button" id="close-editor" class="icon-button" aria-label="Close draft editor">×</button></div>
+      <p id="editor-status" class="editor-status" role="status"></p>
+      <input type="hidden" id="draft-id">
+      <div class="editor-fields"><label for="draft-title">Title</label><input id="draft-title" required maxlength="200"><div class="field-row"><div><label for="draft-slug">URL slug</label><input id="draft-slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="130"></div><div><label for="draft-tags">Tags, separated by commas</label><input id="draft-tags"></div></div><label for="draft-summary">Summary</label><textarea id="draft-summary" rows="2" required maxlength="1000"></textarea><div id="quick-fields" hidden><label for="draft-code">Quick Win CSS</label><textarea id="draft-code" rows="5" spellcheck="false"></textarea><label for="draft-note">Support / fallback note</label><textarea id="draft-note" rows="2"></textarea><label for="draft-difficulty">Difficulty</label><select id="draft-difficulty"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div><div class="body-heading"><label for="draft-body">Body <span class="optional">Markdown</span></label><button type="button" id="preview-draft" class="text-button">Preview formatting</button></div><textarea id="draft-body" rows="18" spellcheck="false" required></textarea><article id="draft-preview" class="draft-preview" aria-label="Formatted draft preview" hidden></article></div>
+      <div class="review-check"><input type="checkbox" id="reviewed"><label for="reviewed">I’ve reviewed the code, sources, and browser-support claims.</label></div>
+      <p class="publish-note" id="publish-note">Adding this to the site rebuilds your local preview. The live website updates through your normal deployment.</p>
+      <div class="editor-actions"><button class="secondary" id="save-draft" type="submit">Save draft to content</button><button class="primary" id="publish-draft" type="button" disabled>Add to local site</button><button class="primary" id="editor-live" type="button" hidden>Review live publication</button></div>
+    </form>
+  </dialog>
+  <dialog id="live-review" aria-labelledby="live-heading">
+    <div class="editor-header"><div><p class="eyebrow">READY FOR YOUR READERS</p><h2 id="live-heading">Review live publication</h2></div><button type="button" id="close-live" class="icon-button" aria-label="Close live publication review">×</button></div>
+    <p class="live-intro">This sends the checked release to your production Git branch. Vercel then builds and deploys the update.</p>
+    <div id="live-summary"></div>
+    <p id="live-status" class="editor-status" role="status"></p>
+    <div class="review-check" id="live-approval-row"><input type="checkbox" id="live-approved"><label for="live-approved">I approve this content and the listed files for the live website.</label></div>
+    <div class="editor-actions live-actions"><button type="button" class="text-button" id="prepare-again">Prepare again</button><button type="button" class="secondary" id="cancel-live">Keep reviewing</button><button type="button" class="primary" id="approve-live" disabled>Approve & publish live</button></div>
+  </dialog>
+</body>
+</html>

@@ -47,6 +47,7 @@ artifacts/               Local handoffs, migration data, test output (ignored)
 | `npm run dev` | Build and serve locally |
 | `npm run build` | Regenerate `dist/` |
 | `npm run preview` | Serve the existing build |
+| `npm run admin` | Open the private local CSS research and drafting studio |
 | `npm test` | Run unit tests |
 | `npm run test:browser` | Build, start a test server, and run browser checks |
 | `npm run verify` | Verify the content snapshot, run unit tests, and build |
@@ -62,6 +63,7 @@ Install the test browsers once with `npx playwright install chromium webkit`. Br
 - [Contributing](CONTRIBUTING.md): setup, validation, and preparing the first Git commit.
 - [Architecture](docs/architecture.md): build flow, source boundaries, routes, and assets.
 - [Authoring](docs/authoring.md): adding and publishing content.
+- [Editorial studio](docs/editorial-studio.md): private web research, AI drafts, and local publishing.
 - [Article images](docs/article-images.md): unique AI hero artwork, publishing automation, and social cards.
 - [Deployment](docs/deployment.md): Vercel and Netlify configuration, production metadata, and rollback.
 - [Repository organization](docs/repository.md): file moves, Git exclusions, and local archives.

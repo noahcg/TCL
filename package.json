@@ -11,6 +11,7 @@
     "build": "node scripts/build.mjs",
     "dev": "npm run build && node scripts/serve.mjs",
     "preview": "node scripts/serve.mjs",
+    "admin": "npm run build && node --env-file-if-exists=.env.local scripts/admin.mjs",
     "clean": "node scripts/clean.mjs",
     "test": "node --test tests/unit/*.test.mjs",
     "test:browser": "playwright test",

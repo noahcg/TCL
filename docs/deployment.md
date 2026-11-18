@@ -18,6 +18,8 @@ git push vercel main
 
 The second push triggers Vercel production deployment. For a new checkout, add the deployment remote with `git remote add vercel https://github.com/noahcg/thecascadelounge.git`. Use `main` as the production branch and the repository root as the root directory. The connected source can be inspected under **Settings → Git**.
 
+The [private editorial studio](editorial-studio.md#approve-and-publish-live) can prepare, check, and publish an individual approved content update through these same remotes. Use **Review live publication**, inspect the release, and click **Approve & publish live**. It commits only the approved content and artwork while preserving unrelated local edits.
+
 The checked-in [Vercel configuration](../vercel.json) sets **Other** as the framework, installs with `npm ci`, runs `npm run verify`, and publishes `dist/`. It also retains trailing-slash URLs and defines the site’s response headers. The output directory is explicitly configured because Vercel’s default `public/` directory does not match this build.
 
 Production builds recognize Vercel’s environment and use its stable `VERCEL_PROJECT_PRODUCTION_URL` hostname for canonicals and the sitemap. Set `TCL_SITE_URL` to override the canonical origin when needed. Preview and custom staging builds remain noindex. Vercel serves the generated `404.html` for missing files; avoid a catch-all rewrite to the homepage.

@@ -44,6 +44,18 @@ test('A featured article override uses that article’s artwork in the archive a
   assert.throws(() => featuredArticle([entry, { ...collection[1], featured: true }]), /Only one/);
 });
 
+test('The latest article is featured automatically regardless of collection order', () => {
+  const older = { ...articles[0], slug: 'older', date: '2026-10-01', updatedAt: '2026-11-18T22:00:00Z', featured: false };
+  const earlierToday = { ...older, slug: 'earlier-today', date: '2026-11-18', updatedAt: '2026-11-18T18:00:00Z' };
+  const newest = { ...earlierToday, slug: 'newest', title: 'The newest CSS article', updatedAt: '2026-11-18T20:00:00Z',
+    path: '/articles/newest/', image: catalog.images[articles[0].slug] };
+  const collection = [earlierToday, older, newest];
+  assert.equal(featuredArticle(collection), newest);
+  const html = articlesPage(collection);
+  assert.match(html, /id="archive-feature-title">The newest CSS article<\/h2>/);
+  assert.deepEqual(collection, [earlierToday, older, newest]);
+});
+
 test('Article Open Graph and large-card metadata share the exact hero file with absolute URLs', () => {
   const article = { ...articles[0], image: catalog.images[articles[0].slug] };
   const html = page({ path: article.path, title: article.title, intro: article.summary, body: detail(article),

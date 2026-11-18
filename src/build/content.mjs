@@ -117,7 +117,7 @@ function prepareBody(entry) {
   return clean;
 }
 
-function checkedRecord(input) {
+export function checkedRecord(input) {
   const { type, slug, status, title, summary, date, updatedAt, tags = [], author, attribution, source, format = 'html' } = input;
   assert(collections[type] && typeof slug === 'string' && slugPattern.test(slug) && slug.length <= 140, 'Record requires a supported type and URL slug');
   assert(articleStatus.has(status) && isText(title), `${slug}: missing status or title`);
@@ -215,7 +215,7 @@ export function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, symbol => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[symbol]);
 }
 
-export async function loadContent(bundle = null) {
+export async function loadContent(bundle = null, { includeUnpublished = false } = {}) {
   bundle ??= JSON.parse(await readFile(snapshotFile, 'utf8'));
   const { records } = validateSnapshot(bundle);
 
@@ -223,5 +223,5 @@ export async function loadContent(bundle = null) {
     records.push(checkedRecord(JSON.parse(await readFile(new URL(filename, authoredFolder), 'utf8'))));
   }
   comparePaths(records);
-  return records.filter(record => record.status === 'published');
+  return includeUnpublished ? records : records.filter(record => record.status === 'published');
 }

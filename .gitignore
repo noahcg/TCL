@@ -4,6 +4,7 @@
 /artifacts/
 /coverage/
 /.vercel/
+/.tcl-admin/
 
 # Local configuration and credentials
 .env
