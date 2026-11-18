@@ -9,8 +9,6 @@ const nav = [
   ['/resources/', 'Resources'], ['/search/', 'Search'],
 ];
 const dateFormat = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-const arrow = '<span aria-hidden="true">↗</span>';
-const forward = '<span aria-hidden="true">→</span>';
 
 function loungeBrand(extraClass = '', current = true) {
   return `<a class="lounge-brand${extraClass ? ` ${extraClass}` : ''}" href="/"${current ? ' aria-current="page"' : ''} aria-label="The Cascade Lounge">
@@ -22,6 +20,9 @@ function loungeBrand(extraClass = '', current = true) {
 const iconPaths = {
   search: '<circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/>',
   arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
+  external: '<path d="M7 17 17 7M7 7h10v10"/>',
+  back: '<path d="M20 12H4m6-6-6 6 6 6"/>',
+  up: '<path d="M12 20V4m-6 6 6-6 6 6"/>',
   bookmark: '<path d="M6 3h12v19l-6-4-6 4Z"/>',
   share: '<path d="M12 15V2m-4 4 4-4 4 4M5 11H3v11h18V11h-2"/>',
   more: '<circle cx="4" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="20" cy="12" r="1"/>',
@@ -36,6 +37,8 @@ const iconPaths = {
 function icon(name, className = '') {
   return `<svg${className ? ` class="${className}"` : ''} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${iconPaths[name]}</svg>`;
 }
+const arrow = icon('external', 'link-icon');
+const forward = icon('arrow', 'link-icon');
 
 function interiorVariant(path) {
   if (!path || !/^\/(articles|quick-wins|resources)\//.test(path)) return null;
@@ -440,7 +443,7 @@ export function detail(entry) {
   const showcase = entry.type === 'quick-win' && entry.slug === 'simplify-slideshows-with-scroll-snap';
   return `<article class="detail">
     ${entry.type === 'article' ? articleHero(entry) : entry.type === 'quick-win' ? quickHero(entry) : `<header class="article-lead"><div class="shell">
-      <a class="back-link" href="${back}"><span aria-hidden="true">←</span> ${section}</a>
+      <a class="back-link" href="${back}">${icon('back', 'link-icon')} ${section}</a>
       <h1 id="article-title">${e(entry.title)}</h1>
       ${entry.summary && entry.type !== 'resource' ? `<p class="dek">${displayText(entry.summary)}</p>` : ''}
       ${meta ? `<div class="article-meta">${meta}</div>` : ''}
@@ -452,7 +455,7 @@ export function detail(entry) {
         <summary id="contents-title"><span class="contents-eyebrow">Reading guide</span><span class="contents-heading">On this page</span><span class="contents-toggle" aria-hidden="true">${icon('arrow')}</span></summary>
         <div class="contents-meta"><span>${names.length} sections</span><span class="contents-progress" aria-hidden="true">01 / ${String(names.length).padStart(2, '0')}</span></div>
         <ul>${names.map((item, index) => `<li><a href="#${e(encodeURIComponent(item.id))}"><span class="contents-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span>${e(item.title)}</span></a></li>`).join('')}</ul>
-        <a class="contents-top" href="#article-title">Back to article <span aria-hidden="true">↑</span></a>
+        <a class="contents-top" href="#article-title">Back to article ${icon('up', 'link-icon')}</a>
       </details></nav>` : ''}
       <div class="prose">
         ${entry.type === 'article' && display.lede ? `<div class="article-opening"><p>${e(display.lede)}</p></div>` : ''}

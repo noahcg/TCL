@@ -42,7 +42,8 @@ p { margin:0 }
 .masthead nav a:hover,.masthead nav a[aria-current] { color:var(--amber); text-decoration:underline }
 .eyebrow { color:var(--orange); margin:0 0 1.4rem; font-size:.75rem; letter-spacing:.15em; text-transform:uppercase; font-weight:750 }
 .button { display:inline-flex; gap:1.1rem; align-items:center; justify-content:center; min-height:44px; padding:.75rem 1.2rem; border:1px solid transparent; border-radius:.18rem; background:var(--orange); color:var(--white); font:650 .92rem/1.2 var(--sans); text-decoration:none; cursor:pointer }
-.button:hover { background:#783621; text-decoration:underline }
+.button:hover { background:#783621 }
+.link-icon { display:inline-block; inline-size:1.25em; block-size:1.25em; flex:none; vertical-align:middle }
 .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0 }
 .home-page {
   --home-scene-height:var(--home-stage-height);
@@ -97,9 +98,9 @@ p { margin:0 }
 .home-actions { display:flex; flex-wrap:wrap; gap:1rem 2.5rem; margin:2.125rem 0 0 1.125rem }
 .home-button { display:inline-flex; justify-content:center; align-items:center; gap:1.5rem; min-height:4rem; padding:.8rem 1.75rem; border:1.5px solid var(--home-cream); border-radius:3rem; color:var(--home-cream); font:600 1.3125rem/1.3 var(--sans); text-decoration:none }
 .home-button-primary { min-width:17.5625rem; border-color:#cb560b; background:linear-gradient(160deg,#b14400,#a33200) }
-.home-button-primary span { font-size:1.8rem; line-height:1; font-weight:400 }
+.home-button-primary .link-icon { inline-size:1.8rem; block-size:1.8rem }
 .home-button-secondary { min-width:16.625rem; background:rgba(13,25,18,.7); box-shadow:inset 0 0 0 3px rgba(14,24,17,.75) }
-.home-button:hover { background:#76340d; text-decoration:underline }
+.home-button:hover { background:#76340d }
 .home-destinations { display:grid; grid-template-columns:minmax(0,1.01fr) minmax(0,.98fr) minmax(0,1.01fr); gap:2.125rem; margin-top:clamp(3rem,5vw,5rem); margin-inline:6.22vw 5.74vw; scroll-margin-top:2rem }
 .home-card { display:grid; position:relative; grid-template-columns:4.6875rem minmax(0,1fr); align-content:start; align-items:start; gap:2.125rem; min-height:9.4375rem; padding:1.75rem 1.6875rem 1.75rem 1.875rem; border:1px solid #b18a53; border-radius:1.25rem; color:var(--home-cream); background:linear-gradient(115deg,rgba(53,29,13,.93),rgba(23,26,18,.92)); text-decoration:none }
 .home-card-quick-wins { background:linear-gradient(115deg,rgba(26,40,30,.94),rgba(29,31,20,.92)) }
@@ -577,6 +578,9 @@ th { background:var(--soft) }
 .utility-page .page-lead { color:var(--home-cream) }
 .utility-page .page-lead > .shell { max-width:87rem }
 .utility-page .search-layout { max-width:67rem }
+@media (width < 768px) {
+  .interior-page,.utility-page { --paper-gutter:0px }
+}
 
 /* Reading guide: a quiet card, generous targets, and a clear current section. */
 .contents { align-self:start; min-width:0; padding:1.25rem; border:1px solid #d7c6a9; border-radius:1.25rem; background:linear-gradient(145deg,#fff5e7,#f4e5d0); box-shadow:0 .5rem 2rem #4b35120a; color:var(--ink) }

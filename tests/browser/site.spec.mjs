@@ -45,10 +45,10 @@ test('article syntax highlighting is rendered in HTML and copies the original co
   expect(colorCount).toBe(1);
 });
 
-test('interior paper is centered with outer gutters and rounded corners', async ({ page }) => {
-  for (const width of [320, 768, 1440, 1920]) {
+test('rounded interior paper fills mobile viewports and keeps desktop gutters', async ({ page }) => {
+  for (const width of [320, 390, 767, 768, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ['/articles/', '/articles/container-query-units/', '/quick-wins/', '/resources/', '/search/']) {
+    for (const path of ['/articles/', '/articles/container-query-units/', '/quick-wins/', '/quick-wins/simplify-slideshows-with-scroll-snap/', '/resources/', '/resources/mdn-web-docs/', '/search/', '/missing-page/']) {
       await page.goto(path);
       const shape = await page.locator('.interior-paper').evaluate(paper => {
         const style = getComputedStyle(paper);
@@ -59,7 +59,10 @@ test('interior paper is centered with outer gutters and rounded corners', async 
       expect(shape.radius).toBeGreaterThanOrEqual(32);
       expect(shape.overflow).toBe('visible');
       expect(shape.background).toBe('rgb(250, 236, 218)');
-      expect(shape.left).toBeGreaterThanOrEqual(12);
+      if (width < 768) {
+        expect(Math.abs(shape.left)).toBeLessThan(1);
+        expect(Math.abs(shape.width - width)).toBeLessThan(1);
+      } else expect(shape.left).toBeGreaterThanOrEqual(12);
       expect(Math.abs(shape.left - shape.right)).toBeLessThan(1);
       expect(shape.width).toBeLessThanOrEqual(1392);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -87,6 +90,38 @@ test('article opening follows the reading column and the footer clears the conte
     const footer = await page.getByRole('contentinfo').boundingBox();
     expect(footer.y - (paper.y + paper.height)).toBeGreaterThanOrEqual(40);
   }
+});
+
+test('button hovers stay clean and decorative link icons never become underlined text', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  for (const button of await page.locator('.home-button').all()) {
+    const resting = await button.evaluate(element => getComputedStyle(element).backgroundColor);
+    await button.hover();
+    const hovered = await button.evaluate(element => ({ background: getComputedStyle(element).backgroundColor,
+      decoration: getComputedStyle(element).textDecorationLine }));
+    expect(hovered.decoration).toBe('none');
+    expect(hovered.background).not.toBe(resting);
+    await page.mouse.move(0, 0);
+  }
+  await expect(page.locator('.home-button-primary > svg.link-icon')).toHaveAttribute('aria-hidden', 'true');
+  await page.goto('/search/');
+  const searchButton = page.locator('.search-form .button');
+  await searchButton.hover();
+  expect(await searchButton.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  for (const [path, selector] of [['/resources/mdn-web-docs/', '.back-link'], ['/resources/mdn-web-docs/', '.text-link'],
+    ['/articles/container-query-units/', '.contents-top'], ['/missing-page/', '.text-link']]) {
+    await page.goto(path);
+    const link = page.locator(selector).first();
+    await expect(link.locator('svg.link-icon')).toHaveAttribute('aria-hidden', 'true');
+    expect(await link.locator('svg').evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  }
+  await page.goto('/resources/');
+  const shortlist = page.getByRole('button', { name: 'Show your shortlist', exact: true });
+  await shortlist.hover();
+  expect(await shortlist.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  expect(await shortlist.locator('span').first().evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('underline');
+  expect(await shortlist.locator('.resource-saved-count').evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
 });
 
 test('home leads to an article with a directly addressable section', async ({ page }) => {
