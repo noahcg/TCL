@@ -78,7 +78,7 @@ export function page({ path, title, intro, body, siteUrl, robots, homepage = fal
   const url = siteUrl && path ? new URL(path, siteUrl).href : null;
   const imageUrl = siteUrl && image ? new URL(image.path, siteUrl).href : null;
   const interior = interiorVariant(path);
-  const stageArt = interior && (interior === 'articles-index' ? 'articles' : interior === 'resources-index' ? 'resources' : interior.startsWith('quick') ? 'quick-win' : 'article');
+  const stageArt = interior && interior !== 'quick-index' && (interior === 'articles-index' ? 'articles' : interior === 'resources-index' ? 'resources' : interior.startsWith('quick') ? 'quick-win' : 'article');
   return `<!doctype html>
 <html lang="en" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
@@ -114,11 +114,12 @@ ${homepage ? '<link rel="preload" as="image" href="/assets/tcl-homepage-backgrou
 ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.webp" fetchpriority="high">` : ''}
 ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
 <link rel="stylesheet" href="/assets/site.css">
+${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
 <script type="module" src="/assets/site.js"></script>
 </head>
 <body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}` : 'utility-page'}">
 <a class="skip" href="#main-content">Skip to content</a>
-${!homepage ? '<div class="page-art" aria-hidden="true"></div>' : ''}
+${!homepage && interior !== 'quick-index' ? '<div class="page-art" aria-hidden="true"></div>' : ''}
 ${masthead(path)}
 <main id="main-content" tabindex="-1">${body}</main>
 ${footer(path)}
@@ -222,18 +223,62 @@ export function articlesPage(entries) {
   </div>`;
 }
 
+const quickPresentation = {
+  'simplify-slideshows-with-scroll-snap': { token: 'scroll-snap-type', preview: 'snap' },
+  'smooth-scrolling-for-anchor-links': { token: 'scroll-behavior', preview: 'scroll' },
+  'style-one-element-based-on-another': { token: ':has()', preview: 'has' },
+  'make-elements-respect-dynamic-viewport-height': { token: '100dvh', preview: 'viewport' },
+  'balance-multi-line-headings-automatically': { token: 'text-wrap: balance', preview: 'balance' },
+  'keep-form-focus-indicators-consistent': { token: ':focus-visible', preview: 'focus' },
+  'prevent-layout-shift-when-scrollbars-appear': { token: 'scrollbar-gutter', preview: 'gutter' },
+  'trim-unwanted-spacing-from-text-edges': { token: 'text-box-trim', preview: 'trim' },
+  'create-fluid-typography-that-scales': { token: 'clamp()', preview: 'fluid' },
+};
+const topicLabel = tag => tag === 'typography' ? 'Typography' : tag.charAt(0).toUpperCase() + tag.slice(1);
+
+function quickPreview(entry, type) {
+  const id = `quick-preview-${entry.slug}`;
+  const previews = {
+    snap: `<div class="qp-snap" role="region" aria-label="Scroll snap preview" tabindex="0"><span>01</span><span>02</span><span>03</span></div><span class="quick-preview-hint" aria-hidden="true">Scroll. Snap. Repeat. ↔</span>`,
+    scroll: `<div class="qp-scroll"><div class="qp-scroll-window" role="region" aria-label="Smooth scrolling preview" tabindex="0"><span>Start here</span><span>A little further</span><span id="${id}-end">Nice landing.</span></div><a href="#${id}-end" aria-label="Jump to the last preview panel">Jump down ${icon('arrow')}</a></div>`,
+    has: `<div class="qp-has"><div class="qp-has-target" id="${id}"><span>A simple card</span></div><label class="quick-has-control" hidden><input type="checkbox" data-quick-has="${id}">Include an image</label></div>`,
+    viewport: '<div class="qp-viewport" aria-hidden="true"><div class="qp-phone"><i></i><span>100<span>dvh</span></span></div><div class="qp-phone qp-phone-short"><i></i><span>100<span>dvh</span></span></div><span class="qp-viewport-caption">Room for real life.</span></div>',
+    balance: '<div class="qp-balance" aria-hidden="true"><p>A little balance goes a long way.</p><i></i><i></i></div>',
+    focus: '<div class="qp-focus"><span aria-hidden="true">Good focus stands out.</span><input type="text" aria-label="Focus indicator preview" placeholder="Tab into this field"></div>',
+    gutter: '<div class="qp-gutter" aria-hidden="true"><div><i></i><i></i><i></i><i></i><b></b></div><span>Same space.<br>Less shifting.</span></div>',
+    trim: '<div class="qp-trim" aria-hidden="true"><span>Aa</span><i></i><i></i><b>Just the right edges.</b></div>',
+    fluid: '<div class="qp-fluid" aria-hidden="true"><span>Aa</span><span>Aa</span><span>Aa</span><i></i></div>',
+  };
+  return `<div class="quick-visual quick-visual-${type || 'fluid'}">${previews[type] || previews.fluid}</div>`;
+}
+
 export function quickPage(entries) {
   const tags = [...new Set(entries.flatMap(item => item.tags))].sort();
-  return `${interiorLead('Quick Wins', 'Quick Wins', 'Small CSS techniques you can use in your next project.', 'quick-index-lead')}
-    <div class="interior-paper"><div class="shell sections section-list">
-      ${tags.length ? `<form class="topic-filter" hidden><label for="quick-topic">Filter by topic</label><select id="quick-topic" name="topic"><option value="">All topics</option>${tags.map(tag => `<option value="${e(tag)}">${e(tag)}</option>`).join('')}</select><p class="status" role="status"></p></form>` : ''}
-      <ul class="quick-list">${entries.map(entry => `<li data-topics="${e(JSON.stringify(entry.tags))}"><article>
-        <div class="quick-heading"><h2><a href="${entry.path}">${e(entry.title)}</a></h2>${dateLabel(entry.date)}</div>
-        <p>${displayText(entry.summary || '')}</p>${entry.code ? codeControls(`<pre><code>${e(entry.code)}</code></pre>`) : ''}
-        ${entry.note ? `<p>${displayText(entry.note)}</p>` : ''}
-        <p class="metadata">${e([...entry.tags, entry.difficulty].filter(Boolean).join(' · '))}</p>
-      </article></li>`).join('')}</ul>
-    </div></div>`;
+  const counts = new Map(tags.map(tag => [tag, entries.filter(entry => entry.tags.includes(tag)).length]));
+  return `<header class="quick-intro"><div><p class="quick-kicker">The CSS toolkit</p><h1>Quick Wins<span aria-hidden="true">✳</span></h1><p class="quick-intro-copy">Small techniques. A few lines of CSS. A better next project.</p></div>
+    <div class="quick-intro-aside" aria-hidden="true"><span>${String(entries.length).padStart(2, '0')}</span><p>good ideas,<br>ready to borrow.</p></div></header>
+    <div class="interior-paper quick-workbench">
+      <form class="topic-filter quick-controls" role="search" aria-label="Filter Quick Wins" action="/quick-wins/" method="get" hidden>
+        <fieldset class="quick-topics"><legend>Filter by topic</legend><div class="quick-topic-options">${[['', 'All wins', entries.length], ...tags.map(tag => [tag, topicLabel(tag), counts.get(tag)])].map(([value, label, count]) => `<label class="quick-topic"><input type="radio" name="topic" value="${e(value)}"${value === '' ? ' checked' : ''}><span>${e(label)}</span><span class="quick-topic-count" aria-hidden="true">${count}</span></label>`).join('')}</div></fieldset>
+        <div class="quick-find"><label for="quick-query">Find a quick win</label><div>${icon('search')}<input type="search" id="quick-query" name="q" maxlength="100" placeholder="Try clamp, focus, or layout"></div></div>
+        <p class="status quick-result-count" role="status"></p>
+      </form>
+      <ul class="quick-list quick-grid">${entries.map((entry, index) => {
+        const display = quickPresentation[entry.slug] || {};
+        const topic = entry.tags[0] || 'css';
+        const token = display.token || entry.code?.match(/^\s*([a-z][a-z-]*)\s*:/m)?.[1] || 'CSS';
+        return `<li data-topics="${e(JSON.stringify(entry.tags))}" data-quick-search="${displayText([entry.title, entry.summary, entry.note, entry.code, ...entry.tags].filter(Boolean).join(' '))}">
+        <article class="quick-card" data-tone="${e(topic)}" aria-labelledby="quick-${entry.slug}">
+          <div class="quick-card-meta"><span class="quick-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="quick-topic-name">${e(topicLabel(topic))}</span>${entry.difficulty ? `<span class="quick-level">${e(entry.difficulty)}</span>` : ''}</div>
+          ${quickPreview(entry, display.preview)}
+          <div class="quick-card-copy"><p class="quick-token">${e(token)}</p><h2 id="quick-${entry.slug}"><a href="${entry.path}">${e(entry.title)}</a></h2><p class="quick-summary">${displayText(entry.summary || '')}</p></div>
+          ${entry.code ? codeControls(`<pre><code class="language-css">${e(entry.code)}</code></pre>`) : ''}
+          ${entry.note ? `<details class="quick-note"><summary>Good to know</summary><p>${displayText(entry.note)}</p></details>` : ''}
+          <div class="quick-card-footer">${dateLabel(entry.date)}<a href="${entry.path}" aria-label="Read ${e(entry.title)}">The technique ${icon('arrow')}</a></div>
+        </article></li>`;
+      }).join('')}</ul>
+      <div class="quick-empty" hidden><h2>No quick wins found.</h2><p>Try a different word or explore all the techniques.</p><button type="button" data-clear-quick>Clear filters</button></div>
+    </div>`;
 }
 
 const resourceCategories = [

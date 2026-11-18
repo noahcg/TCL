@@ -174,10 +174,10 @@ test('search returns articles and attributed CSS lookup entries', async ({ page 
 
 test('Quick Wins topic and Resources support direct links', async ({ page, request }) => {
   await page.goto('/quick-wins/?topic=typography');
-  await expect(page.getByLabel('Filter by topic')).toHaveValue('typography');
-  await expect(page.getByRole('link', { name: 'Balance multi-line headings automatically' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Simplify slideshows with scroll snap' })).toBeHidden();
-  await page.getByRole('link', { name: 'Balance multi-line headings automatically' }).click();
+  await expect(page.getByRole('radio', { name: 'Typography', exact: true })).toBeChecked();
+  await expect(page.getByRole('link', { name: 'Balance multi-line headings automatically', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Simplify slideshows with scroll snap', exact: true })).toBeHidden();
+  await page.getByRole('link', { name: 'Balance multi-line headings automatically', exact: true }).click();
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Balance multi-line headings automatically');
   await expect(page.locator('pre')).toContainText('text-wrap: balance');
@@ -370,4 +370,46 @@ test('Quick Wins copy is readable and reflows at 320px with enlarged text', asyn
     document.documentElement.style.fontSize = '200%';
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+});
+
+test('Quick Wins is a compact three-column toolkit with copyable source snippets', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.quickCopied = text; } } });
+  });
+  await page.goto('/quick-wins/');
+  expect((await page.locator('.quick-workbench').boundingBox()).y).toBeLessThan(360);
+  const cards = page.locator('.quick-card');
+  await expect(cards).toHaveCount(9);
+  const first = await cards.nth(0).boundingBox();
+  const second = await cards.nth(1).boundingBox();
+  const third = await cards.nth(2).boundingBox();
+  expect(Math.abs(first.y - second.y)).toBeLessThan(1);
+  expect(Math.abs(first.y - third.y)).toBeLessThan(1);
+  const original = await cards.first().locator('pre').textContent();
+  await cards.first().getByRole('button', { name: 'Copy code', exact: true }).click();
+  expect(await page.evaluate(() => window.quickCopied)).toBe(original);
+  const has = page.locator('.quick-card').filter({ hasText: 'Style one element based on another' });
+  await has.getByRole('checkbox', { name: 'Include an image' }).check();
+  await expect(has.locator('.qp-has-target img')).toBeVisible();
+  expect(await has.locator('.qp-has-target').evaluate(target => getComputedStyle(target).borderColor)).toBe('rgb(163, 68, 12)');
+});
+
+test('Quick Wins combines topic and keyword filters, preserves URLs, and recovers from empty results', async ({ page }) => {
+  await page.goto('/quick-wins/');
+  await page.getByRole('radio', { name: 'Typography', exact: true }).check();
+  await page.getByRole('searchbox', { name: 'Find a quick win', exact: true }).fill('clamp');
+  await expect(page.locator('.quick-grid > li:visible')).toHaveCount(1);
+  await expect(page.getByRole('link', { name: 'Create fluid typography that scales', exact: true })).toBeVisible();
+  expect(new URL(page.url()).searchParams.get('topic')).toBe('typography');
+  expect(new URL(page.url()).searchParams.get('q')).toBe('clamp');
+  await page.reload();
+  await expect(page.getByRole('searchbox', { name: 'Find a quick win', exact: true })).toHaveValue('clamp');
+  await expect(page.locator('.quick-grid > li:visible')).toHaveCount(1);
+  await page.getByRole('searchbox', { name: 'Find a quick win', exact: true }).fill('no-matching-technique');
+  await expect(page.getByRole('heading', { name: 'No quick wins found.' })).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(page.locator('.quick-grid > li:visible')).toHaveCount(9);
+  await expect(page.getByRole('radio', { name: 'All wins', exact: true })).toBeChecked();
+  expect(new URL(page.url()).search).toBe('');
 });

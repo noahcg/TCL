@@ -76,27 +76,64 @@ if (demo && panel) {
 
 const topics = document.querySelector('.topic-filter');
 if (topics) {
-  const select = topics.querySelector('select');
+  const choices = [...topics.querySelectorAll('input[name="topic"]')];
+  const query = topics.elements.q;
   const entries = [...document.querySelectorAll('[data-topics]')];
-  const url = new URL(window.location.href);
-  select.value = url.searchParams.get('topic') ?? '';
-  if (select.selectedIndex < 0) select.selectedIndex = 0;
-  const filter = () => {
+  const empty = document.querySelector('.quick-empty');
+  const filter = (updateURL = false) => {
+    const selected = choices.find(input => input.checked)?.value || '';
+    const words = query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
     let shown = 0;
     for (const item of entries) {
-      const matches = !select.value || JSON.parse(item.dataset.topics).includes(select.value);
+      const matches = (!selected || JSON.parse(item.dataset.topics).includes(selected))
+        && words.every(word => item.dataset.quickSearch.toLowerCase().includes(word));
       item.hidden = !matches;
       if (matches) shown++;
     }
-    topics.querySelector('.status').textContent = `${shown} ${shown === 1 ? 'Quick Win' : 'Quick Wins'}`;
+    topics.querySelector('.status').textContent = `${shown} of ${entries.length} ${shown === 1 ? 'Quick Win' : 'Quick Wins'}`;
+    empty.hidden = shown > 0;
+    if (updateURL) {
+      const url = new URL(window.location.href);
+      if (selected) url.searchParams.set('topic', selected);
+      else url.searchParams.delete('topic');
+      if (query.value.trim()) url.searchParams.set('q', query.value.trim());
+      else url.searchParams.delete('q');
+      history.replaceState(null, '', url);
+    }
   };
-  topics.hidden = false;
-  filter();
-  select.addEventListener('change', () => {
-    if (select.value) url.searchParams.set('topic', select.value);
-    else url.searchParams.delete('topic');
-    window.history.replaceState(null, '', url);
+  const readURL = () => {
+    const params = new URLSearchParams(location.search);
+    const selected = choices.find(input => input.value === params.get('topic')) || choices[0];
+    selected.checked = true;
+    query.value = (params.get('q') || '').slice(0, 100);
     filter();
+  };
+  readURL();
+  topics.hidden = false;
+  choices.forEach(input => input.addEventListener('change', () => filter(true)));
+  query.addEventListener('input', () => filter(true));
+  topics.addEventListener('submit', event => { event.preventDefault(); filter(true); });
+  addEventListener('popstate', readURL);
+  document.querySelector('[data-clear-quick]').addEventListener('click', () => {
+    topics.reset();
+    query.value = '';
+    filter(true);
+    query.focus();
+  });
+}
+
+for (const checkbox of document.querySelectorAll('[data-quick-has]')) {
+  const target = document.getElementById(checkbox.dataset.quickHas);
+  checkbox.closest('label').hidden = false;
+  checkbox.addEventListener('change', () => {
+    target.querySelector('img')?.remove();
+    if (checkbox.checked) {
+      const image = document.createElement('img');
+      image.src = '/assets/favicon.svg';
+      image.alt = '';
+      target.prepend(image);
+    }
+    target.querySelector('span').textContent = checkbox.checked ? 'Now with an image' : 'A simple card';
   });
 }
 
