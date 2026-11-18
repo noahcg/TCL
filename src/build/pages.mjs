@@ -75,7 +75,7 @@ function credit(entry) {
   return `<footer class="credit">${attribution ? `<p>${e(attribution)}</p>` : ''}${source ? `<p>Source <a href="${e(source)}">${e(new URL(source).hostname)}</a></p>` : ''}</footer>`;
 }
 
-export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article }) {
+export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article, analytics = false }) {
   const metadata = title ? `${title} · ${site}` : site;
   const description = intro || 'CSS articles, practical techniques, and resources for front-end developers.';
   const url = siteUrl && path ? new URL(path, siteUrl).href : null;
@@ -120,6 +120,7 @@ ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fet
 ${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
 ${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resources.css">\n<script type="module" src="/assets/resources.js"></script>' : ''}
 <script type="module" src="/assets/site.js"></script>
+${analytics ? '<script type="module" src="/assets/analytics.js"></script>' : ''}
 </head>
 <body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}` : 'utility-page'}">
 <a class="skip" href="#main-content">Skip to content</a>

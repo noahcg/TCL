@@ -51,6 +51,12 @@ npm run preview
 
 Run `npm run build` afterward to return to a normal local preview.
 
+## Web Analytics
+
+Vercel Web Analytics is enabled for `thecascadelounge`. The pinned `@vercel/analytics` browser SDK is copied into the static assets with its license, and the shared template loads `/assets/analytics.js` on every public page in Vercel production builds. It calls the package’s `inject()` function and uses the same-origin `/_vercel/insights/` routes, compatible with the existing content security policy.
+
+Local development, Vercel previews, Netlify builds, and the private admin studio do not load the analytics module. HTTPS is also required before injection, keeping an exported production build quiet on the local HTTP preview server. View traffic in [the project’s Analytics dashboard](https://vercel.com/noahcgs-projects/thecascadelounge/analytics).
+
 ## Release checks
 
 Run `npm run verify:all` on the candidate revision. Review the deployed preview at desktop and phone widths, including direct entry to a long article and section link, snippet copy, search, Quick Wins filters, resource links, and an unknown URL returning HTTP 404. Check keyboard access and relevant accessibility behavior.

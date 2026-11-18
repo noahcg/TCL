@@ -18,6 +18,7 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `src/assets/quick-wins.css` | Quick Wins toolkit grid, topic controls, and small CSS previews; loaded only on its collection page |
 | `src/assets/resources.css`, `src/assets/resources.js` | Resources reading room, shelf navigation, URL-based search, and browser-local shortlist; loaded only on its collection page |
 | `src/assets/site.js` | Search, copy actions, topic filters, local bookmarks, sharing, reading progress, demo |
+| `src/assets/analytics.js` | Vercel Web Analytics injection; loaded only by Vercel production pages |
 | `src/assets/` | Images and icons copied to `/assets/` |
 | `scripts/build.mjs` | Build orchestration, routes, MDN index, fonts/licenses, production metadata |
 | `scripts/serve.mjs` | Local server with nested routes, redirects, response headers, and HTTP 404s |
@@ -25,6 +26,8 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `tests/unit/`, `tests/browser/` | Content/rendering checks and browser acceptance checks |
 
 Browser assets retain their source paths under the published `/assets/` namespace, including the `articles/` image directory. Fonts and license notices come from pinned dependencies at build time. Preserve published paths when reorganizing their inputs.
+
+The build copies the pinned `@vercel/analytics` browser module to `/assets/vercel-analytics.js` with its MIT license. No bundler or browser package resolution is needed. The shared page template enables its loader only for Vercel production builds; the private admin HTML is separate from that template.
 
 ## Build flow
 

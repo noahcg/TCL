@@ -9,6 +9,7 @@ import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, s
 
 const directory = resolve('dist');
 const { publishing, siteUrl } = buildEnvironment();
+const analytics = publishing && process.env.VERCEL_ENV === 'production';
 
 const loaded = await loadContent();
 const images = await loadArticleImages(loaded.filter(entry => entry.type === 'article'));
@@ -61,6 +62,7 @@ for (const route of routes) {
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, page({
     ...route, image: route.image || defaultImage, siteUrl: publishing ? siteUrl : null,
+    analytics,
     robots: route.noIndex || !publishing ? 'noindex, follow' : null,
   }));
 }
@@ -84,6 +86,8 @@ for (const [font, source, target] of fonts) {
   await copyFile(join(root, 'LICENSE'), join(directory, 'assets', `${font}-license.txt`));
 }
 await copyFile(join('node_modules', 'mdn-data', 'LICENSE'), join(directory, 'assets', 'mdn-data-license.txt'));
+await copyFile(join('node_modules', '@vercel/analytics', 'dist/index.mjs'), join(directory, 'assets', 'vercel-analytics.js'));
+await copyFile(join('node_modules', '@vercel/analytics', 'LICENSE'), join(directory, 'assets', 'vercel-analytics-license.txt'));
 await writeFile(join(directory, 'search-index.json'), JSON.stringify(index));
 if (publishing) {
   const indexed = routes.filter(route => route.path && !route.noIndex);
