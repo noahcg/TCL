@@ -4,6 +4,7 @@ import mdnData from 'mdn-data';
 import { loadContent, sourceUrl } from '../src/build/content.mjs';
 import { buildEnvironment } from '../src/build/environment.mjs';
 import { featuredArticle, loadArticleImages } from '../src/build/article-media.mjs';
+import { loadHomeShareImage } from '../src/build/site-media.mjs';
 import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, searchPage } from '../src/build/pages.mjs';
 
 const directory = resolve('dist');
@@ -17,9 +18,10 @@ const articles = byType('article').sort((a, b) => (b.date || '').localeCompare(a
 const quick = byType('quick-win');
 const resources = byType('resource');
 const defaultImage = featuredArticle(articles)?.image;
+const homeShareImage = await loadHomeShareImage();
 
 const routes = [
-  { path: '/', body: home(articles), homepage: true },
+  { path: '/', body: home(articles), homepage: true, image: homeShareImage },
   { path: '/articles/', title: 'Articles', body: articlesPage(articles) },
   { path: '/quick-wins/', title: 'Quick Wins', body: quickPage(quick) },
   { path: '/resources/', title: 'Resources', body: resourcesPage(resources) },

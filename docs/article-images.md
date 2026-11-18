@@ -7,9 +7,11 @@ Every published article has its own AI-generated image based on its title, summa
 - `content/media/image-briefs.json`: optional per-article art direction; new titles work without a custom brief.
 - `content/media/article-images.json`: image catalog, source fingerprints, checksums, alt text, provenance, and exact prompts.
 - `src/assets/articles/`: optimized, versioned image files committed alongside content.
-- `content/editorial.json`: the featured article slug; change it to any published article without editing the sealed import snapshot.
+- `content/editorial.json`: optional featured article pin; `null` automatically features the newest published article.
+- `content/media/home-share.json`: the evergreen homepage share card, its exact generation prompt, checksum, and alternative text.
+- `src/assets/social/`: optimized homepage social artwork.
 
-The existing container-query feature remains selected. An authored article can alternatively set `"featured": true`; only one published article may set it. All articles have images, so promoting another article selects its own artwork automatically.
+The newest published article is featured automatically. An authored article can alternatively set `"featured": true`; only one published article may set it. All articles have images, so promoting another article selects its own artwork automatically.
 
 ## Publish a new article
 
@@ -50,6 +52,6 @@ The source must be at least 1200 × 630. The importer optimizes the JPEG, create
 
 ## Social previews
 
-Production HTML includes absolute HTTPS `og:image` and `twitter:image` URLs, image dimensions, MIME type, alt text, article type/date metadata, and `summary_large_image`. The homepage and collection pages use the currently featured article’s artwork as their default social image. Local/no-origin previews omit image sharing tags; test them with a production build using the intended site origin.
+Production HTML includes absolute HTTPS `og:image` and `twitter:image` URLs, image dimensions, MIME type, alt text, article type/date metadata, and `summary_large_image`. The homepage uses its own evergreen branded lounge card, independent of which article is featured. Collection pages use the currently featured article’s artwork as their default social image, and individual articles use their own artwork. Local/no-origin previews omit image sharing tags; test them with a production build using the intended site origin.
 
 Images are public static JPEGs, so crawlers can fetch them without JavaScript or authentication. Updating artwork changes its content-hashed URL, helping platforms discover the new image. Social networks maintain their own preview caches; existing shared links may need a fresh scrape before their thumbnail changes.
