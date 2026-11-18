@@ -16,6 +16,7 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `src/build/image-generation.mjs` | Publishing-only OpenAI Images API adapter; never loaded by browser code |
 | `src/assets/site.css` | Typography, layout, component styles, responsive/print/forced-color rules |
 | `src/assets/quick-wins.css` | Quick Wins toolkit grid, topic controls, and small CSS previews; loaded only on its collection page |
+| `src/assets/resources.css`, `src/assets/resources.js` | Resources reading room, shelf navigation, URL-based search, and browser-local shortlist; loaded only on its collection page |
 | `src/assets/site.js` | Search, copy actions, topic filters, local bookmarks, sharing, reading progress, demo |
 | `src/assets/` | Images and icons copied to `/assets/` |
 | `scripts/build.mjs` | Build orchestration, routes, MDN index, fonts/licenses, production metadata |

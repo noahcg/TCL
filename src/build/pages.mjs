@@ -115,6 +115,7 @@ ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.
 ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
 <link rel="stylesheet" href="/assets/site.css">
 ${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
+${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resources.css">\n<script type="module" src="/assets/resources.js"></script>' : ''}
 <script type="module" src="/assets/site.js"></script>
 </head>
 <body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}` : 'utility-page'}">
@@ -282,11 +283,39 @@ export function quickPage(entries) {
 }
 
 const resourceCategories = [
-  { id: 'documentation', title: 'Documentation', description: 'Authoritative references and specifications.', icon: 'book' },
-  { id: 'tools', title: 'Tools', description: 'Useful utilities for CSS development.', icon: 'tool' },
-  { id: 'patterns', title: 'Patterns', description: 'Practical, real-world CSS pattern libraries.', icon: 'layers' },
-  { id: 'community', title: 'Community', description: 'Places to learn, share, and stay current.', icon: 'people' },
+  { id: 'documentation', title: 'Documentation', description: 'Go straight to the source.', icon: 'book' },
+  { id: 'tools', title: 'Tools', description: 'A little help at the workbench.', icon: 'tool' },
+  { id: 'patterns', title: 'Patterns', description: 'Good ideas, put into practice.', icon: 'layers' },
+  { id: 'community', title: 'Community', description: 'Find your kind of CSS people.', icon: 'people' },
 ];
+
+const resourceNotes = {
+  'mdn-web-docs': { mark: 'm', label: 'The everyday reference', use: 'Syntax, browser support, and the web platform', note: 'The tab to keep open. Clear explanations, practical examples, and a dependable reference for the web platform.' },
+  'css-tricks': { mark: '*', label: 'The pattern library', use: 'Practical patterns and approachable explanations', note: 'Where documentation meets the day job. Practical guides and front-end ideas to bring into your next project.' },
+  'kevin-powell': { mark: 'KP', label: 'Watch & learn', use: 'Making modern CSS feel approachable', note: 'Pull up a video and work through it. Practical explanations of layout, responsiveness, and the CSS you use every day.' },
+  'ahmad-shadeed': { mark: 'AS', label: 'Read & understand', use: 'Visual explanations of layouts and edge cases', note: 'For the moments when seeing it makes it click. Thoughtful visual breakdowns of real interfaces and their tricky details.' },
+  'lynn-fisher': { mark: 'LF', label: 'Explore & get inspired', use: 'Creative CSS, interaction, and visual storytelling', note: 'A reminder that the web can be wonderfully unexpected. Explore the playful side of design, interaction, and CSS.' },
+  'state-of-css-devographics': { mark: '{ }', label: 'Take the pulse', use: 'CSS adoption, trends, and developer perspectives', note: 'Step back from the code. An annual look at the features developers use, the friction they feel, and where CSS is heading.' },
+};
+
+function resourceItem(entry) {
+  const notes = resourceNotes[entry.slug] || {};
+  const featured = entry.slug === 'mdn-web-docs';
+  const host = new URL(entry.url).hostname.replace(/^www\./, '');
+  const save = `<button class="resource-save" type="button" data-save-resource="${e(entry.slug)}" aria-label="Keep ${e(entry.title)} close" aria-pressed="false" hidden>${icon('bookmark')}<span>Keep close</span></button>`;
+  return `<li class="resource-entry${featured ? ' resource-spotlight' : ''}" data-resource="${e(entry.slug)}" data-resource-title="${e(entry.title)}" data-resource-search="${e([entry.title, entry.summary, notes.label, notes.use, notes.note, host].filter(Boolean).join(' '))}">
+    <article class="resource-record" aria-labelledby="resource-title-${entry.slug}">
+      ${featured ? '<div class="reference-art" aria-hidden="true"><div class="reference-volume"><span class="reference-edition">THE WEB PLATFORM</span><span class="reference-letter">m<span>_</span></span><span class="reference-cover-title">The web,<br>explained.</span><span class="reference-cover-foot">MDN WEB DOCS</span></div><span class="reference-art-caption">A well-thumbed essential.</span></div>' : `<div class="resource-monogram resource-monogram-${e(entry.slug)}" aria-hidden="true">${e(notes.mark || entry.title.split(/\s+/).map(word => word[0]).slice(0, 2).join(''))}</div>`}
+      <div class="resource-record-copy">
+        <p class="resource-label">${e(notes.label || entry.kind || 'From the collection')}</p>
+        <h3 id="resource-title-${entry.slug}"><a href="${e(entry.path || entry.url)}">${e(entry.title)}</a></h3>
+        <p class="resource-description">${e(notes.note || entry.summary || '')}</p>
+        ${notes.use ? `<p class="resource-use"><span>Best for</span> ${e(notes.use)}</p>` : ''}
+        <div class="resource-record-actions"><a class="resource-visit" href="${e(entry.url)}" aria-label="Visit ${e(entry.title)}">${e(host)}</a>${save}</div>
+      </div>
+    </article>
+  </li>`;
+}
 
 export function resourcesPage(entries) {
   const groups = new Map(resourceCategories.map(category => [category.id, []]));
@@ -294,15 +323,37 @@ export function resourcesPage(entries) {
     const category = entry.slug === 'mdn-web-docs' ? 'documentation' : entry.slug === 'css-tricks' ? 'patterns' : entry.kind === 'Tool' ? 'tools' : 'community';
     groups.get(category).push(entry);
   }
-  return `${interiorLead('Resources', 'Trusted CSS resources in one place.', 'Documentation, reference sites, tools, and more — handpicked for modern front-end work.', 'resources-lead', 'Trusted CSS resources <span class="title-phrase">in one place.</span>')}
-    <div class="interior-paper resource-paper">
-      <nav class="resource-categories" aria-label="Resource categories">${resourceCategories.map(category => `<a class="resource-card resource-card-${category.id}" href="#${category.id}" aria-labelledby="category-${category.id}" aria-describedby="category-${category.id}-description">
-        <span class="resource-icon" aria-hidden="true">${icon(category.icon)}</span><h2 id="category-${category.id}">${category.title}</h2><p id="category-${category.id}-description">${category.description}</p><span class="circle-arrow">${icon('arrow')}</span>
-      </a>`).join('')}</nav>
-      <div class="shell sections resource-sections">${resourceCategories.map(category => `<section class="section-list" id="${category.id}" aria-labelledby="resource-${category.id}">
-        <div class="section-heading"><h2 id="resource-${category.id}">${category.title}</h2></div>
-        <ul class="editorial-list">${groups.get(category.id).map(entry => line(entry, true)).join('')}${category.id === 'tools' && !groups.get('tools').length ? `<li class="editorial-line"><div><h3><a href="https://developer.chrome.com/docs/devtools/css/">Chrome DevTools CSS guide</a></h3><p>Official documentation · developer.chrome.com</p></div><span aria-hidden="true">↗</span></li>` : ''}</ul>
-      </section>`).join('')}</div>
+  if (!groups.get('tools').length) groups.get('tools').push({
+    slug: 'chrome-devtools-css-guide', title: 'Chrome DevTools CSS guide', kind: 'Official documentation',
+    url: 'https://developer.chrome.com/docs/devtools/css/', summary: 'The official CSS guide for Chrome DevTools. A reference to reach for while working in the browser.',
+  });
+  const total = [...groups.values()].reduce((sum, group) => sum + group.length, 0);
+  return `<header class="resource-intro">
+      <p class="resource-overline">Resources <span aria-hidden="true">/</span> The reading room</p>
+      <h1>Trusted CSS resources <em>in one place.</em></h1>
+      <p class="resource-intro-deck">Reliable references, useful tools, and people worth learning from. Pull up a chair.</p>
+      <a class="resource-intro-link" href="#reading-room">Explore the collection</a>
+    </header>
+    <div class="interior-paper resource-paper reading-room" id="reading-room">
+      <aside class="resource-sidebar">
+        <div class="resource-sidebar-inner">
+          <p class="resource-overline">On the shelves</p>
+          <nav class="resource-shelf-nav" aria-label="Resource categories">${resourceCategories.map(category => `<a href="#${category.id}" aria-label="${category.title}">${icon(category.icon)}<span>${category.title}</span><span class="resource-shelf-count" aria-hidden="true">${groups.get(category.id).length}</span></a>`).join('')}</nav>
+          <div class="resource-shortlist" hidden><button type="button" class="resource-shortlist-toggle" aria-pressed="false" aria-label="Show your shortlist">${icon('bookmark')}<span>Your shortlist</span><span class="resource-saved-count">0</span></button><p>Keep your favorites close.<br>Saved in this browser.</p></div>
+          <div class="resource-sidebar-note"><span aria-hidden="true">✳</span><p>A small collection.<br><em>A long shelf life.</em></p><p>Chosen for the way they explain, inspire, and help you build.</p></div>
+        </div>
+      </aside>
+      <div class="resource-library">
+        <div class="resource-library-heading"><div><p class="resource-overline">Handpicked, not exhaustive</p><h2>A few good tabs.</h2></div><p class="resource-total">${total} resources.<br>Plenty to explore.</p></div>
+        <form class="resource-find" role="search" aria-label="Filter resources" action="/resources/" method="get" hidden><label class="visually-hidden" for="resource-query">Search the reading room</label>${icon('search')}<input type="search" id="resource-query" name="q" maxlength="100" placeholder="Find a reference, a person, an idea…"><button type="button" data-clear-resource-query hidden>Clear</button></form>
+        <p class="resource-results" role="status">${total} resources on the shelves</p>
+        <div class="resource-shelves">${resourceCategories.map(category => `<section class="resource-section" id="${category.id}" aria-labelledby="resource-${category.id}">
+          <header class="resource-section-heading"><div><h2 id="resource-${category.id}">${category.title}</h2><p>${category.description}</p></div><span class="resource-section-count" aria-label="${groups.get(category.id).length} ${groups.get(category.id).length === 1 ? 'resource' : 'resources'}">${String(groups.get(category.id).length).padStart(2, '0')}</span></header>
+          <ul class="resource-directory">${groups.get(category.id).map(resourceItem).join('')}</ul>
+        </section>`).join('')}</div>
+        <div class="resource-empty" hidden><span aria-hidden="true">${icon('book')}</span><h2>No resources found.</h2><p>Try another word or browse the whole collection.</p><button type="button" data-reset-resources>Explore all resources</button></div>
+        <div class="resource-colophon"><p>Good resources become old friends.</p><span>Find one. Keep it close. Come back often.</span></div>
+      </div>
     </div>`;
 }
 
