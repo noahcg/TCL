@@ -3,6 +3,7 @@
 /dist/
 /artifacts/
 /coverage/
+/.vercel/
 
 # Local configuration and credentials
 .env

@@ -4,7 +4,7 @@ A static CSS publication with articles, Quick Wins, curated resources, and local
 
 ## Get started
 
-Use Node.js 22.12 or newer. The project’s `.nvmrc`, CI, and Netlify target Node 22.
+Use Node.js 22 (22.12 or newer within the 22.x release line). The project’s package engines, `.nvmrc`, CI, and hosting configuration target Node 22.
 
 ```sh
 # If you use nvm:
@@ -60,7 +60,7 @@ Install the test browsers once with `npx playwright install chromium webkit`. Br
 - [Contributing](CONTRIBUTING.md): setup, validation, and preparing the first Git commit.
 - [Architecture](docs/architecture.md): build flow, source boundaries, routes, and assets.
 - [Authoring](docs/authoring.md): adding and publishing content.
-- [Deployment](docs/deployment.md): Netlify configuration, production metadata, and rollback.
+- [Deployment](docs/deployment.md): Vercel and Netlify configuration, production metadata, and rollback.
 - [Repository organization](docs/repository.md): file moves, Git exclusions, and local archives.
 - [APEX migration](docs/apex-migration.md): refreshing the reviewed legacy snapshot.
 - [Historical references](docs/archive/README.md): original briefs, brand notes, and roadmap.

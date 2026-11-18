@@ -1,6 +1,6 @@
 # Architecture
 
-The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, a JSON search index, and local assets. Netlify or another static host serves `dist/`. The browser receives complete editorial pages and a small enhancement script.
+The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, a JSON search index, and local assets. Vercel, Netlify, or another static host serves `dist/`. The browser receives complete editorial pages and a small enhancement script.
 
 ## Source boundaries
 
@@ -11,6 +11,7 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `src/build/content.mjs` | Record validation, publication filtering, sanitization, source/code/anchor fidelity |
 | `src/build/pages.mjs` | Shared page shell, route templates, article presentation, reading guide |
 | `src/build/highlight.mjs` | Build-time CSS, HTML, and JavaScript highlighting |
+| `src/build/environment.mjs` | Production/preview detection and canonical origins for Vercel and Netlify |
 | `src/assets/site.css` | Typography, layout, component styles, responsive/print/forced-color rules |
 | `src/assets/site.js` | Search, copy actions, topic filters, local bookmarks, sharing, reading progress, demo |
 | `src/assets/` | Images and icons copied to `/assets/` |

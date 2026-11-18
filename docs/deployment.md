@@ -5,7 +5,24 @@
 - Install dependencies with `npm ci`.
 - Build and validate with `npm run verify`.
 - Publish the generated `dist/` directory.
-- Use Node 22, matching `.nvmrc` and `netlify.toml`.
+- Use Node 22, matching `package.json`, `.nvmrc`, and `netlify.toml`.
+
+## Vercel
+
+The existing `thecascadelounge` Vercel project tracks `noahcg/thecascadelounge` on GitHub, which Vercel copied from the original project during import. This checkout keeps `origin` pointing to `noahcg/TCL` and a `vercel` remote pointing to the connected deployment repository. Their histories were joined without removing either initial commit. Push accepted changes to both destinations:
+
+```sh
+git push origin main
+git push vercel main
+```
+
+The second push triggers Vercel production deployment. For a new checkout, add the deployment remote with `git remote add vercel https://github.com/noahcg/thecascadelounge.git`. Use `main` as the production branch and the repository root as the root directory. The connected source can be inspected under **Settings → Git**.
+
+The checked-in [Vercel configuration](../vercel.json) sets **Other** as the framework, installs with `npm ci`, runs `npm run verify`, and publishes `dist/`. It also retains trailing-slash URLs and defines the site’s response headers. The output directory is explicitly configured because Vercel’s default `public/` directory does not match this build.
+
+Production builds recognize Vercel’s environment and use its stable `VERCEL_PROJECT_PRODUCTION_URL` hostname for canonicals and the sitemap. Set `TCL_SITE_URL` to override the canonical origin when needed. Preview and custom staging builds remain noindex. Vercel serves the generated `404.html` for missing files; avoid a catch-all rewrite to the homepage.
+
+## Netlify
 
 The checked-in [Netlify configuration](../netlify.toml) defines the build command, publish directory, content security policy, and other response headers. Connect the Git repository to the intended Netlify project and enable pull-request Deploy Previews.
 
@@ -14,11 +31,14 @@ The checked-in [Netlify configuration](../netlify.toml) defines the build comman
 | Variable | Purpose |
 | --- | --- |
 | `CONTEXT` | `production` enables production canonical URLs and sitemap generation; Netlify sets this automatically |
+| `VERCEL_ENV` | Vercel sets `production`, `preview`, or `development`; production enables canonicals and sitemap generation |
+| `VERCEL_TARGET_ENV` | Vercel target environment; custom staging environments stay noindex |
+| `VERCEL_PROJECT_PRODUCTION_URL` | Stable production hostname supplied by Vercel, without `https://` |
 | `TCL_SITE_URL` | Optional explicit production HTTPS origin, such as `https://your-domain.example` |
 | `URL` | Netlify’s production origin, used when `TCL_SITE_URL` is unset |
 | `PORT` | Local preview port; defaults to 4173 |
 
-A production build requires a valid HTTPS origin. `TCL_SITE_URL` must be an origin without a path, query, or fragment. Netlify should use `TCL_SITE_URL` when the canonical custom domain differs from its `URL` value. Set variables in the hosting environment or shell; the scripts do not automatically load `.env` files. [.env.example](../.env.example) provides comments for local configuration.
+A production build requires a valid HTTPS origin. `TCL_SITE_URL` must be an origin without a path, query, or fragment. It takes precedence over either host’s default production origin. Set variables in the hosting environment or shell; the scripts do not automatically load `.env` files. [.env.example](../.env.example) provides comments for local configuration.
 
 Local and preview builds emit `noindex, follow` metadata and omit production canonicals and the sitemap. To check production output locally, substitute the intended origin:
 

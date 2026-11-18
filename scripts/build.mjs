@@ -1,14 +1,12 @@
 import { copyFile, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import mdnData from 'mdn-data';
-import { assert, loadContent, sourceUrl } from '../src/build/content.mjs';
+import { loadContent, sourceUrl } from '../src/build/content.mjs';
+import { buildEnvironment } from '../src/build/environment.mjs';
 import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, searchPage } from '../src/build/pages.mjs';
 
 const directory = resolve('dist');
-const publishing = process.env.CONTEXT === 'production';
-const siteUrl = process.env.TCL_SITE_URL || (publishing ? process.env.URL : null);
-if (siteUrl) assert(sourceUrl(siteUrl) && new URL(siteUrl).origin === siteUrl.replace(/\/$/, ''), 'TCL_SITE_URL must be an HTTPS site origin');
-if (publishing) assert(siteUrl, 'The production build requires its canonical site URL');
+const { publishing, siteUrl } = buildEnvironment();
 
 const content = await loadContent();
 const byType = (type) => content.filter(record => record.type === type);

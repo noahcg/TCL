@@ -2,7 +2,7 @@
 
 ## Local setup
 
-Run commands from the repository root with Node.js 22.12 or newer. `.nvmrc` selects Node 22 for nvm users and CI.
+Run commands from the repository root with Node.js 22 (22.12 or newer within 22.x). `.nvmrc` selects Node 22 for nvm users and CI.
 
 ```sh
 npm ci
