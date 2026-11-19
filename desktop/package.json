@@ -1,0 +1,40 @@
+{
+  "name": "cascade-lounge-editorial-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Cascade Lounge's private editorial desktop app.",
+  "author": "The Cascade Lounge",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder --mac dir --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.3.4",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.noah.cascadelounge.editorialstudio",
+    "productName": "Cascade Lounge Editorial Studio",
+    "asar": true,
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true
+    },
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["main.cjs", "package.json"],
+    "extraResources": [
+      { "from": "build/node-runtime", "to": "node-runtime" },
+      { "from": "build/workspace.json", "to": "workspace.json" },
+      { "from": "build/app-icon.png", "to": "app-icon.png" }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dir"],
+      "icon": "build/app-icon.icns",
+      "identity": "-"
+    }
+  }
+}

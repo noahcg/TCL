@@ -61,6 +61,9 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
     if (request.headers.host !== expectedHost || request.headers['sec-fetch-site'] === 'cross-site') return send(403, { error: 'Local studio access only.' });
     let url;
     try { url = new URL(request.url, `http://${expectedHost}`); } catch { return send(400, { error: 'Invalid URL.' }); }
+    if (['GET', 'HEAD'].includes(request.method) && url.pathname === '/admin/health') {
+      return send(200, { app: 'cascade-lounge-editorial-studio', workspace: resolve(root), pid: process.pid, busy: job?.status === 'running' });
+    }
     if (url.pathname.startsWith('/admin/api/')) {
       const supplied = Buffer.from(request.headers['x-admin-token'] || '');
       if (supplied.length !== token.length || !timingSafeEqual(supplied, Buffer.from(token))) return send(403, { error: 'Refresh the studio to reconnect.' });

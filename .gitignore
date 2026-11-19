@@ -5,6 +5,10 @@
 /coverage/
 /.vercel/
 /.tcl-admin/
+/desktop/node_modules/
+/desktop/build/
+/desktop/release/
+/desktop/.cache/
 
 # Local configuration and credentials
 .env

@@ -57,8 +57,12 @@ function render() {
   }
   const ideas = allIdeas();
   const available = ideas.filter(idea => idea.status !== 'dismissed');
+  const drafts = state.drafts.filter(draft => !draft.publishedAt);
+  const published = state.drafts.filter(draft => draft.publishedAt)
+    .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
   $('#idea-count').textContent = available.length;
-  $('#draft-count').textContent = state.drafts.length;
+  $('#draft-count').textContent = drafts.length;
+  $('#published-count').textContent = published.length;
   $('#dismissed-count').textContent = ideas.filter(idea => idea.status === 'dismissed').length;
   $('#scan-date').textContent = state.scans[0] ? `Last scan · ${dateLabel(state.scans[0].createdAt)}` : 'Ready when you are';
   $('#model-info').textContent = `Research & writing · ${state.model}`;
@@ -66,15 +70,16 @@ function render() {
   $('#connection').textContent = 'One-time setup: add OPENAI_API_KEY to .env.local, then restart with npm run admin. Your key stays on this computer.';
   document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
   const type = $('#type-filter').value;
-  const records = (view === 'drafts' ? state.drafts : view === 'dismissed' ? ideas.filter(idea => idea.status === 'dismissed') : available)
+  const records = (view === 'drafts' ? drafts : view === 'published' ? published : view === 'dismissed' ? ideas.filter(idea => idea.status === 'dismissed') : available)
     .filter(record => type === 'all' || record.type === type);
   if (!records.length) {
     const [title, copy] = view === 'drafts' ? ['A little room for your next draft.', 'Generate an article or Quick Win from a discovery. Your drafts will be kept here.']
+      : view === 'published' ? ['Your published collection starts here.', 'Articles and Quick Wins move here after you add them to your local site. Each item shows its live publication status.']
       : view === 'dismissed' ? ['Nothing set aside.', 'Ideas you pass on will live here. Bring them back whenever you like.']
         : state.scans.length ? ['A fresh angle is out there.', 'Try another format or scan with a different focus.']
           : ['Good ideas start with curiosity.', 'Choose your sources and run a scan. Your next article or little CSS aha! starts here.'];
     $('#board').innerHTML = `<div class="empty-state"><span class="empty-art" aria-hidden="true">{ <i>✳</i> }</span><h3>${title}</h3><p>${copy}</p><div class="empty-formats"><span>In-depth articles</span><span>Quick Wins</span><span>Verified source links</span></div></div>`;
-  } else $('#board').innerHTML = records.map(record => view === 'drafts' ? draftCard(record) : ideaCard(record)).join('');
+  } else $('#board').innerHTML = records.map(record => ['drafts', 'published'].includes(view) ? draftCard(record) : ideaCard(record)).join('');
   $('#scan-history').hidden = !state.scans.length;
   $('#history-list').innerHTML = state.scans.map(scan => {
     const selected = state.sources.filter(source => scan.sourceIds.includes(source.id));
@@ -84,13 +89,13 @@ function render() {
 
 function ideaCard(idea) {
   const draft = state.drafts.find(draft => draft.ideaId === idea.id);
-  return `<article class="idea-card"><div class="card-top"><span class="format${idea.type === 'quick-win' ? ' quick' : ''}">${label(idea.type)}</span><span class="feature">${escape(idea.feature)}</span></div><h3>${escape(idea.title)}</h3><p class="card-summary">${escape(idea.summary)}</p><p class="card-rationale"><strong>Why this one?</strong> ${escape(idea.rationale)}</p><p class="compatibility">${escape(idea.compatibility)}</p><div class="card-sources"><span class="source-heading">From</span>${links(idea.sources)}</div><details class="card-details"><summary>The angle & existing coverage</summary><ul>${idea.outline.map(point => `<li>${escape(point)}</li>`).join('')}</ul><p>${idea.related.length ? 'Related coverage: ' + idea.related.map(entry => `<a href="${escape(entry.path)}" target="_blank" rel="noopener">${escape(entry.title)}</a>`).join(', ') : 'No related tags in the current content collection.'}</p></details><div class="card-actions">${idea.status === 'dismissed' ? `<button type="button" class="secondary" data-action="restore" data-id="${idea.id}"${actionDisabled()}>Bring back</button>` : `<button type="button" class="primary" data-action="${draft ? 'edit' : 'generate'}" data-id="${draft?.id || idea.id}"${actionDisabled(!draft)}>${draft ? draft.publishedAt ? 'View saved draft' : 'Open draft' : `Generate ${idea.type === 'article' ? 'article' : 'Quick Win'}`}</button><button type="button" class="text-button" data-action="dismiss" data-id="${idea.id}"${actionDisabled()}>Set aside</button>`}</div></article>`;
+  return `<article class="idea-card"><div class="card-top"><span class="format${idea.type === 'quick-win' ? ' quick' : ''}">${label(idea.type)}</span><span class="feature">${escape(idea.feature)}</span></div><h3>${escape(idea.title)}</h3><p class="card-summary">${escape(idea.summary)}</p><p class="card-rationale"><strong>Why this one?</strong> ${escape(idea.rationale)}</p><p class="compatibility">${escape(idea.compatibility)}</p><div class="card-sources"><span class="source-heading">From</span>${links(idea.sources)}</div><details class="card-details"><summary>The angle & existing coverage</summary><ul>${idea.outline.map(point => `<li>${escape(point)}</li>`).join('')}</ul><p>${idea.related.length ? 'Related coverage: ' + idea.related.map(entry => `<a href="${escape(entry.path)}" target="_blank" rel="noopener">${escape(entry.title)}</a>`).join(', ') : 'No related tags in the current content collection.'}</p></details><div class="card-actions">${idea.status === 'dismissed' ? `<button type="button" class="secondary" data-action="restore" data-id="${idea.id}"${actionDisabled()}>Bring back</button>` : `<button type="button" class="primary" data-action="${draft ? 'edit' : 'generate'}" data-id="${draft?.id || idea.id}"${actionDisabled(!draft)}>${draft ? draft.publishedAt ? 'View published item' : 'Open draft' : `Generate ${idea.type === 'article' ? 'article' : 'Quick Win'}`}</button><button type="button" class="text-button" data-action="dismiss" data-id="${idea.id}"${actionDisabled()}>Set aside</button>`}</div></article>`;
 }
 
 function draftCard(draft) {
   const release = (state.releases || []).find(item => item.draftId === draft.id);
   const live = draft.publishedAt && state.livePublishing;
-  return `<article class="draft-card"><div class="card-top"><span class="format${draft.type === 'quick-win' ? ' quick' : ''}">${label(draft.type)}</span><span class="feature">${release?.status === 'submitted' ? 'Sent for live deployment' : draft.publishedAt ? 'Added to local site' : draft.savedAt ? 'Saved to content' : 'Ready for review'}</span></div><h3>${escape(draft.title)}</h3><p class="card-summary">${escape(draft.summary)}</p><div class="card-sources">${links(draft.sources)}</div><div class="card-actions"><button type="button" class="secondary" data-action="edit" data-id="${draft.id}"${actionDisabled()}>${draft.publishedAt ? 'View draft' : 'Review & edit'}</button>${draft.publishedAt ? `<a href="/${draft.type === 'article' ? 'articles' : 'quick-wins'}/${escape(draft.slug)}/" target="_blank" rel="noopener">View local preview</a>` : ''}${live ? `<button type="button" class="${release?.status === 'submitted' ? 'secondary' : 'primary'}" data-action="live" data-id="${draft.id}"${actionDisabled()}>${release?.status === 'submitted' ? 'View publication' : 'Review live publication'}</button>` : ''}</div></article>`;
+  return `<article class="draft-card"><div class="card-top"><span class="format${draft.type === 'quick-win' ? ' quick' : ''}">${label(draft.type)}</span><span class="feature">${release?.status === 'submitted' ? 'Sent for live deployment' : draft.publishedAt ? 'Added to local site' : draft.savedAt ? 'Saved to content' : 'Ready for review'}</span></div><h3>${escape(draft.title)}</h3><p class="card-summary">${escape(draft.summary)}</p><div class="card-sources">${links(draft.sources)}</div><div class="card-actions"><button type="button" class="secondary" data-action="edit" data-id="${draft.id}"${actionDisabled()}>${draft.publishedAt ? 'View content' : 'Review & edit'}</button>${draft.publishedAt ? `<a href="/${draft.type === 'article' ? 'articles' : 'quick-wins'}/${escape(draft.slug)}/" target="_blank" rel="noopener">View local preview</a>` : ''}${live ? `<button type="button" class="${release?.status === 'submitted' ? 'secondary' : 'primary'}" data-action="live" data-id="${draft.id}"${actionDisabled()}>${release?.status === 'submitted' ? 'View publication' : 'Review live publication'}</button>` : ''}</div></article>`;
 }
 
 async function refresh() {
@@ -121,11 +126,12 @@ async function refresh() {
           message('Release checks passed. Review the update and approve when you’re ready.');
           openLiveReview(state.job.resultId);
         } else if (state.job.type === 'deploy-live') {
+          view = 'published'; render();
           message('Your approved release was sent to GitHub. Vercel is handling the live deployment.');
           openLiveReview(state.job.resultId);
         } else {
-          view = 'drafts'; render();
-          message('Added to your local site. Check the preview, then choose Review live publication to send it live.');
+          view = 'published'; render();
+          message('Moved to Published and added to your local site. Check the preview, then choose Review live publication to send it live.');
         }
       }
     }
@@ -169,6 +175,7 @@ $('#board').addEventListener('click', async event => {
 function openDraft(id) {
   const draft = state.drafts.find(item => item.id === id);
   if (!draft) return;
+  $('#editor-heading').textContent = draft.publishedAt ? `Published ${draft.type === 'article' ? 'article' : 'Quick Win'}` : 'Review your draft';
   $('#draft-id').value = draft.id;
   for (const field of ['title', 'slug', 'summary', 'body', 'code', 'note', 'difficulty']) $('#draft-' + field).value = draft[field] || '';
   $('#draft-tags').value = draft.tags.join(', ');

@@ -1,5 +1,25 @@
 # Private editorial studio
 
+## Mac desktop app
+
+Launch **Cascade Lounge Editorial Studio** from the Dock or `/Applications/Cascade Lounge Editorial Studio.app`. It opens the studio in its own window and starts the local server automatically. Closing the window keeps the app available; click its Dock icon to reopen it. **Command-Q** quits the app and waits for active work to save before stopping a server it started. A studio already running in Terminal is reused and remains running when the app quits.
+
+The desktop app uses the existing TCL project, including `.env.local`, `.tcl-admin/`, saved content, artwork, and Git publishing credentials. These stay in the project, outside the application bundle. Keep this project folder and its installed dependencies on your computer. The app includes its own Node.js 22 runtime and npm, so launching from the Dock does not depend on a terminal or nvm. Live publication still uses the same explicit review and approval controls below.
+
+To rebuild or install the app on this Mac:
+
+```sh
+npm run desktop:setup
+npm run desktop:package
+npm run desktop:install
+```
+
+The installer copies the built app to `/Applications`, adds it to the Dock without changing the other icons, and opens it. Quit an existing copy before installing an update. `npm run desktop:dev` opens the development shell. Desktop dependencies have their own lockfile in `desktop/`; website builds do not install Electron. The preparation command verifies the official Node.js download against its published SHA-256 checksum and generates the app icon from `desktop/icon.svg`. The local build is ad hoc signed for personal use, rather than notarized for distribution.
+
+The workspace path and desktop log live in `~/Library/Application Support/Cascade Lounge Editorial Studio/`. Use **Help → Open desktop log** for startup problems. If you move the TCL project, the app asks you to locate it on the next launch. Content and credentials are never copied into the desktop log or app bundle.
+
+## Terminal and research workflow
+
 Run `npm run admin`, then open **http://127.0.0.1:4174/admin/**. The command builds the site and starts a separate server bound to this computer’s loopback address. The studio has no public navigation link and is never copied into `dist/` or deployed to Vercel/Netlify. `npm run dev` continues to run the ordinary public-site preview.
 
 The studio loads `OPENAI_API_KEY` from your ignored `.env.local` or shell. The existing image-generation key works here too. No key is sent to the browser. Optional settings are `TCL_EDITOR_MODEL` (default `gpt-6.2-astra`, requiring web search and structured outputs) and `TCL_ADMIN_PORT` (default `4174`). Restart the server after changing these settings. API calls use your OpenAI API billing; a scan performs one web-research request and one idea-formatting request, and each draft uses one more request. Requests are never automatically retried.
@@ -13,6 +33,8 @@ The studio loads `OPENAI_API_KEY` from your ignored `.env.local` or shell. The e
 
 Review the local preview with **View local site**, then use **Review live publication** to prepare a production update. AI produces original teaching drafts from the researched angle; it does not promise that code has run, videos have been watched, or support claims have been independently verified. Review these before publication.
 
+**Drafts** contains only items that have not been added to the site. After a successful **Add to local site**, the item moves to **Published**, with the newest publication first. Its status distinguishes **Added to local site** from **Sent for live deployment**. Published items remain available there for reading, local preview, and reviewing or tracking a live publication. A failed publication stays in Drafts.
+
 ## Approve and publish live
 
 After **Add to local site** completes, choose **Review live publication** on the draft card or inside its editor. The studio creates an isolated release from your current committed `main`, adds just the selected content and its artwork, and runs `npm run verify` against that exact candidate. It merges only that article’s image-catalog entry; other pending articles and unrelated local edits stay out of the release.
@@ -25,4 +47,4 @@ This uses your existing local Git identity and GitHub HTTPS/SSH authentication; 
 
 Research history and working drafts persist in ignored `.tcl-admin/state.json`. These files stay on this computer and are not a cross-device CMS. Saved content and generated article artwork live in the normal source folders for Git review. Back up `.tcl-admin/` separately if you want to retain research history.
 
-The server checks its exact loopback Host, rejects cross-site requests, and requires a per-process session token on API requests. This is a local tool: do not expose its port through a tunnel or reverse proxy. Only one studio process can run at a time. Stop it with Ctrl+C. If a process was killed without cleanup, confirm it has stopped before removing `.tcl-admin/server.lock`. Reload the browser after restarting the server to get a new session token.
+The server checks its exact loopback Host, rejects cross-site requests, and requires a per-process session token on API requests. This is a local tool: do not expose its port through a tunnel or reverse proxy. One studio server runs per workspace; subsequent launches reuse it. Stop a Terminal-owned server with Ctrl+C. Locks left by a stopped process are recovered automatically. Reload the browser after restarting the server to get a new session token.

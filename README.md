@@ -31,6 +31,7 @@ scripts/
   build.mjs              Static-site build entry point
   clean.mjs              Generated-output cleanup
   serve.mjs              Local static preview server
+desktop/                 Mac Editorial Studio app shell and separate dependency lockfile
 tests/
   unit/                  Content integrity and rendering tests
   browser/               Chromium and mobile WebKit interaction/a11y tests
@@ -48,6 +49,9 @@ artifacts/               Local handoffs, migration data, test output (ignored)
 | `npm run build` | Regenerate `dist/` |
 | `npm run preview` | Serve the existing build |
 | `npm run admin` | Open the private local CSS research and drafting studio |
+| `npm run desktop:setup` | Prepare the bundled runtime and install desktop dependencies |
+| `npm run desktop:package` | Build the Mac Editorial Studio app |
+| `npm run desktop:install` | Install the app, pin it to the Dock, and launch it |
 | `npm test` | Run unit tests |
 | `npm run test:browser` | Build, start a test server, and run browser checks |
 | `npm run verify` | Verify the content snapshot, run unit tests, and build |
