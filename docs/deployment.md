@@ -66,3 +66,9 @@ Confirm the production hostname, canonical URLs, sitemap, HTTPS, and response he
 ## Rollback
 
 Redeploy the previous accepted build in the hosting provider. Repeat direct URL, section-link, 404, and search smoke checks. For a content migration, restore the previous reviewed snapshot in Git and rebuild; the [migration guide](apex-migration.md) explains import review and source parity.
+
+## Exclude your own browser from Web Analytics
+
+Open `https://www.thecascadelounge.com/?analytics=off` once in each browser profile you use. The production analytics loader saves `va-disable=1` in local storage, shows confirmation, and removes the helper parameter from the URL. It skips analytics initialization on that visit and subsequent visits on the same origin. A `beforeSend` filter also drops events if the preference is enabled after initialization.
+
+Use `?analytics=on` to include that browser again. Preferences are per browser/profile and origin; clearing site storage removes them, and private windows need their own opt-out. Historical analytics remain unchanged. If storage is unavailable, the explicit opt-out suppresses the current visit and displays that it could not be saved. Local and preview builds never load analytics.

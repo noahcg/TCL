@@ -740,3 +740,10 @@ th { background:var(--soft) }
   .home-topic-navigation,.home-topic-navigation .interior-eyebrow { color:CanvasText }
   .home-topic-navigation li a { color:LinkText }
 }
+
+.analytics-preference-notice { position:fixed; z-index:20; inset:auto 1rem 1rem auto; display:flex; align-items:center; flex-wrap:wrap; gap:.5rem 1rem; max-width:min(34rem,calc(100% - 2rem)); padding:1rem 1.25rem; border:1px solid #c9b48e; border-radius:1rem; background:var(--paper); color:var(--ink); box-shadow:0 .5rem 2rem #0003; font:500 1rem/1.5 var(--sans) }
+.analytics-preference-notice button { min-height:44px; border:0; background:transparent; color:var(--orange); font:600 1rem var(--sans); text-decoration:underline; cursor:pointer }
+@media (forced-colors:active) {
+  .analytics-preference-notice { background:Canvas; color:CanvasText; border-color:CanvasText }
+  .analytics-preference-notice button { color:LinkText }
+}
