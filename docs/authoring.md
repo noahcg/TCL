@@ -29,3 +29,7 @@ Open a pull request with the source, preview and accessibility checks. Use `npm 
 Every published article requires a unique hero/share image. Run `npm run content:prepare` to generate missing or changed title-based artwork once `OPENAI_API_KEY` is configured privately, or import artwork generated with Codex’s imagegen tool. Commit the image and catalog alongside the content. See [article artwork](article-images.md) for prompts, caching, alt text, and social previews.
 
 The newest published article is featured automatically on the article listing and supplies the default site sharing image. Publication date determines the order; update time breaks ties for articles published on the same day. Keep `featuredArticle` set to `null` in `content/editorial.json` for this automatic behavior. To deliberately pin an article, set its slug there or set `"featured": true` on one authored published article.
+
+## Search metadata and reading paths
+
+For a published tutorial, add a concise, feature-specific search title and unique plain-text description to `content/seo/metadata.json`, keyed by its stable URL. Keep the visible editorial title useful and accurate. Add the article or Quick Win slug to the relevant collection in `content/seo/topics.json`; these memberships power related reading, topic pages and structured data. Source records remain the authority for authors and dates. Run `npm run seo:check` to audit a temporary production build. See [search visibility](seo.md) for maintenance, Search Console setup and the editorial roadmap.

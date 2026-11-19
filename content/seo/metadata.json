@@ -1,0 +1,150 @@
+{
+  "/": {
+    "title": "CSS Tutorials, Examples and Front-End Guides",
+    "description": "Learn modern CSS with practical tutorials, interactive examples and reusable snippets. Explore responsive layout, selectors, typography and animation."
+  },
+  "/articles/": {
+    "title": "CSS Tutorials and In-Depth Front-End Guides",
+    "description": "Explore CSS tutorials on Grid, Flexbox, container queries, selectors, cascade layers, colors and animations, with practical examples for front-end developers."
+  },
+  "/quick-wins/": {
+    "title": "CSS Snippets and Quick Front-End Fixes",
+    "description": "Copy practical CSS snippets for responsive layouts, fluid typography, scrolling, focus styles and forms. Small improvements for everyday front-end work."
+  },
+  "/resources/": {
+    "title": "CSS and Front-End Development Resources",
+    "description": "Find trusted CSS and front-end resources, including MDN, CSS-Tricks, visual layout guides, tutorials, creative inspiration and developer surveys."
+  },
+  "/topics/": {
+    "title": "Learn CSS by Topic: Layout, Selectors and Animation",
+    "description": "Choose a CSS learning path through responsive layouts, selectors and the cascade, animation, typography, color, accessible controls and forms."
+  },
+  "/articles/scroll-state/": {
+    "title": "CSS Scroll State Queries, Scroll Markers and Buttons",
+    "description": "Learn how CSS scroll-state queries, scroll markers and scroll buttons help build scrolling interfaces, with practical examples and progressive enhancement."
+  },
+  "/articles/specificity/": {
+    "title": "CSS Specificity Explained: Selectors and the Cascade",
+    "description": "Understand CSS specificity, compare selector weights, and resolve cascade conflicts without relying on increasingly complex selectors or !important."
+  },
+  "/articles/style-queries/": {
+    "title": "CSS Style Queries for Responsive Components",
+    "description": "Use CSS style queries and custom properties to adapt components to their styling context. Explore practical patterns beyond viewport-based breakpoints."
+  },
+  "/articles/popovers-anchors/": {
+    "title": "CSS Anchor Positioning and the HTML Popover API",
+    "description": "Build tooltips, menus and overlays with CSS anchor positioning and the HTML Popover API. Learn how native positioning fits into your interface."
+  },
+  "/articles/page-transitions/": {
+    "title": "CSS View Transitions for Multi-Page Navigation",
+    "description": "Explore CSS view transitions for smoother page navigation, including cross-document transitions and progressive enhancement for supported browsers."
+  },
+  "/articles/modern-resets/": {
+    "title": "Modern CSS Resets: A Practical Guide",
+    "description": "Build a modern CSS reset that works with browser defaults. Review box sizing, spacing, typography and sensible foundations for front-end projects."
+  },
+  "/articles/subgrid/": {
+    "title": "CSS Subgrid: Align Nested Grid Layouts",
+    "description": "Learn how CSS subgrid shares parent grid tracks with nested components. Build aligned cards and layouts without duplicating track definitions."
+  },
+  "/articles/text-margin-trim/": {
+    "title": "CSS Text Spacing: Understanding Text Edge Trimming",
+    "description": "Explore font metrics and text edge trimming in CSS. Read the current text-box-trim correction alongside the original discussion of text spacing."
+  },
+  "/articles/flex-safe/": {
+    "title": "CSS Flexbox Safe Alignment: Prevent Clipped Content",
+    "description": "Learn how safe alignment works in CSS Flexbox to keep overflowing content reachable. Compare alignment behavior and avoid clipped layouts."
+  },
+  "/articles/color-mix/": {
+    "title": "CSS color-mix(): Blend Colors, Tints and Shades",
+    "description": "Use the CSS color-mix() function to create tints, shades and color blends. Learn practical palette patterns with examples of color interpolation."
+  },
+  "/articles/smart-selectors/": {
+    "title": "CSS :is(), :where() and :has() Selectors Explained",
+    "description": "Compare CSS :is(), :where() and :has() selectors. Simplify selector lists, manage specificity, and style elements based on their relationships."
+  },
+  "/articles/calc-size/": {
+    "title": "CSS calc-size(): Calculate and Animate Intrinsic Sizes",
+    "description": "Explore CSS calc-size() for calculations involving intrinsic sizes. Learn sizing and animation patterns, with browser support and fallback considerations."
+  },
+  "/articles/container-query-units/": {
+    "title": "CSS Container Query Units: cqw, cqh and cqi",
+    "description": "Size responsive components with CSS container query units. Learn how cqw, cqh and cqi relate to a container rather than the browser viewport."
+  },
+  "/articles/the-layer-rule/": {
+    "title": "CSS @layer: Cascade Layers and Specificity",
+    "description": "Organize CSS with @layer and control the order of cascade layers. Understand where layers fit alongside specificity, source order and !important."
+  },
+  "/articles/transition-behavior/": {
+    "title": "CSS transition-behavior: Animate Discrete Changes",
+    "description": "Learn how transition-behavior: allow-discrete enables CSS entry and exit transitions for discrete changes, with practical examples and fallbacks."
+  },
+  "/articles/sibling-index/": {
+    "title": "CSS sibling-index(): Stagger Animations with a Delay Cap",
+    "description": "Use CSS sibling-index() to stagger list animations, cap animation delays, and respect prefers-reduced-motion. Includes CSS examples and fallbacks."
+  },
+  "/quick-wins/simplify-slideshows-with-scroll-snap/": {
+    "title": "CSS Scroll Snap: A Simple Slideshow Pattern",
+    "description": "Create a CSS scroll snap slideshow with scroll-snap-type and scroll-snap-align. Copy the snippet and build a horizontally scrolling interface."
+  },
+  "/quick-wins/smooth-scrolling-for-anchor-links/": {
+    "title": "CSS Smooth Scrolling for Anchor Links",
+    "description": "Add smooth scrolling to in-page anchor links with CSS scroll-behavior. Get a small, practical snippet for more polished page navigation."
+  },
+  "/quick-wins/style-one-element-based-on-another/": {
+    "title": "CSS :has(): Style a Parent Based on Its Child",
+    "description": "Use the CSS :has() pseudo-class to style a parent when it contains a matching child. Copy a focused example for relationship-based styling."
+  },
+  "/quick-wins/make-elements-respect-dynamic-viewport-height/": {
+    "title": "CSS dvh: Fix Mobile Full-Height Layouts",
+    "description": "Use CSS dynamic viewport height units to size mobile layouts around changing browser controls. Compare 100dvh with traditional viewport height."
+  },
+  "/quick-wins/balance-multi-line-headings-automatically/": {
+    "title": "CSS text-wrap: balance for Better Heading Line Breaks",
+    "description": "Balance multi-line headings with CSS text-wrap: balance. Copy a short typography snippet that reduces awkward heading line breaks."
+  },
+  "/quick-wins/keep-form-focus-indicators-consistent/": {
+    "title": "CSS :focus-visible: Consistent Keyboard Focus Styles",
+    "description": "Style keyboard focus indicators with CSS :focus-visible. Use consistent outlines to make forms and interactive controls easier to navigate."
+  },
+  "/quick-wins/prevent-layout-shift-when-scrollbars-appear/": {
+    "title": "CSS scrollbar-gutter: Prevent Scrollbar Layout Shifts",
+    "description": "Reserve space for scrollbars with CSS scrollbar-gutter: stable. Prevent horizontal layout jumps when content starts or stops scrolling."
+  },
+  "/quick-wins/trim-unwanted-spacing-from-text-edges/": {
+    "title": "CSS text-box-trim: Remove Extra Text Edge Spacing",
+    "description": "Use CSS text-box-trim to reduce extra space around text caused by font metrics. Copy a focused example for more precise typographic alignment."
+  },
+  "/quick-wins/create-fluid-typography-that-scales/": {
+    "title": "CSS clamp(): Fluid Typography Without Breakpoints",
+    "description": "Create responsive font sizes with CSS clamp(), viewport units and minimum and maximum sizes. Copy a practical fluid typography snippet."
+  },
+  "/quick-wins/field-sizing/": {
+    "title": "CSS field-sizing: A Textarea That Grows to Eight Lines",
+    "description": "Build a growing textarea with CSS field-sizing: content, cap its height at eight lines, and keep longer replies scrollable with a usable fallback."
+  },
+  "/resources/kevin-powell/": {
+    "title": "Kevin Powell: CSS Tutorials and Front-End Learning",
+    "description": "Discover Kevin Powell\u2019s CSS tutorials and practical explanations of responsive layouts, modern styling techniques and everyday front-end patterns."
+  },
+  "/resources/ahmad-shadeed/": {
+    "title": "Ahmad Shadeed: CSS Layout and UI Design Articles",
+    "description": "Explore Ahmad Shadeed\u2019s visual explanations of CSS layouts, responsive components and interface edge cases, selected for front-end developers."
+  },
+  "/resources/lynn-fisher/": {
+    "title": "Lynn Fisher: Creative CSS and Front-End Inspiration",
+    "description": "Explore Lynn Fisher\u2019s creative front-end work, CSS illustrations and experimental interfaces for inspiration beyond everyday component patterns."
+  },
+  "/resources/state-of-css-devographics/": {
+    "title": "State of CSS: Front-End Trends and Developer Surveys",
+    "description": "Find the State of CSS survey by Devographics. Explore how developers use CSS features, follow emerging patterns and identify learning opportunities."
+  },
+  "/resources/css-tricks/": {
+    "title": "CSS-Tricks: CSS Guides and Front-End Resources",
+    "description": "Find CSS-Tricks articles, references and practical guides for CSS and front-end development, with a direct link to the original resource."
+  },
+  "/resources/mdn-web-docs/": {
+    "title": "MDN Web Docs: CSS, HTML and JavaScript Reference",
+    "description": "Find MDN Web Docs for CSS syntax, HTML elements, JavaScript APIs and browser compatibility. Go directly to authoritative web platform documentation."
+  }
+}

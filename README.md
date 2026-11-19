@@ -69,6 +69,7 @@ Install the test browsers once with `npx playwright install chromium webkit`. Br
 - [Authoring](docs/authoring.md): adding and publishing content.
 - [Editorial studio](docs/editorial-studio.md): private web research, AI drafts, and local publishing.
 - [Article images](docs/article-images.md): unique AI hero artwork, publishing automation, and social cards.
+- [Search visibility](docs/seo.md): SEO checks, article metadata, CSS topic paths and Search Console setup.
 - [Deployment](docs/deployment.md): Vercel and Netlify configuration, production metadata, and rollback.
 - [Repository organization](docs/repository.md): file moves, Git exclusions, and local archives.
 - [APEX migration](docs/apex-migration.md): refreshing the reviewed legacy snapshot.

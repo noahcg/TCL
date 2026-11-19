@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "responsive-layout",
+    "title": "Responsive CSS Layout",
+    "description": "Learn responsive CSS with Grid, subgrid, Flexbox, container query units and intrinsic sizing. Choose a layout technique based on the problem your component needs to solve.",
+    "intro": "A responsive interface needs more than a smaller breakpoint. A card might sit in a sidebar, a full-width feed or a nested grid, while its content keeps changing. These guides approach layout from the component outward: decide what controls its size, what should align, and what must remain reachable when space runs out.",
+    "sections": [
+      {"title": "Start with the layout constraint", "text": "Use Grid when rows and columns need a shared structure. When a nested card must align its heading and footer with neighboring cards, investigate subgrid rather than copying track definitions. For a row of items that distributes available space, Flexbox may be the simpler starting point. Test both short and long content before adding breakpoints."},
+      {"title": "Let the component respond to its surroundings", "text": "Container query units make sizing relative to a component’s container instead of the whole viewport. Style queries address a different question: how should a component adapt to its styling context? Read these as complementary tools. For mobile full-height panels, check dynamic viewport units, and reserve scrollbar space when changing content would otherwise shift the layout."}
+    ],
+    "articles": ["container-query-units", "subgrid", "flex-safe", "style-queries", "calc-size"],
+    "quickWins": ["make-elements-respect-dynamic-viewport-height", "prevent-layout-shift-when-scrollbars-appear"]
+  },
+  {
+    "slug": "selectors-and-cascade",
+    "title": "CSS Selectors and the Cascade",
+    "description": "Understand CSS specificity, cascade layers, :is(), :where() and :has(). Build predictable styles without escalating selector complexity.",
+    "intro": "When a declaration does not win, the first step is to understand the cascade rather than add another class or reach for !important. This learning path connects selector matching, specificity and cascade layers, then shows how modern selectors can express relationships with less repetition.",
+    "sections": [
+      {"title": "Debug the winning declaration", "text": "Inspect the element in browser developer tools and find the declaration that actually applies. Check whether competing rules belong to different origins or cascade layers before comparing selector weights. Specificity explains only part of the decision. A deliberate layer order can keep resets, component styles and intentional overrides understandable as a project grows."},
+      {"title": "Choose selectors that describe intent", "text": "Use :is() to group alternatives and :where() when those alternatives should add no specificity. Use :has() when styling depends on a matching relationship, such as a card containing an image. These selectors are useful for different reasons; combining them blindly can make a rule harder to debug. Begin with the focused examples below, then test the selector against the actual markup."}
+    ],
+    "articles": ["specificity", "the-layer-rule", "smart-selectors", "modern-resets"],
+    "quickWins": ["style-one-element-based-on-another"]
+  },
+  {
+    "slug": "animation-and-scrolling",
+    "title": "CSS Animation, Transitions and Scrolling",
+    "description": "Explore CSS view transitions, discrete transitions, scroll state, scroll snap and staggered animations, with progressive enhancement and reduced-motion considerations.",
+    "intro": "Motion should help people follow a change, reach content or understand where they are. Start with an interface that works at rest, then enhance the moments that benefit from movement. This collection links navigation transitions, scrolling interfaces and small component animations so you can choose the right mechanism.",
+    "sections": [
+      {"title": "Match the technique to the change", "text": "A transition between documents is different from an element opening or closing inside a page. View transitions address the navigation experience, while transition-behavior can help with discrete entry and exit changes. For a batch of notifications, sibling-index() can derive stagger timing from element order. Capping the delay prevents later messages from spending too long waiting for their turn."},
+      {"title": "Keep the quiet version usable", "text": "Check prefers-reduced-motion before adding nonessential motion, and keep text readable before, during and after a transition. Scroll snap can help a user land on an item, but the scrolling region still needs to be reachable by keyboard. Newer CSS features also need support checks: preserve a static layout and native navigation when the enhancement is unavailable."}
+    ],
+    "articles": ["sibling-index", "page-transitions", "transition-behavior", "scroll-state", "popovers-anchors"],
+    "quickWins": ["simplify-slideshows-with-scroll-snap", "smooth-scrolling-for-anchor-links"]
+  },
+  {
+    "slug": "typography-and-color",
+    "title": "CSS Typography and Color",
+    "description": "Improve CSS typography and color with clamp(), text-wrap: balance, text-box-trim and color-mix(). Learn practical techniques for readable interfaces.",
+    "intro": "Type and color make a layout feel intentional, but they also affect how comfortably someone can read it. These guides focus on a few useful controls: bounded fluid sizing, balanced headings, precise text edges and color mixing. Apply them to a real component rather than treating each property as a decoration.",
+    "sections": [
+      {"title": "Give typography sensible limits", "text": "Use clamp() to express a minimum, a preferred fluid value and a maximum font size. Check the result with enlarged text and narrow screens rather than judging it only at one desktop width. text-wrap: balance can improve short headings, while text-box-trim addresses a separate issue: extra space from font metrics at the edges of the text box."},
+      {"title": "Build a palette you can explain", "text": "color-mix() lets you derive related colors directly in CSS, such as a quieter surface from an existing palette color. The interpolation space changes the result, so compare the actual rendered colors. A related color is not automatically readable: check the foreground against its final background. For text trimming, start with the current Quick Win and consult the correction on the older text-spacing article."}
+    ],
+    "articles": ["color-mix", "text-margin-trim"],
+    "quickWins": ["create-fluid-typography-that-scales", "balance-multi-line-headings-automatically", "trim-unwanted-spacing-from-text-edges"]
+  },
+  {
+    "slug": "forms-and-accessibility",
+    "title": "CSS Forms and Accessible Interfaces",
+    "description": "Build better CSS forms and interactions with field-sizing, visible keyboard focus, safe alignment and reduced-motion patterns. Keep controls usable as content changes.",
+    "intro": "A polished control should remain usable when someone tabs through it, writes a longer reply, enlarges text or prefers less motion. This path brings together small CSS improvements that help interfaces handle those everyday conditions. The aim is a reliable interaction before a visual flourish.",
+    "sections": [
+      {"title": "Test the interaction before styling it", "text": "Navigate the form with a keyboard and make sure the current control is easy to identify. :focus-visible helps target a useful focus treatment without removing the browser’s fallback indiscriminately. For a reply field, field-sizing: content can grow the textarea with its value; a maximum block size and internal scrolling keep long replies from pushing the submit button out of reach."},
+      {"title": "Check the uncomfortable cases", "text": "Try a long label, a narrow panel and enlarged text. Safe alignment can keep overflowing content reachable instead of clipping the beginning. Native popovers and anchor positioning can reduce positioning work, but they do not replace checking the control’s name, keyboard behavior and dismissal. For animated feedback, use reduced-motion preferences and keep the message readable even when the animation never runs."}
+    ],
+    "articles": ["flex-safe", "popovers-anchors", "sibling-index"],
+    "quickWins": ["field-sizing", "keep-form-focus-indicators-consistent"]
+  }
+]

@@ -3,6 +3,7 @@ import { parseFragment } from 'parse5';
 import { highlightCode, highlightCodeBlocks } from './highlight.mjs';
 import { featuredArticle } from './article-media.mjs';
 import { cssInAction } from './css-in-action.mjs';
+import { seoMetadata, structuredData, topics, topicPath, topicEntries, entryTopics, relatedEntries } from './seo.mjs';
 
 export const site = 'The Cascade Lounge';
 const nav = [
@@ -42,6 +43,7 @@ const arrow = icon('external', 'link-icon');
 const forward = icon('arrow', 'link-icon');
 
 function interiorVariant(path) {
+  if (path?.startsWith('/topics/')) return 'articles-index';
   if (!path || !/^\/(articles|quick-wins|resources)\//.test(path)) return null;
   const section = path.split('/')[1];
   return `${section === 'articles' ? 'articles' : section === 'quick-wins' ? 'quick' : 'resources'}-${path === `/${section}/` ? 'index' : 'detail'}`;
@@ -65,7 +67,7 @@ function footer(path) {
   return `<footer class="site-footer"><div class="footer-inner">
     ${loungeBrand('footer-brand', path === '/')}
     <p class="footer-tagline">Styles flow. Ideas spill.</p>
-    <nav aria-label="Footer"><ul>${nav.map(([href, label]) => `<li><a href="${href}"${path === href ? ' aria-current="page"' : path?.startsWith(href) ? ' aria-current="location"' : ''}>${label}</a></li>`).join('')}</ul></nav>
+    <nav aria-label="Footer"><ul>${[...nav, ['/topics/', 'CSS Topics']].map(([href, label]) => `<li><a href="${href}"${path === href ? ' aria-current="page"' : path?.startsWith(href) ? ' aria-current="location"' : ''}>${label}</a></li>`).join('')}</ul></nav>
   </div></footer>`;
 }
 
@@ -76,9 +78,10 @@ function credit(entry) {
   return `<footer class="credit">${attribution ? `<p>${e(attribution)}</p>` : ''}${source ? `<p>Source <a href="${e(source)}">${e(new URL(source).hostname)}</a></p>` : ''}</footer>`;
 }
 
-export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article, analytics = false }) {
-  const metadata = title ? `${title} · ${site}` : site;
-  const description = intro || 'CSS articles, practical techniques, and resources for front-end developers.';
+export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article, entry = article, items = [], breadcrumbs = [], analytics = false }) {
+  const seo = seoMetadata(path, title, intro, entry);
+  const metadata = `${seo.title} · ${site}`;
+  const description = seo.description;
   const url = siteUrl && path ? new URL(path, siteUrl).href : null;
   const imageUrl = siteUrl && image ? new URL(image.path, siteUrl).href : null;
   const interior = interiorVariant(path);
@@ -95,14 +98,15 @@ export function page({ path, title, intro, body, siteUrl, robots, homepage = fal
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
 <title>${e(metadata)}</title>
 <meta name="description" content="${e(description)}">
-${robots ? `<meta name="robots" content="${robots}">` : ''}
+${robots ? `<meta name="robots" content="${robots}">` : '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">'}
 ${url ? `<link rel="canonical" href="${e(url)}"><meta property="og:url" content="${e(url)}">` : ''}
 <meta property="og:title" content="${e(metadata)}">
 <meta property="og:description" content="${e(description)}">
 <meta property="og:site_name" content="${e(site)}">
-<meta property="og:type" content="${article ? 'article' : 'website'}">
-${article?.date ? `<meta property="article:published_time" content="${e(article.date)}">` : ''}
-${article?.updatedAt ? `<meta property="article:modified_time" content="${e(article.updatedAt)}">` : ''}
+<meta property="og:type" content="${entry && entry.type !== 'resource' ? 'article' : 'website'}">
+<meta property="og:locale" content="en_US">
+${entry?.date ? `<meta property="article:published_time" content="${e(entry.date)}">` : ''}
+${entry?.updatedAt ? `<meta property="article:modified_time" content="${e(entry.updatedAt)}">` : ''}
 ${imageUrl ? `<meta property="og:image" content="${e(imageUrl)}">
 <meta property="og:image:secure_url" content="${e(imageUrl)}">
 <meta property="og:image:type" content="${e(image.type)}">
@@ -114,6 +118,8 @@ ${imageUrl ? `<meta property="og:image" content="${e(imageUrl)}">
 <meta name="twitter:description" content="${e(description)}">
 <meta name="twitter:image" content="${e(imageUrl)}">
 <meta name="twitter:image:alt" content="${e(image.alt)}">` : ''}
+${siteUrl ? `<link rel="alternate" type="application/atom+xml" title="The Cascade Lounge — CSS Tutorials" href="${e(new URL('/feed.xml',siteUrl).href)}">` : ''}
+${!robots?.includes('noindex') ? structuredData({ path, title:seo.title, description, siteUrl, image, entry, items, breadcrumbs }) : ''}
 ${homepage ? '<link rel="preload" as="image" href="/assets/tcl-homepage-background.webp" fetchpriority="high">' : ''}
 ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.webp" fetchpriority="high">` : ''}
 ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
@@ -171,7 +177,8 @@ export function home(entries) {
     <a class="home-scroll-cue" href="#css-in-action" aria-label="Explore CSS in action below"><svg viewBox="0 0 24 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v24m-7-7 7 7 7-7"/></svg></a>
     </div>
     ${cssInAction(entries)}
-  </div>`;
+  </div>
+  ${topicNavigation('home-topic-navigation')}`;
 }
 
 const articleDisplay = {
@@ -204,6 +211,7 @@ export function articlesPage(entries) {
   const display = articleDisplay[featured?.slug] || {};
   return `${interiorLead('Articles', 'In-depth CSS for real-world builders.', 'Guides, deep dives, and thoughtful explorations of modern CSS.', 'archive-lead', 'In-depth CSS for <span class="title-phrase">real-world builders.</span>')}
   <div class="interior-paper archive-sheet">
+    ${topicNavigation('archive-topic-navigation')}
     ${featured ? `<a class="archive-feature${featured.image ? '' : ' without-thumbnail'}" href="${featured.path}" aria-labelledby="archive-feature-title">
       ${featured.image ? `<img src="${e(featured.image.path)}" width="${featured.image.width}" height="${featured.image.height}" alt="${e(featured.image.alt)}" fetchpriority="high">` : ''}
       <div class="archive-feature-copy"><p class="interior-eyebrow">Featured</p><h2 id="archive-feature-title">${e(featured.title)}</h2><p class="archive-feature-deck">${e(display.deck || featured.summary || '')}</p><div class="entry-meta">${dateLabel(featured.date)}<span aria-hidden="true">·</span>${readingTime(featured)}</div></div>
@@ -419,7 +427,7 @@ function quickShowcase() {
   </section>`;
 }
 
-export function detail(entry) {
+export function detail(entry, entries = []) {
   const section = entry.type === 'article' ? 'Articles' : entry.type === 'quick-win' ? 'Quick Wins' : 'Resources';
   const back = `/${entry.path.split('/')[1]}/`;
   const raw = entry.type === 'resource' ? entry.html.replace(/<h3\b[^>]*>[\s\S]*?<\/h3>/, '') : entry.html;
@@ -452,9 +460,11 @@ export function detail(entry) {
       <div class="prose">
         ${entry.type === 'article' && display.lede ? `<div class="article-opening"><p>${e(display.lede)}</p></div>` : ''}
         ${entry.type === 'quick-win' ? `<p class="quick-published">Published ${dateLabel(entry.date)}</p>` : ''}
+        ${entry.slug === 'text-margin-trim' && entry.type === 'article' ? `<aside class="editorial-correction" aria-label="CSS terminology correction"><strong>CSS terminology update</strong><p>The original article below uses the name <code>text-margin-trim</code>. The current CSS properties are <code>text-box-trim</code> and <code>text-box-edge</code>. Use the <a href="/quick-wins/trim-unwanted-spacing-from-text-edges/">current text-box-trim example</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-box-trim">MDN reference</a> for implementation.</p></aside>` : ''}
         ${codeControls(html).replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, table => `<div class="table-scroll" tabindex="0" role="region" aria-label="Article table">${table}</div>`)}
         ${entry.url ? `<p><a class="text-link" href="${e(entry.url)}">Visit ${e(entry.title)} ${arrow}</a></p>` : ''}
         ${credit(entry)}
+        ${relatedReading(entry, entries)}
       </div>
     </div></div>
   </article>`;
@@ -476,4 +486,29 @@ export function searchPage() {
 export function notFound() {
   return `${lead('Page not found', 'This address doesn’t lead to a page in The Cascade Lounge.')}
     <div class="interior-paper"><div class="shell sections"><a class="text-link" href="/articles/">Browse articles ${forward}</a></div></div>`;
+}
+
+function topicNavigation(className = '') {
+  return `<nav class="topic-navigation ${className}" aria-label="Learn CSS by topic"><p class="interior-eyebrow">Find your next CSS idea</p><h2><a href="/topics/">Learn CSS by topic</a></h2><ul>${topics.map(topic => `<li><a href="${topicPath(topic)}">${e(topic.title)}</a></li>`).join('')}</ul></nav>`;
+}
+
+function relatedReading(entry, entries) {
+  const groups = entryTopics(entry);
+  const related = relatedEntries(entry, entries);
+  if (!groups.length && !related.length) return '';
+  return `<aside class="related-reading" aria-labelledby="related-title"><p class="interior-eyebrow">Keep exploring</p><h2 id="related-title">Related CSS guides</h2><ul>${related.map(other => `<li><a href="${e(other.path)}">${e(other.title)}</a><p>${e(seoMetadata(other.path, other.title, other.summary, other).description)}</p></li>`).join('')}</ul>${groups.length ? `<nav aria-label="Related CSS topics">${groups.map(topic => `<a href="${topicPath(topic)}">${e(topic.title)}</a>`).join('')}</nav>` : ''}</aside>`;
+}
+
+export function topicsPage() {
+  return `${interiorLead('The CSS reading room', 'Learn CSS by topic', 'Choose a problem, follow a learning path, and put the examples to work.')}
+  <div class="interior-paper topic-paper"><section class="topic-introduction"><h2>A starting point for your next front-end project</h2><p>Use these reading paths to connect a CSS concept to a practical interface problem. Each collection brings together in-depth articles and short, reusable examples. Start with layout and the cascade, then explore motion, typography and accessible controls as your project needs them.</p></section><div class="topic-grid">${topics.map(topic => `<section class="topic-card"><h2><a href="${topicPath(topic)}">${e(topic.title)}</a></h2><p>${e(topic.description)}</p><a class="text-link" href="${topicPath(topic)}">Explore this CSS topic</a></section>`).join('')}</div></div>`;
+}
+
+export function topicPage(topic, entries) {
+  const members = topicEntries(topic, entries);
+  const section = (type, title) => {
+    const list = members.filter(entry => entry.type === type);
+    return list.length ? `<section class="topic-reading-list"><h2>${title}</h2><ul>${list.map(entry => `<li><h3><a href="${e(entry.path)}">${e(entry.title)}</a></h3><p>${e(seoMetadata(entry.path,entry.title,entry.summary,entry).description)}</p></li>`).join('')}</ul></section>` : '';
+  };
+  return `${interiorLead('CSS learning path',topic.title,topic.description)}<div class="interior-paper topic-paper"><nav class="topic-breadcrumbs" aria-label="Breadcrumb"><a href="/topics/">All CSS topics</a><span aria-current="page">${e(topic.title)}</span></nav><div class="topic-guide"><div class="topic-introduction"><h2>Where to begin</h2><p>${e(topic.intro)}</p>${topic.sections.map(part => `<h2>${e(part.title)}</h2><p>${e(part.text)}</p>`).join('')}</div><div>${section('article','In-depth CSS guides')}${section('quick-win','CSS snippets to try')}</div></div>${topicNavigation()}</div>`;
 }

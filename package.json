@@ -20,7 +20,7 @@
     "clean": "node scripts/clean.mjs",
     "test": "node --test tests/unit/*.test.mjs",
     "test:browser": "playwright test",
-    "verify": "npm run content:verify && npm test && npm run build",
+    "verify": "npm run content:verify && npm test && npm run build && npm run seo:check",
     "verify:all": "npm run verify && npm run test:browser",
     "content:verify": "node scripts/migration/import-apex.mjs",
     "content:import": "node scripts/migration/import-apex.mjs --apply",
@@ -28,7 +28,8 @@
     "images:plan": "node scripts/article-images.mjs --plan",
     "images:generate": "node --env-file-if-exists=.env.local scripts/article-images.mjs",
     "images:import": "node scripts/article-images.mjs --import",
-    "content:prepare": "npm run images:generate && npm run verify"
+    "content:prepare": "npm run images:generate && npm run verify",
+    "seo:check": "node scripts/seo-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.3.0",

@@ -4,11 +4,13 @@ import { basename, dirname, join, resolve } from 'node:path';
 import mdnData from 'mdn-data';
 import { loadContent, sourceUrl } from '../src/build/content.mjs';
 import { buildEnvironment } from '../src/build/environment.mjs';
-import { featuredArticle, loadArticleImages } from '../src/build/article-media.mjs';
+import { loadArticleImages } from '../src/build/article-media.mjs';
 import { loadHomeShareImage } from '../src/build/site-media.mjs';
-import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, searchPage } from '../src/build/pages.mjs';
+import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, searchPage, topicsPage, topicPage } from '../src/build/pages.mjs';
 
-const directory = resolve('dist');
+import { topics, topicPath, topicEntries, seoMetadata, sitemapXml, atomFeed } from '../src/build/seo.mjs';
+
+const directory = resolve(process.env.TCL_OUTPUT_DIRECTORY || 'dist');
 const { publishing, siteUrl } = buildEnvironment();
 const analytics = publishing && process.env.VERCEL_ENV === 'production';
 
@@ -19,17 +21,21 @@ const byType = (type) => content.filter(record => record.type === type);
 const articles = byType('article').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 const quick = byType('quick-win');
 const resources = byType('resource');
-const defaultImage = featuredArticle(articles)?.image;
+
 const homeShareImage = await loadHomeShareImage();
 
+const labelsForBreadcrumb = type => ({article:'CSS Articles','quick-win':'CSS Quick Wins',resource:'CSS Resources'})[type];
 const routes = [
   { path: '/', body: home(articles), homepage: true, image: homeShareImage },
-  { path: '/articles/', title: 'Articles', body: articlesPage(articles) },
-  { path: '/quick-wins/', title: 'Quick Wins', body: quickPage(quick) },
-  { path: '/resources/', title: 'Resources', body: resourcesPage(resources) },
+  { path: '/articles/', title: 'Articles', body: articlesPage(articles), items:articles },
+  { path: '/quick-wins/', title: 'Quick Wins', body: quickPage(quick), items:quick },
+  { path: '/resources/', title: 'Resources', body: resourcesPage(resources), items:resources },
+  { path:'/topics/', title:'Learn CSS by Topic', body:topicsPage(), items:topics.map(topic => ({ title:topic.title, path:topicPath(topic) })) },
+  ...topics.map(topic => ({ path:topicPath(topic), title:topic.title, intro:topic.description, body:topicPage(topic,content), items:topicEntries(topic,content), breadcrumbs:[{title:'CSS Topics',path:'/topics/'},{title:topic.title,path:topicPath(topic)}] })),
   { path: '/search/', title: 'Search', body: searchPage(), noIndex: true },
   { path: null, title: 'Page not found', body: notFound(), noIndex: true },
-  ...content.map(entry => ({ path: entry.path, title: entry.title, intro: entry.summary, body: detail(entry),
+  ...content.map(entry => ({ path: entry.path, title: entry.title, intro: entry.summary, body: detail(entry, content), entry,
+    breadcrumbs:[{title:labelsForBreadcrumb(entry.type),path:`/${entry.path.split('/')[1]}/`},{title:entry.title,path:entry.path}],
     image: entry.image, article: entry.type === 'article' ? entry : null })),
 ];
 
@@ -50,8 +56,8 @@ for (const [group, kind] of Object.entries(mdnGroups)) {
 const labels = { article: 'Article', 'quick-win': 'Quick Win', resource: 'Resource' };
 const index = {
   content: content.map(entry => ({
-    title: entry.title, type: labels[entry.type], url: entry.path, summary: entry.summary || '',
-    text: [entry.searchText, ...entry.tags].join(' '),
+    title: entry.title, type: labels[entry.type], url: entry.path, summary: seoMetadata(entry.path, entry.title, entry.summary, entry).description,
+    text: [entry.searchText, seoMetadata(entry.path,entry.title,entry.summary,entry).title, ...entry.tags].join(' '),
   })),
   reference: [...reference.values()],
 };
@@ -62,7 +68,7 @@ for (const route of routes) {
   const output = route.path ? join(directory, route.path, 'index.html') : join(directory, '404.html');
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, page({
-    ...route, image: route.image || defaultImage, siteUrl: publishing ? siteUrl : null,
+    ...route, image: route.image || homeShareImage, siteUrl: publishing ? siteUrl : null,
     analytics,
     robots: route.noIndex || !publishing ? 'noindex, follow' : null,
   }));
@@ -92,9 +98,8 @@ await copyFile(join('node_modules', '@vercel/analytics', 'dist/index.mjs'), join
 await copyFile(join('node_modules', '@vercel/analytics', 'LICENSE'), join(directory, 'assets', 'vercel-analytics-license.txt'));
 await writeFile(join(directory, 'search-index.json'), JSON.stringify(index));
 if (publishing) {
-  const indexed = routes.filter(route => route.path && !route.noIndex);
-  const urls = indexed.map(route => `<url><loc>${new URL(route.path, siteUrl).href}</loc></url>`).join('\n');
-  await writeFile(join(directory, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
+  await writeFile(join(directory, 'sitemap.xml'), sitemapXml(routes,siteUrl));
+  await writeFile(join(directory, 'feed.xml'), atomFeed(content,siteUrl));
 }
 await writeFile(join(directory, 'robots.txt'), `User-agent: *\nAllow: /\n${publishing ? `Sitemap: ${new URL('/sitemap.xml', siteUrl).href}\n` : ''}`);
 console.log(`Built ${routes.length - 1} routes and a 404 page in dist/.`);
