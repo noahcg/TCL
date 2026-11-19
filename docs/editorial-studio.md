@@ -51,4 +51,6 @@ The server checks its exact loopback Host, rejects cross-site requests, and requ
 
 ## Homepage feature dashboard
 
-The **A Closer Look** panel manages the homepage's lower feature: edit its explanation and demo copy, pin a favorite, or arrange the monthly rotation. It shows six upcoming months and rebuilds the local preview when saved. Restart the Studio after installing this update. See [homepage rotation setup](homepage-rotation.md) to activate unattended production rebuilds and publish settings.
+**A Closer Look** opens as a compact overview with a direct demo switcher. **Article demos** offers one playable example per published article, with Preview demo, Use now, Choose a month, and the article link. Previously demonstrated examples stay flagged and out of the default list.
+
+To schedule, open **Schedule demos**, pick a demo next to a month (or click **Fill unused articles**), then **Save schedule**. It shows 18 months and prevents duplicates. Local previews rebuild when saved; publish the settings to apply the schedule live. See [the step-by-step scheduling guide](homepage-rotation.md) for the one-time automatic live refresh connection. **Edit copy** keeps the selected topic's text separate from scheduling.

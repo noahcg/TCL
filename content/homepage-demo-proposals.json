@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "proposals": [
+    {
+      "articleSlug": "scroll-state",
+      "title": "A reading room that knows where you are",
+      "interaction": "Scroll a small reading panel with a sticky chapter heading and chapter markers.",
+      "result": "A stuck heading gains a clear “Reading” label; markers identify the current chapter and native buttons move between sections.",
+      "fallback": "Keep native scrolling and chapter links when the scroll enhancements are unsupported. Verify scroll-state, marker and button support independently.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "specificity",
+      "title": "Which rule gets the last word?",
+      "interaction": "Choose competing class, attribute and ID selectors for the same lounge invitation.",
+      "result": "Show the winning declaration beside a three-part specificity score, so changing a selector explains the result.",
+      "fallback": "Use ordinary selectors for the example; keep the score and winner available as text. Model importance, origin and layers separately from specificity.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "style-queries",
+      "title": "One card, three kinds of welcome",
+      "interaction": "Switch a named custom property between quiet, warm and high-contrast contexts on the parent.",
+      "result": "A nested invitation changes its spacing and treatment through style queries, with the selected context named in text.",
+      "fallback": "Show the base invitation if style queries are unavailable; verify the supported query syntax before implementation.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "popovers-anchors",
+      "title": "A note that stays close",
+      "interaction": "Open a native reading-note popover beside a bookmark button, then move that button toward the edges of a contained preview.",
+      "result": "The note follows its anchor and demonstrates alternate placements without covering the trigger.",
+      "fallback": "Retain native popover dismissal and Escape; use a normal in-flow note where anchor positioning or popovers are unavailable.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "page-transitions",
+      "title": "Follow a good idea from room to room",
+      "interaction": "Navigate between two real mini article pages with the same shared cover image.",
+      "result": "The cover and title move into their new positions, connecting the collection view to the reading view.",
+      "fallback": "Keep normal links and full page navigation; suppress motion for reduced-motion users. Verify same-origin cross-document transition requirements.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "modern-resets",
+      "title": "The same content, a better starting point",
+      "interaction": "Compare an isolated browser-default article with an isolated minimal-reset version; switch between prose, form and image examples.",
+      "result": "Reveal the effect of border-box sizing, sensible image defaults and inherited form typography while retaining useful browser behavior.",
+      "fallback": "Isolate each comparison so reset rules cannot affect the Studio or homepage. Keep both examples readable without scripting.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "subgrid",
+      "title": "Everything finds its line",
+      "interaction": "Add a longer title or description to one of three editorial cards, then toggle shared row tracks.",
+      "result": "Titles, descriptions and reading links align across nested cards even when their copy lengths differ.",
+      "fallback": "Use independent grid cards as a readable fallback; avoid promising matching tracks where subgrid is unsupported.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "text-margin-trim",
+      "title": "See the space around the letters",
+      "interaction": "Compare two large typographic specimens with visible cap-height and baseline guides; toggle trimming.",
+      "result": "The trimmed specimen sits flush with its intended text edges while the untrimmed line box remains visible alongside it.",
+      "fallback": "Review the article terminology before implementation: current documentation uses text-box-trim and text-box-edge. Unsupported browsers retain the original line box.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "flex-safe",
+      "title": "A welcome that never slips out of reach",
+      "interaction": "Increase the number of items in a narrow, scrollable flex row and compare center with safe center.",
+      "result": "Short rows stay centered; overflowing rows align from the start so the first item remains reachable.",
+      "fallback": "Keep native horizontal scrolling and a start-aligned baseline. Label each alignment mode with text.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "color-mix",
+      "title": "Build a palette from one warm note",
+      "interaction": "Adjust the proportion of amber mixed into a forest-green surface; compare sRGB and OKLCH samples.",
+      "result": "A set of related swatches, borders and buttons changes together, with proportions and resulting values shown.",
+      "fallback": "Use fixed palette tokens when color-mix is unsupported. Check text contrast independently; a related palette is not automatically accessible.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "smart-selectors",
+      "title": "Let the card describe its context",
+      "interaction": "Add or remove an image from an editorial card, then inspect matching :has(), :is() and :where() rules.",
+      "result": "The card responds to the image’s presence while a selector inspector explains what matched and how specificity differs.",
+      "fallback": "Use a readable base card without :has(); preserve the inspector explanation and avoid equating :is() and :where() specificity.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "calc-size",
+      "title": "A little more than auto",
+      "interaction": "Open a reading-note disclosure, add another paragraph and compare intrinsic height with an adjusted intrinsic size.",
+      "result": "The expanded frame follows its content and demonstrates a calculated amount of extra room instead of a guessed fixed height.",
+      "fallback": "Treat calc-size() as an experimental enhancement. Use an ordinary auto-sized disclosure when unsupported, and respect reduced motion.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "container-query-units",
+      "title": "The same idea, scaled to its surroundings",
+      "interaction": "Resize two independent cards side by side while keeping the browser width fixed.",
+      "result": "Type, padding and small decorative details scale with each card through cqi units, bounded by clamp().",
+      "fallback": "Retain rem-based spacing and type when container units are unavailable. Show each container’s measured width.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "the-layer-rule",
+      "title": "Set the order, settle the cascade",
+      "interaction": "Reorder base, component and utility layers around a deliberately conflicting invitation style.",
+      "result": "The winning style changes with layer precedence, accompanied by a short explanation of the rule that won.",
+      "fallback": "Keep the example scoped; explicitly distinguish normal declarations, unlayered styles and the reversed ordering of important declarations.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "transition-behavior",
+      "title": "A goodbye with a little grace",
+      "interaction": "Open and close a small reading-note panel with a native button.",
+      "result": "Opacity and discrete display changes cooperate so the panel can enter and leave smoothly without timeout-based removal.",
+      "fallback": "Show an immediate, readable open/closed state without discrete transitions. Keep aria-expanded synchronized and remove motion when requested.",
+      "status": "proposed"
+    },
+    {
+      "articleSlug": "sibling-index",
+      "title": "A whole list, one motion budget",
+      "interaction": "Switch between batches of seven and forty notifications, then replay their entrance.",
+      "result": "Only the first few items stagger; a capped delay keeps the final warning visible promptly in both batches.",
+      "fallback": "Keep all notification text readable from the start. Use a static list for reduced motion or unsupported sibling-index(); animate decoration rather than hiding content.",
+      "status": "proposed"
+    }
+  ]
+}

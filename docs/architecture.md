@@ -60,3 +60,7 @@ The normal build reads local files and installed packages. Network access is nee
 See [deployment](deployment.md) for configuration and [repository organization](repository.md) for file retention rules.
 
 The homepage feature catalog and monthly selection live in `content/homepage-feature.json` and `src/build/homepage-feature.mjs`. The Studio manages copy, queue order and pinning through authenticated endpoints. See [homepage rotation](homepage-rotation.md) for scheduled production rebuild setup.
+
+`content/homepage-demo-proposals.json` holds the Studio's curated article-to-demo ideas. The authenticated homepage dashboard resolves these against the current published article inventory and its real routes; an article without a proposal is labeled as needing an idea. Proposals are editorial concepts, separate from the executable rotation catalog.
+
+`src/build/article-demos.mjs` contains the executable article demo catalog, markup and exact CSS snippets. The build emits its scoped stylesheet to `/assets/article-demos.css`; homepage enhancement code handles the small content controls. `content/homepage-feature.json` stores explicit UTC month assignments, validated unique demo IDs and durable demonstrated flags. Studio preview routes render a selected example without changing saved settings.

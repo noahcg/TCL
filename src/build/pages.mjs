@@ -118,7 +118,7 @@ ${homepage ? '<link rel="preload" as="image" href="/assets/tcl-homepage-backgrou
 ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.webp" fetchpriority="high">` : ''}
 ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
 <link rel="stylesheet" href="/assets/site.css">
-${homepage ? '<link rel="stylesheet" href="/assets/css-in-action.css">\n<script type="module" src="/assets/css-in-action.js"></script>' : ''}
+${homepage ? '<link rel="stylesheet" href="/assets/css-in-action.css"><link rel="stylesheet" href="/assets/article-demos.css">\n<script type="module" src="/assets/css-in-action.js"></script>' : ''}
 ${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
 ${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resources.css">\n<script type="module" src="/assets/resources.js"></script>' : ''}
 <script type="module" src="/assets/site.js"></script>

@@ -1,3 +1,5 @@
+import AxeBuilder from '@axe-core/playwright';
+import { loadContent } from '../../src/build/content.mjs';
 import { test, expect } from '@playwright/test';
 import { mkdtemp, mkdir, writeFile, readFile, symlink, rm } from 'node:fs/promises';
 import { once } from 'node:events';
@@ -19,7 +21,9 @@ const testStudio = test.extend({
       publishedAt: '2026-01-02T12:00:00.000Z' };
     await mkdir(join(root, '.tcl-admin'));
     await mkdir(join(root, 'content'));
-    await writeFile(join(root, 'content/homepage-feature.json'), await readFile('content/homepage-feature.json'));
+    const homepageConfig = { ...JSON.parse(await readFile('content/homepage-feature.json','utf8')), mode:'monthly', startMonth:'2026-11', pinned:'container-queries', queue:['container-queries','fluid-type','aspect-ratio'], schedule:{}, usedDemos:['container-queries'], usedArticles:['container-query-units'] };
+    homepageConfig.features['fluid-type'].topic = 'Fluid typography';
+    await writeFile(join(root, 'content/homepage-feature.json'), JSON.stringify(homepageConfig));
     await symlink(join(process.cwd(), 'dist'), join(root, 'dist'));
     await writeFile(join(root, '.tcl-admin/state.json'), JSON.stringify({ version: 1, scans: [],
       drafts: [draft, article, quickWin], releases: [{ id: randomUUID(), draftId: article.id, status: 'submitted',
@@ -27,7 +31,7 @@ const testStudio = test.extend({
         createdAt: article.publishedAt, submittedAt: article.publishedAt, checks: 'Passed',
         config: { repository: 'test/lounge', branch: 'main' }, files: [], diff: '', pushed: [] }] }));
     let failPublication = false;
-    const server = await createAdminServer({ root, homepageBuilder: async () => {}, apiKey: 'test-only', inventoryLoader: async () => [],
+    const server = await createAdminServer({ root, homepageBuilder: async () => {}, apiKey: 'test-only', inventoryLoader: () => loadContent(),
       publisher: async () => { if (failPublication) throw new Error('Publication failed for this test.'); },
       livePreparer: async () => {}, liveSubmitter: async () => {} });
     server.listen(0, '127.0.0.1');
@@ -106,7 +110,10 @@ testStudio('homepage dashboard edits, pins and persists the curated rotation', a
   await page.goto(studio.url);
   const panel = page.locator('.homepage-panel');
   await expect(panel.getByRole('heading', { name: 'A Closer Look', exact: true })).toBeVisible();
+  await panel.getByRole('button', { name: 'Edit copy & settings', exact: true }).click();
   await expect(page.locator('#homepage-form')).toBeVisible();
+  await page.locator('#homepage-edit-topic').selectOption('fluid-type');
+  await page.getByText('Advanced rotation settings', {exact:true}).click();
   await page.locator('#homepage-mode').selectOption('manual');
   await page.locator('#homepage-pinned').selectOption('fluid-type');
   await page.locator('#home-fluid-type-headline').fill('Type with a little more room.');
@@ -114,7 +121,100 @@ testStudio('homepage dashboard edits, pins and persists the curated rotation', a
   await expect(page.locator('#homepage-status')).toContainText('Saved and local preview rebuilt');
   await expect(page.locator('#homepage-status')).toContainText('Fluid typography');
   await page.reload();
+  await panel.getByRole('button', { name: 'Edit copy & settings', exact: true }).click();
+  await page.locator('#homepage-edit-topic').selectOption('fluid-type');
   await expect(page.locator('#homepage-mode')).toHaveValue('manual');
   await expect(page.locator('#home-fluid-type-headline')).toHaveValue('Type with a little more room.');
   await expect(page.locator('#homepage-upcoming li')).toHaveCount(6);
+});
+
+
+testStudio('homepage notebook covers the article collection, filters and reflows accessibly', async ({ page, studio }, testInfo) => {
+  await page.goto(studio.url);
+  const panel = page.locator('.homepage-panel');
+  await expect(page.locator('#homepage-ready-count')).toContainText('18 working demos');
+  await expect(page.locator('#homepage-form')).toBeHidden();
+  await page.evaluate(() => document.fonts.ready);
+  await panel.screenshot({ path: testInfo.outputPath('homepage-overview.png') });
+  await panel.getByRole('button', { name: /Article demos/ }).click();
+  const articles = (await loadContent()).filter(entry => entry.type === 'article');
+  await expect(page.locator('.homepage-proposal')).toHaveCount(articles.length - 1);
+  await page.locator('#homepage-idea-state').selectOption('all');
+  await expect(page.locator('.homepage-proposal')).toHaveCount(articles.length);
+  await page.getByRole('searchbox', { name: 'Find an article or demo' }).fill('text-margin-trim');
+  await expect(page.locator('.homepage-proposal')).toHaveCount(1);
+  await page.locator('.homepage-proposal summary').press('Enter');
+  await expect(page.locator('.homepage-proposal-body')).toContainText('text-box-trim');
+  await page.setViewportSize({ width: 320, height: 900 });
+  const box = await panel.boundingBox();
+  expect(box.width).toBeLessThanOrEqual(320);
+  expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+  const result = await new AxeBuilder({ page }).include('.homepage-panel').withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
+  expect(result.violations.map(item => ({ id: item.id, nodes: item.nodes.map(node => node.target) }))).toEqual([]);
+});
+
+
+testStudio('compact homepage switcher persists demo history and excludes demonstrated ideas', async ({ page, studio }) => {
+  await page.goto(studio.url);
+  const panel = page.locator('.homepage-panel');
+  await expect(page.locator('#homepage-quick-demo')).toBeEnabled();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  expect((await panel.boundingBox()).height).toBeLessThan(570);
+  await page.locator('#homepage-quick-demo').selectOption('aspect-ratio');
+  await page.getByRole('button', { name: 'Use demo', exact: true }).click();
+  await expect(page.locator('#homepage-current-topic')).toHaveText('Aspect ratio');
+  await expect(page.locator('#homepage-status')).toContainText('History saved');
+  await page.reload();
+  await expect(page.locator('#homepage-quick-demo')).toHaveValue('aspect-ratio');
+  await expect(page.locator('#homepage-quick-demo option[value="container-queries"]')).toContainText('demonstrated');
+  await panel.getByRole('button', { name: /Article demos/ }).click();
+  await page.locator('#homepage-idea-search').fill('subgrid');
+  await page.locator('.homepage-proposal summary').click();
+  await page.getByRole('button', { name: 'Mark demonstrated', exact: true }).click();
+  await expect(page.locator('#homepage-status')).toContainText('Marked demonstrated');
+  await expect(page.locator('.homepage-proposal')).toHaveCount(0);
+  await page.locator('#homepage-idea-state').selectOption('demonstrated');
+  await expect(page.locator('.homepage-proposal-state')).toHaveText('Demonstrated');
+  await page.reload();
+  await panel.getByRole('button', { name: /Article demos/ }).click();
+  await page.locator('#homepage-idea-search').fill('subgrid');
+  await expect(page.locator('.homepage-proposal')).toHaveCount(0);
+});
+
+
+testStudio('month-by-month scheduling fills unused articles once and persists clear month choices', async ({ page, studio }, testInfo) => {
+  await page.goto(studio.url);
+  const panel = page.locator('.homepage-panel');
+  await expect(page.locator('#homepage-quick-demo')).toBeEnabled();
+  await panel.getByRole('button', { name: 'Schedule demos', exact: true }).click();
+  await expect(page.locator('[data-home-month]')).toHaveCount(18);
+  await page.getByRole('button', { name: 'Fill unused articles', exact: true }).click();
+  const selected = await page.locator('[data-home-month]').evaluateAll(fields => fields.map(field=>field.value).filter(Boolean));
+  expect(selected.length).toBe(15);
+  expect(new Set(selected).size).toBe(15);
+  await panel.screenshot({path:testInfo.outputPath('article-schedule.png')});
+  expect(selected).not.toContain('container-queries');
+  expect(selected).not.toContain('fluid-type');
+  await page.getByRole('button', { name: 'Save schedule', exact: true }).click();
+  await expect(page.locator('#homepage-schedule-status')).toContainText('Schedule saved');
+  await page.reload();
+  await panel.getByRole('button', { name: 'Schedule demos', exact: true }).click();
+  expect(await page.locator('[data-home-month]').evaluateAll(fields=>fields.map(field=>field.value).filter(Boolean))).toEqual(selected);
+});
+
+testStudio('article previews open the executable demo without changing the saved selection', async ({ page, studio }) => {
+  await page.goto(studio.url);
+  const panel = page.locator('.homepage-panel');
+  await expect(page.locator('#homepage-quick-demo')).toHaveValue('container-queries');
+  await panel.getByRole('button', { name: /Article demos/ }).click();
+  await page.locator('.homepage-proposal summary').first().click();
+  const opened = page.waitForEvent('popup');
+  await page.getByRole('link', { name: 'Preview demo', exact:true }).first().click();
+  const preview = await opened;
+  await expect(preview.locator('.article-demo')).toBeVisible();
+  await expect(preview.locator('.css-in-action-code pre')).toContainText('container-type: scroll-state');
+  await expect(preview.getByRole('link',{name:'Read the full breakdown'})).toHaveAttribute('href','/articles/scroll-state/');
+  await preview.close();
+  await page.reload();
+  await expect(page.locator('#homepage-quick-demo')).toHaveValue('container-queries');
 });

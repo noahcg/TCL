@@ -1,4 +1,6 @@
-import { readFeature, validateFeature, featureDashboard } from '../build/homepage-feature.mjs';
+import { cssInAction } from '../build/css-in-action.mjs';
+import { page } from '../build/pages.mjs';
+import { readFeature, validateFeature, featureDashboard, articleDemoProposals, demoArticles, selection, demonstratedDemos } from '../build/homepage-feature.mjs';
 import { atomicWrite } from './store.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -81,7 +83,7 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
         } catch { return send(500, { error: 'Could not load content. Check the studio terminal.' }); }
       }
       if (request.method === 'GET' && url.pathname === '/admin/api/homepage-feature') {
-        try { return send(200, featureDashboard(await readFeature(root))); }
+        try { const config = await readFeature(root); return send(200, { ...featureDashboard(config), proposals: await articleDemoProposals(await inventoryLoader(), config) }); }
         catch (error) { return send(400, { error: error.message }); }
       }
       if (request.method !== 'POST') return send(405, { error: 'Method not allowed.' });
@@ -93,7 +95,27 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
         if (url.pathname === '/admin/api/homepage-feature') {
           const previous = await readFeature(root);
           if (JSON.stringify(body.expected) !== JSON.stringify(previous)) throw new Error('The homepage settings changed. Reload this panel before saving.');
-          const config = validateFeature(body.config);
+          let edited = body.config;
+          if (body.activate) {
+            if (!Object.hasOwn(previous.features, body.activate)) throw new Error('Choose a working demo.');
+            edited = { ...previous, mode: 'manual', pinned: body.activate };
+            const seen = [...demonstratedDemos(previous), selection(previous).id, body.activate];
+            edited.usedDemos = [...new Set([...previous.usedDemos, ...seen])];
+            edited.usedArticles = [...new Set([...previous.usedArticles, ...seen.map(id => demoArticles[id]).filter(Boolean)])];
+          }
+          if (body.demonstratedArticle) {
+            const articles = await inventoryLoader();
+            if (!articles.some(item => item.type === 'article' && item.slug === body.demonstratedArticle && !['draft','archived'].includes(item.status))) throw new Error('Choose a published article.');
+            edited = { ...previous, usedArticles: [...new Set([...previous.usedArticles, body.demonstratedArticle])] };
+          }
+          const config = validateFeature(edited);
+          const alreadyUsed = new Set(demonstratedDemos(previous));
+          for (const [month, id] of Object.entries(config.schedule)) {
+            if (previous.schedule[month] !== id && alreadyUsed.has(id)) throw new Error('That demo has already been demonstrated. Use the manual switcher to revisit it deliberately.');
+          }
+          // History is append-only: copy edits and stale clients cannot resurrect used ideas.
+          config.usedDemos = [...new Set([...previous.usedDemos, ...config.usedDemos])];
+          config.usedArticles = [...new Set([...previous.usedArticles, ...config.usedArticles])];
           const file = join(root, 'content/homepage-feature.json');
           await atomicWrite(file, config);
           try { const build = homepageBuilder(root); pendingJob = build.catch(() => {}); await build; }
@@ -101,7 +123,7 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
             if (JSON.stringify(await readFeature(root)) !== JSON.stringify(config)) throw new Error('The build failed and settings changed outside Studio. Your newer changes were preserved.');
             await atomicWrite(file, previous); throw new Error('The preview build failed. Settings were restored.');
           }
-          return send(200, featureDashboard(config));
+          return send(200, { ...featureDashboard(config), proposals: await articleDemoProposals(await inventoryLoader(), config) });
         }
         if (url.pathname === '/admin/api/scan') {
           if (!apiKey) throw new Error('Set OPENAI_API_KEY in .env.local, then restart the studio.');
@@ -194,6 +216,13 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
       if (url.pathname === '/admin') {
         response.writeHead(308, { ...security, Location: '/admin/' }).end();
         return;
+      }
+      const preview = /^\/admin\/demo-preview\/([a-z0-9-]+)\/$/.exec(url.pathname);
+      if (preview) {
+        const config = await readFeature(root);
+        if (!Object.hasOwn(config.features, preview[1])) return send(404, 'Demo not found.', 'text/plain');
+        const articles = (await inventoryLoader()).filter(item => item.type === 'article' && !['draft','archived'].includes(item.status));
+        return send(200, page({ path: '/', homepage: true, body: cssInAction(articles, { config: { ...config, mode: 'manual', pinned: preview[1] } }) }), mime['.html']);
       }
       if (url.pathname === '/admin/') {
         const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');

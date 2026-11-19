@@ -1,3 +1,4 @@
+import { demoStyles } from '../src/build/article-demos.mjs';
 import { copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import mdnData from 'mdn-data';
@@ -74,6 +75,7 @@ await mkdir(join(directory, 'assets/articles'), { recursive: true });
 for (const image of images.values()) {
   await copyFile(image.source, join(directory, image.path));
 }
+await writeFile(join(directory, 'assets/article-demos.css'), demoStyles);
 await copyFile('src/assets/favicon.ico', join(directory, 'favicon.ico'));
 const fonts = [
   ['newsreader', 'newsreader-latin-wght-normal.woff2', 'newsreader.woff2'],

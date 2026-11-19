@@ -29,6 +29,134 @@
       "explanation": "Aspect-ratio gives an image a predictable frame. Here, a container query changes that frame from a wide view to a square as the card gains space.",
       "demoTitle": "One space. A different perspective.",
       "demoDescription": "A comfortable corner. A fresh perspective. Somewhere to stay curious."
+    },
+    "scroll-state": {
+      "topic": "Scroll state",
+      "headline": "A reading room that knows where you are",
+      "explanation": "Scroll the reading panel. Its heading stays nearby; supported browsers label it when stuck.",
+      "demoTitle": "A reading room that knows where you are",
+      "demoDescription": "The chapter heading stays visible. In supporting browsers, a Reading now label appears while it is stuck to the top edge."
+    },
+    "specificity": {
+      "topic": "CSS specificity",
+      "headline": "Which rule gets the last word?",
+      "explanation": "Enable a class rule, an ID rule, or both. The stronger selector determines the invitation’s border and message.",
+      "demoTitle": "Which rule gets the last word?",
+      "demoDescription": "The invitation border and winner label reveal which of the two competing selectors wins."
+    },
+    "style-queries": {
+      "topic": "Style queries",
+      "headline": "One card, three kinds of welcome",
+      "explanation": "Choose a warm context. A custom property carries that context to the nested invitation.",
+      "demoTitle": "One card, three kinds of welcome",
+      "demoDescription": "A nested invitation changes its spacing and treatment through style queries, with the selected context named in text."
+    },
+    "popovers-anchors": {
+      "topic": "Popovers & anchors",
+      "headline": "A note that stays close",
+      "explanation": "Open the reading note. Click outside or press Escape to dismiss the native popover.",
+      "demoTitle": "A note that stays close",
+      "demoDescription": "The note follows its anchor and demonstrates alternate placements without covering the trigger."
+    },
+    "page-transitions": {
+      "topic": "View transitions",
+      "headline": "Follow a good idea from room to room",
+      "explanation": "Switch between the collection and reading views. View Transitions connects the two states when available.",
+      "demoTitle": "Follow a good idea from room to room",
+      "demoDescription": "The collection changes into a reading preview, with a shared named view and a native transition when supported."
+    },
+    "modern-resets": {
+      "topic": "Modern CSS resets",
+      "headline": "The same content, a better starting point",
+      "explanation": "Compare content-box with border-box. Both frames request the same width and padding.",
+      "demoTitle": "The same content, a better starting point",
+      "demoDescription": "The box changes how it accounts for padding and borders; heading margins and the native control font adopt a minimal baseline."
+    },
+    "subgrid": {
+      "topic": "Subgrid",
+      "headline": "Everything finds its line",
+      "explanation": "Toggle shared tracks. The longer description shows why nested cards benefit from subgrid.",
+      "demoTitle": "Everything finds its line",
+      "demoDescription": "Titles, descriptions and reading links align across nested cards even when their copy lengths differ."
+    },
+    "text-margin-trim": {
+      "topic": "Text-edge trimming",
+      "headline": "See the space around the letters",
+      "explanation": "Toggle text-edge trimming and compare the line boxes against the specimen borders. The current CSS property is text-box-trim.",
+      "demoTitle": "See the space around the letters",
+      "demoDescription": "The trimmed specimen sits flush with its intended text edges while the untrimmed line box remains visible alongside it."
+    },
+    "flex-safe": {
+      "topic": "Safe flex alignment",
+      "headline": "A welcome that never slips out of reach",
+      "explanation": "Add more invitations, then choose safe centering. Overflow should begin where the first item stays reachable.",
+      "demoTitle": "A welcome that never slips out of reach",
+      "demoDescription": "Short rows stay centered; overflowing rows align from the start so the first item remains reachable."
+    },
+    "color-mix": {
+      "topic": "Color mixing",
+      "headline": "Build a palette from one warm note",
+      "explanation": "Adjust the amber proportion. Compare two real CSS color spaces; the labels stay readable independently of the swatches.",
+      "demoTitle": "Build a palette from one warm note",
+      "demoDescription": "Two swatches respond to the same amber proportion, showing the difference between sRGB and OKLCH mixing."
+    },
+    "smart-selectors": {
+      "topic": "Smart selectors",
+      "headline": "Let the card describe its context",
+      "explanation": "Include a cover image. :has() notices the content; :is() groups matching elements and :where() keeps the baseline selector gentle.",
+      "demoTitle": "Let the card describe its context",
+      "demoDescription": "Adding a cover changes the border through :has(); the CSS shows :is() grouping and a low-specificity :where() baseline."
+    },
+    "calc-size": {
+      "topic": "Intrinsic sizing",
+      "headline": "A little more than auto",
+      "explanation": "Ask for extra room around an intrinsically sized note. Supported browsers calculate from auto instead of guessing a fixed height.",
+      "demoTitle": "A little more than auto",
+      "demoDescription": "The expanded frame follows its content and demonstrates a calculated amount of extra room instead of a guessed fixed height."
+    },
+    "the-layer-rule": {
+      "topic": "Cascade layers",
+      "headline": "Set the order, settle the cascade",
+      "explanation": "Compare two declared layer orders. The selectors are identical in strength; the order of the layers decides the border.",
+      "demoTitle": "Set the order, settle the cascade",
+      "demoDescription": "The winning style changes with layer precedence, accompanied by a short explanation of the rule that won."
+    },
+    "transition-behavior": {
+      "topic": "Discrete transitions",
+      "headline": "A goodbye with a little grace",
+      "explanation": "Show and hide the note. Supporting browsers coordinate opacity with the discrete display change.",
+      "demoTitle": "A goodbye with a little grace",
+      "demoDescription": "Opacity and discrete display changes cooperate so the panel can enter and leave smoothly without timeout-based removal."
+    },
+    "sibling-index": {
+      "topic": "Sibling staggering",
+      "headline": "A whole list, one motion budget",
+      "explanation": "Switch between seven and forty notes and replay the decorative entrance. Every line of text is readable immediately.",
+      "demoTitle": "A whole list, one motion budget",
+      "demoDescription": "Only the first few items stagger; a capped delay keeps the final warning visible promptly in both batches."
     }
+  },
+  "usedDemos": [
+    "container-queries"
+  ],
+  "usedArticles": [
+    "container-query-units"
+  ],
+  "schedule": {
+    "2026-12": "scroll-state",
+    "2027-01": "specificity",
+    "2027-02": "style-queries",
+    "2027-03": "popovers-anchors",
+    "2027-04": "page-transitions",
+    "2027-05": "modern-resets",
+    "2027-06": "subgrid",
+    "2027-07": "text-margin-trim",
+    "2027-08": "flex-safe",
+    "2027-09": "color-mix",
+    "2027-10": "smart-selectors",
+    "2027-11": "calc-size",
+    "2027-12": "the-layer-rule",
+    "2028-01": "transition-behavior",
+    "2028-02": "sibling-index"
   }
 }

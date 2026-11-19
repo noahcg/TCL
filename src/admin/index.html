@@ -21,20 +21,31 @@
     <div id="connection" class="notice" role="status" hidden></div>
     <div id="message" class="notice" role="status" tabindex="-1" hidden></div>
     <section class="homepage-panel" aria-labelledby="homepage-heading">
-      <p class="eyebrow">THE HOMEPAGE</p><h2 id="homepage-heading">A Closer Look</h2>
-      <p>Your monthly CSS feature. Edit the copy, arrange the rotation, or keep a favorite in place.</p>
+      <header class="homepage-hero">
+        <div class="homepage-hero-copy"><p class="eyebrow">YOUR HOMEPAGE, CONSIDERED</p><h2 id="homepage-heading">A Closer <em>Look<span aria-hidden="true">.</span></em></h2><div class="homepage-current"><span>LOCAL SELECTION</span><strong id="homepage-current-topic">Loading your feature…</strong><p id="homepage-current-headline"></p></div><div class="homepage-switch"><label for="homepage-quick-demo">Show this demo</label><div><select id="homepage-quick-demo" disabled></select><button type="button" class="primary" id="homepage-switch" disabled>Use demo</button></div><span>Changes the local preview and pins your selection.</span></div><div class="homepage-hero-actions"><button type="button" class="secondary" data-home-view="edit">Edit copy & settings</button><a href="/#css-in-action" target="_blank" rel="noopener">Preview homepage</a></div></div>
+        <div class="homepage-hero-art" aria-hidden="true"><div class="homepage-art-caption">A space for good ideas.<span>The Cascade Lounge</span></div></div>
+      </header>
+      <div class="homepage-toolbar"><div class="homepage-tabs" role="group" aria-label="Homepage workspace"><button type="button" data-home-view="overview" aria-pressed="true">Overview</button><button type="button" data-home-view="schedule" aria-pressed="false">Schedule demos</button><button type="button" data-home-view="edit" aria-pressed="false">Edit copy</button><button type="button" data-home-view="ideas" aria-pressed="false">Article demos <span id="homepage-idea-count">0</span></button></div><span id="homepage-mode-label">Your editorial feature</span></div>
       <p id="homepage-status" role="status">Loading homepage settings…</p>
+      <div id="homepage-overview" class="homepage-overview"><span id="homepage-ready-count"></span><details class="homepage-calendar"><summary>Upcoming rotation</summary><ol id="homepage-upcoming"></ol></details></div>
+      <form id="homepage-schedule" hidden>
+        <h3>One month. One demo.</h3><p>Pick a demo beside a month, then save. An empty month keeps the previous demo. Used demos are flagged and cannot be scheduled again.</p>
+        <p id="homepage-schedule-mode"></p><div class="homepage-actions"><button type="button" class="secondary" id="homepage-fill-schedule">Fill unused articles</button><button type="submit" class="primary">Save schedule</button></div>
+        <div id="homepage-months"></div>
+        <p>Saving activates this schedule in the local preview. Publish the settings to apply it live. Automatic live refresh still requires the one-time deployment hook setup.</p>
+        <p id="homepage-schedule-status" role="status"></p>
+      </form>
+      <div id="homepage-ideas" hidden><div class="homepage-notebook-heading"><div><p class="eyebrow">FROM THE ARTICLE COLLECTION</p><h3>A demo for every article.</h3><p>Preview any article’s working demo, use it now, or give it a month. Demonstrated demos stay flagged.</p></div><label for="homepage-idea-search">Find an article or demo<input id="homepage-idea-search" type="search" placeholder="Try color, layout, motion…"></label></div><label for="homepage-idea-state">Show ideas<select id="homepage-idea-state"><option value="new">Not demonstrated</option><option value="demonstrated">Demonstrated</option><option value="all">All article demos</option></select></label><p id="homepage-ideas-status" role="status"></p><div id="homepage-proposals"></div></div>
       <form id="homepage-form" hidden>
-        <div class="homepage-fields"><div><label for="homepage-mode">How it changes</label><select id="homepage-mode"><option value="monthly">Rotate monthly</option><option value="manual">Keep one topic</option></select></div>
+        <details class="homepage-setup"><summary>Advanced rotation settings</summary><div class="homepage-fields"><div><label for="homepage-mode">How it changes</label><select id="homepage-mode"><option value="monthly">Rotate monthly</option><option value="manual">Keep one topic</option></select></div>
         <div><label for="homepage-start">Rotation starts (UTC month)</label><input id="homepage-start" type="month" required></div>
         <div><label for="homepage-pinned">Pinned topic</label><select id="homepage-pinned"></select></div></div>
         <label for="homepage-queue">Rotation order</label><select id="homepage-queue" multiple size="3" aria-describedby="homepage-queue-help"></select>
         <p id="homepage-queue-help">Select the topics to include. Use Move up / Move down to arrange them.</p>
         <div class="homepage-actions"><button type="button" id="homepage-up" class="secondary">Move up</button><button type="button" id="homepage-down" class="secondary">Move down</button></div>
-        <div id="homepage-copy" class="homepage-fields"></div>
-        <h3>Coming up</h3><ol id="homepage-upcoming"></ol>
+        </details><div class="homepage-editor-heading"><div><p class="eyebrow">MAKE IT YOURS</p><h3>A few well-chosen words.</h3></div><div><label for="homepage-edit-topic">Edit topic</label><select id="homepage-edit-topic"></select></div></div><div id="homepage-copy" class="homepage-fields"></div>
         <p>Only curated, tested demos rotate. Saving rebuilds this computer’s preview. Publish the settings through the normal repository deployment to update the live site.</p>
-        <p>Monthly live refresh requires the scheduled deployment hook described in the homepage rotation setup guide.</p>
+        <details class="homepage-setup"><summary>Publication & monthly refresh setup</summary><p>Monthly live refresh requires the scheduled deployment hook. See docs/homepage-rotation.md in this project for activation steps.</p></details>
         <div class="homepage-actions"><button class="primary" type="submit">Save & rebuild preview</button><a href="/#css-in-action" target="_blank" rel="noopener">View local feature</a></div>
       </form>
     </section>
