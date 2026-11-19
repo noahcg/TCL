@@ -2,6 +2,7 @@ import { escapeHtml as e, nodeText, walk } from './content.mjs';
 import { parseFragment } from 'parse5';
 import { highlightCode, highlightCodeBlocks } from './highlight.mjs';
 import { featuredArticle } from './article-media.mjs';
+import { cssInAction } from './css-in-action.mjs';
 
 export const site = 'The Cascade Lounge';
 const nav = [
@@ -117,6 +118,7 @@ ${homepage ? '<link rel="preload" as="image" href="/assets/tcl-homepage-backgrou
 ${stageArt ? `<link rel="preload" as="image" href="/assets/tcl-${stageArt}-hero.webp" fetchpriority="high">` : ''}
 ${article && image ? `<link rel="preload" as="image" href="${e(image.path)}" fetchpriority="high">` : ''}
 <link rel="stylesheet" href="/assets/site.css">
+${homepage ? '<link rel="stylesheet" href="/assets/css-in-action.css">\n<script type="module" src="/assets/css-in-action.js"></script>' : ''}
 ${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
 ${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resources.css">\n<script type="module" src="/assets/resources.js"></script>' : ''}
 <script type="module" src="/assets/site.js"></script>
@@ -155,11 +157,6 @@ function line(entry, external = false) {
 }
 
 export function home(entries) {
-  const destinations = [
-    { id: 'articles', title: 'Articles', description: 'In-depth guides on modern CSS techniques, patterns, and workflows.', path: '/articles/', icon: '<path d="m24 5 19 10-19 10L5 15Z M5 23l19 10 19-10 M5 31l19 10 19-10"/>' },
-    { id: 'quick-wins', title: 'Quick Wins', description: 'Practical, bite-sized CSS tips you can use right away.', path: '/quick-wins/', icon: '<path class="home-bolt" d="m29 3-20 24h13l-4 18 21-26H26Z"/>' },
-    { id: 'resources', title: 'Resources', description: 'Trusted references, tools, and links worth keeping close.', path: '/resources/', icon: '<path d="M24 10C17 5 10 6 4 8v30c7-2 13-2 20 3 7-5 13-5 20-3V8c-6-2-13-3-20 2Zm0 0v31"/>' },
-  ];
   return `<div class="home-composition">
     <div class="home-first-screen">
     <section class="home-intro" aria-labelledby="home-title">
@@ -171,15 +168,9 @@ export function home(entries) {
         <a class="home-button home-button-secondary" href="/articles/">Browse articles</a>
       </div>
     </section>
-    <a class="home-scroll-cue" href="#home-destinations" aria-label="Explore the Lounge below"><svg viewBox="0 0 24 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v24m-7-7 7 7 7-7"/></svg></a>
+    <a class="home-scroll-cue" href="#css-in-action" aria-label="Explore CSS in action below"><svg viewBox="0 0 24 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v24m-7-7 7 7 7-7"/></svg></a>
     </div>
-    <nav class="home-destinations" id="home-destinations" tabindex="-1" aria-label="Explore the Lounge">
-      ${destinations.map(item => `<a class="home-card home-card-${item.id}" href="${item.path}" aria-labelledby="home-${item.id}-title" aria-describedby="home-${item.id}-description">
-        <span class="home-card-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round">${item.icon}</svg></span>
-        <div class="home-card-copy"><h2 id="home-${item.id}-title">${item.title}</h2><p id="home-${item.id}-description">${item.description}</p></div>
-        <svg class="home-card-arrow" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h17m-7-7 7 7-7 7"/></svg>
-      </a>`).join('')}
-    </nav>
+    ${cssInAction(entries)}
   </div>`;
 }
 

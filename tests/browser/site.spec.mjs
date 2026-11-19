@@ -142,7 +142,7 @@ test('home leads to an article with a directly addressable section', async ({ pa
 });
 
 for (const method of ['pointer', 'keyboard']) {
-  test(`home actions and cards open their destinations with ${method}`, async ({ page }) => {
+  test(`home actions and preserved navigation open their destinations with ${method}`, async ({ page }) => {
     const activate = async link => {
       if (method === 'pointer') await link.click();
       else {
@@ -162,9 +162,10 @@ for (const method of ['pointer', 'keyboard']) {
     await expect(page).toHaveURL(/\/articles\/$/);
     for (const [name, path, heading] of [['Articles', '/articles/', 'In-depth CSS for real-world builders.'], ['Quick Wins', '/quick-wins/', 'Quick Wins'], ['Resources', '/resources/', 'Trusted CSS resources in one place.']]) {
       await page.goto('/');
-      const card = page.getByRole('navigation', { name: 'Explore the Lounge' }).getByRole('link', { name, exact: true });
-      await expect(card).toHaveAttribute('href', path);
-      await activate(card);
+      const link = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name, exact: true });
+      await expect(link).toHaveAttribute('href', path);
+      await expect(page.getByRole('navigation', { name: 'Footer', exact: true }).getByRole('link', { name, exact: true })).toHaveAttribute('href', path);
+      await activate(link);
       await expect(page).toHaveURL(new RegExp(`${path}$`));
       await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
     }

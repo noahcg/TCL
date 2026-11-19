@@ -10,11 +10,13 @@ The Cascade Lounge is a static publication. Build-time JavaScript creates HTML, 
 | `content/imported/watercooler/published.json` | Reviewed source snapshot and integrity seal |
 | `src/build/content.mjs` | Record validation, publication filtering, sanitization, source/code/anchor fidelity |
 | `src/build/pages.mjs` | Shared page shell, route templates, article presentation, reading guide |
+| `src/build/css-in-action.mjs` | Manually curated homepage feature, demo markup, optional published article reference; reads its CSS snippet directly from the demo stylesheet |
 | `src/build/highlight.mjs` | Build-time CSS, HTML, and JavaScript highlighting |
 | `src/build/environment.mjs` | Production/preview detection and canonical origins for Vercel and Netlify |
 | `src/build/article-media.mjs` | Featured article selection, image prompts, catalog validation, image optimization, and caching |
 | `src/build/image-generation.mjs` | Publishing-only OpenAI Images API adapter; never loaded by browser code |
 | `src/assets/site.css` | Typography, layout, component styles, responsive/print/forced-color rules |
+| `src/assets/css-in-action.css`, `src/assets/css-in-action.js` | Homepage-only container-query demo, native width control and copy feedback; scoped styles with a static stacked fallback |
 | `src/assets/quick-wins.css` | Quick Wins toolkit grid, topic controls, and small CSS previews; loaded only on its collection page |
 | `src/assets/resources.css`, `src/assets/resources.js` | Resources reading room, shelf navigation, URL-based search, and browser-local shortlist; loaded only on its collection page |
 | `src/assets/site.js` | Search, copy actions, topic filters, local bookmarks, sharing, reading progress, demo |

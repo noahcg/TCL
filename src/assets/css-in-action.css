@@ -1,0 +1,91 @@
+.css-in-action { --demo-cream:var(--home-cream); --demo-muted:#c8c6ae; --demo-rule:#626b53; margin:clamp(3.5rem,5vw,5rem) 6.22vw 0; padding-top:2rem; border-top:1px solid var(--demo-rule); color:var(--demo-cream); scroll-margin-block:2rem; overflow-wrap:anywhere }
+.css-in-action-heading { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:1.5rem 3rem; padding-bottom:clamp(2rem,4vw,4rem) }
+.css-in-action-eyebrow { color:var(--amber); font-size:.875rem; font-weight:650; letter-spacing:.14em; text-transform:uppercase; margin-bottom:1rem }
+.css-in-action h2 { font-size:clamp(3rem,6.4vw,6.5rem); font-weight:500; line-height:.95; letter-spacing:-.04em }
+.css-in-action h2 > span { color:var(--home-gold) }
+.css-in-action-heading-note { padding-bottom:.25rem; color:var(--demo-muted); font-size:1rem; line-height:1.5 }
+.css-in-action-intro { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:clamp(2rem,6vw,6rem); padding-bottom:2.5rem }
+.css-in-action-topic { color:var(--amber); font-size:.875rem; font-weight:650; margin-bottom:1rem }
+.css-in-action-intro h3 { font-size:clamp(2.25rem,3.5vw,3.5rem); line-height:1.08; max-width:20ch; font-weight:450 }
+.css-in-action-story { align-self:center; max-width:47ch; color:var(--demo-muted); font-size:1.0625rem }
+.css-in-action-story > p + p { margin-top:1rem }
+.css-in-action-article { display:inline-flex; align-items:center; min-height:44px; margin-top:1rem; font-size:1rem; font-weight:650; color:var(--demo-cream) }
+.css-in-action-demo { --demo-radius:1.5rem; min-inline-size:0; border:1px solid var(--demo-rule); border-radius:var(--demo-radius); background:#1b2b20; box-shadow:0 1.5rem 5rem #0003 }
+.css-in-action-demo-frame { display:grid; grid-template-columns:minmax(0,1fr); justify-items:center; align-content:start; padding:1.5rem clamp(1rem,4vw,4rem) 2rem; background:radial-gradient(ellipse at 15% 20%,#8e682d30,transparent 60%),linear-gradient(110deg,#243728,#1b2b20 65%); border-radius:var(--demo-radius) }
+.css-in-action-controls:not([hidden]) + .css-in-action-demo-frame { border-radius:0 0 var(--demo-radius) var(--demo-radius) }
+.css-in-action-frame-label { justify-self:start; margin-bottom:2rem; color:var(--demo-muted); font-size:.875rem; letter-spacing:.025em }
+/* Demo layout start */
+.css-in-action-container {
+  container-name: lounge-card;
+  container-type: inline-size;
+  inline-size: 40rem;
+  max-inline-size: 100%;
+}
+
+.css-in-action-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container lounge-card (min-width: 28rem) {
+  .css-in-action-card {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+}
+/* Demo layout end */
+.css-in-action-card { border:1px solid #bca17c; border-radius:.65rem; background:var(--paper); color:var(--ink); box-shadow:0 1.5rem 3rem #0005; overflow:hidden }
+.css-in-action-art { min-inline-size:0; position:relative; min-block-size:14rem; aspect-ratio:1.5; background:#344333 }
+.css-in-action-art img { position:absolute; inset:0; inline-size:100%; block-size:100%; object-fit:cover; object-position:50% 52% }
+.css-in-action-card-copy { min-inline-size:0; padding:1.5rem; padding:clamp(1.25rem,4cqi,2.5rem); display:flex; flex-direction:column; align-items:flex-start; justify-content:center }
+.css-in-action-card-copy > p:first-child { color:var(--orange); font-size:.875rem; font-weight:650; margin-bottom:1rem }
+.css-in-action-card h4 { margin:0; max-width:10ch; font:450 2rem/1.03 var(--serif); font-size:clamp(2rem,5.5cqi,3rem); letter-spacing:-.035em; overflow-wrap:anywhere }
+.css-in-action-card-copy > p:last-of-type { margin-top:1rem; color:var(--muted); font-size:1rem; line-height:1.6 }
+.css-in-action-card-signature { margin-top:1.5rem; padding-top:.85rem; border-top:1px solid var(--rule); font:500 italic 1.125rem/1.3 var(--serif); color:var(--orange) }
+.css-in-action-layout { margin-top:1.25rem; color:var(--demo-muted); font-size:.875rem; text-align:center }
+.css-in-action-horizontal { display:none }
+@container lounge-card (min-width:28rem) {
+  .css-in-action-art { aspect-ratio:auto; min-block-size:22rem }
+  .css-in-action-stacked { display:none }
+  .css-in-action-horizontal { display:inline }
+}
+.css-in-action-controls { padding:1.5rem clamp(1rem,3vw,3rem); border-bottom:1px solid var(--demo-rule); background:#15251b; border-radius:var(--demo-radius) var(--demo-radius) 0 0 }
+.css-in-action-control-label { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:.35rem 1.5rem }
+.css-in-action-control-label label { font-size:1rem; font-weight:650 }
+.css-in-action-readout { color:var(--amber); font-size:.875rem; font-variant-numeric:tabular-nums }
+.css-in-action-controls input { display:block; inline-size:100%; min-inline-size:0; min-block-size:44px; padding:0; margin:.5rem 0; accent-color:var(--amber); cursor:ew-resize; border:0; background:transparent; color-scheme:dark }
+.css-in-action-controls > p,.css-in-action-note,.css-in-action-unsupported { font-size:.875rem; line-height:1.5; color:var(--demo-muted) }
+.css-in-action-note,.css-in-action-unsupported { margin:1rem }
+.css-in-action-unsupported { display:none }
+@supports not (container-type:inline-size) {
+  .css-in-action-unsupported { display:block }
+}
+.css-in-action-source { display:grid; grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr); gap:clamp(2rem,5vw,5rem); padding-top:clamp(2.5rem,5vw,4rem) }
+.css-in-action-source h3 { font-size:clamp(2rem,3vw,2.75rem); line-height:1.08; font-weight:450 }
+.css-in-action-source > div > p:not(.css-in-action-eyebrow) { margin-top:1rem; color:var(--demo-muted); max-width:31ch; font-size:1rem }
+.css-in-action-code { min-width:0; margin:0; border-color:var(--demo-rule); border-radius:.75rem; background:#142118; box-shadow:0 .75rem 2rem #0002 }
+.css-in-action-code .code-toolbar { flex-wrap:wrap; justify-content:space-between; min-height:4rem; padding:.65rem 1.25rem; gap:.5rem 1rem; border-bottom:1px solid #41513b }
+.css-in-action-code-label { margin-inline-end:auto; color:var(--demo-muted); font-size:.875rem }
+.css-in-action-copy { min-height:44px; padding:.5rem .85rem; border:1px solid #98a58c; border-radius:.45rem; background:transparent; color:var(--white); font:650 .875rem/1.3 var(--sans); cursor:pointer }
+.css-in-action-copy:hover { background:#31463b }
+.css-in-action-code pre { padding:1.25rem; white-space:pre-wrap; overflow-wrap:anywhere; font-size:.875rem; line-height:1.65 }
+.home-composition .css-in-action :focus-visible { outline:3px solid var(--amber); outline-offset:5px; box-shadow:none }
+.home-composition .css-in-action:focus { outline:none; box-shadow:none }
+.home-composition .css-in-action-code pre:focus-visible { outline-offset:-4px }
+@media (max-width:52rem) {
+  .css-in-action-intro,.css-in-action-source { grid-template-columns:minmax(0,1fr); gap:1.5rem }
+  .css-in-action-story { max-width:60ch }
+  .css-in-action-intro h3 { max-width:25ch }
+  .css-in-action-heading-note br { display:none }
+}
+@media (max-width:32rem) {
+  .css-in-action-demo { --demo-radius:1rem }
+  .css-in-action-frame-label { margin-bottom:1.5rem }
+  .css-in-action-card-copy { padding:1.25rem }
+  .css-in-action-art { min-block-size:10rem }
+}
+@media (forced-colors:active) {
+  .css-in-action { --demo-cream:CanvasText; --demo-muted:CanvasText; --demo-rule:CanvasText; --ink:CanvasText; --muted:CanvasText; --orange:LinkText; --rule:CanvasText; --paper:Canvas; --white:CanvasText; --amber:LinkText; color:CanvasText }
+  .css-in-action-demo,.css-in-action-demo-frame,.css-in-action-card,.css-in-action-controls,.css-in-action-code { background:Canvas; border-color:CanvasText; box-shadow:none }
+  .css-in-action-code .code-toolbar,.css-in-action-copy { border-color:CanvasText }
+  .css-in-action-code .copy-feedback { color:CanvasText }
+}
