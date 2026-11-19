@@ -62,10 +62,71 @@ test('rounded interior paper fills mobile viewports and keeps desktop gutters', 
       if (width < 768) {
         expect(Math.abs(shape.left)).toBeLessThan(1);
         expect(Math.abs(shape.width - width)).toBeLessThan(1);
-      } else expect(shape.left).toBeGreaterThanOrEqual(12);
+      } else expect(Math.abs(shape.left - Math.max(6, Math.min(width * .0175, 32), (width - 1664) / 2))).toBeLessThan(1);
       expect(Math.abs(shape.left - shape.right)).toBeLessThan(1);
-      expect(shape.width).toBeLessThanOrEqual(1392);
+      expect(shape.width).toBeLessThanOrEqual(1664);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    }
+  }
+});
+
+test('wide interior layouts cap the header and hero inside the broader paper', async ({ page }, testInfo) => {
+  for (const width of [1440, 1920, 2560, 3440]) {
+    await page.setViewportSize({ width, height: 1200 });
+    for (const [path, lead] of [
+      ['/articles/sibling-index/', '.interior-article-lead'],
+      ['/articles/', '.interior-lead'],
+      ['/quick-wins/', '.quick-intro'],
+      ['/resources/', '.resource-intro'],
+      ['/search/', '.page-lead'],
+    ]) {
+      await page.goto(path);
+      const paper = await page.locator('.interior-paper').boundingBox();
+      if (path === '/articles/sibling-index/') expect(paper.y).toBeLessThan(1000);
+      for (const selector of ['.masthead-inner', lead]) {
+        const frame = await page.locator(selector).boundingBox();
+        expect(frame.width).toBeLessThanOrEqual(1600);
+        expect(paper.width - frame.width).toBeGreaterThanOrEqual(48);
+        expect(Math.abs(frame.x - (width - frame.width) / 2)).toBeLessThan(1);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      if (width === 2560 && path === '/articles/sibling-index/') {
+        await page.screenshot({ path: testInfo.outputPath('wide-article.png') });
+      }
+    }
+  }
+});
+
+test('capped desktop header keeps logo, navigation and search in one row', async ({ page }, testInfo) => {
+  for (const width of [1201, 1280, 1366, 1439, 1440, 1470, 1472, 1473, 1502, 1600, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ['/articles/sibling-index/', '/search/']) {
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const boxes = await page.locator('.masthead-inner').evaluate(header => {
+        return ['.lounge-brand', 'nav', '.masthead-search'].map(selector => {
+          const box = header.querySelector(selector).getBoundingClientRect();
+          return { x:box.x, right:box.right, center:box.y + box.height / 2 };
+        });
+      });
+      expect(Math.abs(boxes[0].center - boxes[1].center)).toBeLessThan(1);
+      expect(Math.abs(boxes[1].center - boxes[2].center)).toBeLessThan(1);
+      expect(boxes[0].right).toBeLessThan(boxes[1].x);
+      expect(boxes[1].right).toBeLessThan(boxes[2].x);
+      if (width >= 1440) {
+        expect(boxes[1].x - boxes[0].right).toBeGreaterThan(70);
+        expect(boxes[2].x - boxes[1].right).toBeGreaterThan(70);
+        expect(boxes[2].right - boxes[2].x).toBeCloseTo(307, 0);
+      }
+      if (width >= 1470) {
+        const frame = await page.locator('.masthead-inner').boundingBox();
+        expect(frame.width).toBeCloseTo(1360, 0);
+        expect(frame.x).toBeCloseTo((width - 1360) / 2, 0);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      if (width === 1502 && path.startsWith('/articles/')) {
+        await page.screenshot({ path:testInfo.outputPath('desktop-header.png') });
+      }
     }
   }
 });
@@ -451,3 +512,52 @@ test('Quick Wins combines topic and keyword filters, preserves URLs, and recover
   await expect(page.getByRole('radio', { name: 'All wins', exact: true })).toBeChecked();
   expect(new URL(page.url()).search).toBe('');
 });
+
+test('homepage opening stays composed on tall desktop viewports', async ({ page }, testInfo) => {
+  let previousHeight;
+  for (const height of [900, 1200, 1600]) {
+    await page.setViewportSize({ width: 1694, height });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const opening = await page.locator('.home-first-screen').boundingBox();
+    const feature = await page.locator('#css-in-action').boundingBox();
+    const actions = await page.locator('.home-actions').boundingBox();
+    const cue = await page.locator('.home-scroll-cue').boundingBox();
+    expect(feature.y).toBeLessThan(1000);
+    expect(cue.y).toBeGreaterThan(actions.y + actions.height);
+    expect(opening.y + opening.height).toBeLessThan(feature.y);
+    if (previousHeight) expect(Math.abs(opening.height - previousHeight)).toBeLessThan(1);
+    previousHeight = opening.height;
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    if (height === 1200) {
+      const heading = await page.locator('#css-in-action-title').boundingBox();
+      expect(heading.y + heading.height).toBeLessThan(height);
+      await page.screenshot({ path: testInfo.outputPath('tall-desktop-home.png') });
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  expect(await page.locator('.home-first-screen').evaluate(el => getComputedStyle(el).minHeight)).toBe('0px');
+  await expect(page.locator('.home-scroll-cue')).toBeHidden();
+});
+
+for (const reducedMotion of ['no-preference', 'reduce']) {
+  test(`homepage down arrow respects motion preference: ${reducedMotion}`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    const cue = page.getByRole('link', { name: 'Explore CSS in action below' });
+    await expect(cue).toHaveAttribute('href', '#css-in-action');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe(reducedMotion === 'reduce' ? 'auto' : 'smooth');
+    await cue.focus();
+    await cue.press('Enter');
+    await expect(page).toHaveURL(/#css-in-action$/);
+    await expect.poll(() => page.locator('#css-in-action').evaluate(el => Math.round(el.getBoundingClientRect().top))).toBe(32);
+    await expect(page.locator('#css-in-action')).toBeFocused();
+    // Changing the OS preference while this page is open takes effect immediately.
+    await page.emulateMedia({ reducedMotion: reducedMotion === 'reduce' ? 'no-preference' : 'reduce' });
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe(reducedMotion === 'reduce' ? 'smooth' : 'auto');
+    await page.goto('/articles/');
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');
+  });
+}

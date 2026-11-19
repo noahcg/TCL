@@ -89,6 +89,9 @@ p { margin:0 }
 .home-scroll-cue { display:grid; place-items:center; align-self:center; width:48px; height:48px; margin-top:auto; color:#a9b39c; border-radius:50%; text-decoration:none }
 .home-scroll-cue svg { width:24px; height:32px }
 .home-scroll-cue:hover { color:var(--home-cream); background:#f5e5c70a }
+@media (prefers-reduced-motion:no-preference) {
+  html:has(> .home-page) { scroll-behavior:smooth }
+}
 .home-intro { margin-inline:7.476vw 5.75vw }
 .home-kicker { font-size:1.125rem; line-height:1.5; font-weight:500; letter-spacing:.48em; text-transform:uppercase; margin-bottom:.625rem }
 .home-intro h1 { position:relative; isolation:isolate; width:fit-content; max-width:100%; font-size:clamp(3.5rem,5.74vw,6rem); line-height:1; font-weight:550; letter-spacing:-.025em; overflow-wrap:anywhere; transform:translateY(.3125rem) }
@@ -101,6 +104,15 @@ p { margin:0 }
 .home-button-primary .link-icon { inline-size:1.8rem; block-size:1.8rem }
 .home-button-secondary { min-width:16.625rem; background:rgba(13,25,18,.7); box-shadow:inset 0 0 0 3px rgba(14,24,17,.75) }
 .home-button:hover { background:#76340d }
+/* Keep the opening tied to its composition instead of stretching on tall displays. */
+@media (min-width:45.001rem) {
+  .home-page {
+    --home-hero-height:clamp(46rem,48vw,56rem);
+    background-image:linear-gradient(180deg,transparent calc(var(--home-hero-height) * .55),#111a14 var(--home-hero-height)),url('/assets/tcl-homepage-background.webp');
+    background-size:100% 100%,auto var(--home-scene-height);
+  }
+  .home-first-screen { min-height:calc(min(100svh,var(--home-hero-height)) - var(--masthead-height)) }
+}
 .page-lead { background:var(--forest); color:var(--white); padding-block:clamp(3.4rem,7vw,6.5rem) }
 .page-lead h1 { font-size:clamp(3.5rem,7vw,7.2rem) }
 .page-lead p { margin-top:1rem; color:#e1dfd1; font-size:clamp(1rem,1.6vw,1.2rem); max-width:54ch }
@@ -276,10 +288,10 @@ th { background:var(--soft) }
   background:#0d2015 var(--interior-art) no-repeat center 1.5rem;
   background-size:100% auto;
 }
-.articles-index { --interior-art:url('/assets/tcl-articles-hero.webp'); --stage-height:29.427vw }
-.articles-detail { --stage-height:43.88vw }
-.quick-index,.quick-detail { --interior-art:url('/assets/tcl-quick-win-hero.webp'); --stage-height:37.24vw }
-.resources-index { --interior-art:url('/assets/tcl-resources-hero.webp'); --stage-height:32.682vw }
+.articles-index { --interior-art:url('/assets/tcl-articles-hero.webp'); --stage-height:min(29.427vw,29.427rem) }
+.articles-detail { --stage-height:min(43.88vw,43.88rem) }
+.quick-index,.quick-detail { --interior-art:url('/assets/tcl-quick-win-hero.webp'); --stage-height:min(37.24vw,37.24rem) }
+.resources-index { --interior-art:url('/assets/tcl-resources-hero.webp'); --stage-height:min(32.682vw,32.682rem) }
 .interior-page :is(.masthead,.interior-lead,.interior-article-lead,.interior-quick-lead) :focus-visible { outline-color:#f5e5c7; box-shadow:0 0 0 2px #142018 }
 .interior-paper { background:radial-gradient(ellipse at 25% 10%,#fff1df00,#f4e4ce55),var(--paper) }
 .interior-lead { min-height:calc(var(--stage-height) - var(--interior-header)); padding-block:2.604vw 3.4vw; color:var(--interior-cream) }
@@ -528,22 +540,60 @@ th { background:var(--soft) }
 .site-footer .footer-brand:hover { color:var(--home-cream); text-decoration:none }
 
 /* Blend the art into its dark surround, keeping the paper's rounded silhouette. */
-.interior-page,.utility-page { --stage-ink:#0d2015; --body-radius:clamp(2rem,5.2vw,5rem); --paper-gutter:clamp(12px,3.5vw,64px); --paper-inset:clamp(20px,4.75vw,72px); --lead-fade:clamp(4.5rem,6.25vw,6rem); --art-height:calc(42.614vw + 1.5rem); position:relative; isolation:isolate; background:radial-gradient(ellipse 70rem 24rem at 50% 100%,#233020,transparent 75%),var(--stage-ink) }
+.interior-page,.utility-page { --stage-ink:#0d2015; --body-radius:clamp(2rem,5.2vw,5rem); --paper-gutter:clamp(6px,1.75vw,32px); --hero-max:100rem; --paper-max:104rem; --paper-inset:clamp(20px,4.75vw,72px); --lead-fade:clamp(4.5rem,6.25vw,6rem); --art-height:calc(min(42.614vw,42.614rem) + 1.5rem); position:relative; isolation:isolate; background:radial-gradient(ellipse 70rem 24rem at 50% 100%,#233020,transparent 75%),var(--stage-ink) }
 .page-art { position:absolute; z-index:-1; inset:0 0 auto; height:var(--art-height); background:var(--interior-art,url('/assets/tcl-article-hero.webp')) no-repeat center 1.5rem; background-size:100% auto; mask-image:linear-gradient(180deg,transparent 0%,#000 10%,#000 58%,transparent 100%); pointer-events:none }
-.articles-index { --art-height:calc(27.843vw + 1.5rem) }
-.quick-index,.quick-detail { --art-height:calc(35.686vw + 1.5rem) }
-.resources-index { --art-height:calc(31.242vw + 1.5rem) }
+.articles-index { --art-height:calc(min(27.843vw,27.843rem) + 1.5rem) }
+.quick-index,.quick-detail { --art-height:calc(min(35.686vw,35.686rem) + 1.5rem) }
+.resources-index { --art-height:calc(min(31.242vw,31.242rem) + 1.5rem) }
 .interior-lead,.interior-article-lead,.interior-quick-lead,.article-lead,.page-lead { position:relative; background:transparent; padding-bottom:clamp(2.75rem,4.2vw,4rem) }
 .interior-lead::after,.interior-article-lead::after,.interior-quick-lead::after,.article-lead::after,.page-lead::after { content:""; position:absolute; z-index:-1; inset-inline:0; bottom:-1px; height:var(--lead-fade); background:linear-gradient(180deg,transparent,var(--stage-ink)); pointer-events:none }
 .archive-sheet { padding-top:clamp(2rem,3.385vw,3.25rem); padding-inline:var(--paper-inset) }
 .resource-paper { padding-top:clamp(2rem,3.776vw,3.625rem) }
-.interior-paper { position:relative; display:flow-root; width:calc(100% - 2 * var(--paper-gutter)); max-width:87rem; margin-inline:auto; border-radius:var(--body-radius); background:var(--paper); box-shadow:0 -1px 0 #fff3df33,0 2rem 5rem #0002 }
+.interior-paper { position:relative; display:flow-root; width:calc(100% - 2 * var(--paper-gutter)); max-width:var(--paper-max); margin-inline:auto; border-radius:var(--body-radius); background:var(--paper); box-shadow:0 -1px 0 #fff3df33,0 2rem 5rem #0002 }
 .resource-categories,.resource-sections,.quick-showcase { padding-inline:var(--paper-inset) }
 :is(.interior-page,.utility-page) .site-footer { margin-top:clamp(2.5rem,4.5vw,5rem) }
-:is(.interior-page,.utility-page) .footer-inner { width:calc(100% - 2 * var(--paper-gutter)); max-width:87rem; margin-inline:auto; padding-inline:var(--paper-inset) }
+:is(.interior-page,.utility-page) .footer-inner { width:calc(100% - 2 * var(--paper-gutter)); max-width:var(--paper-max); margin-inline:auto; padding-inline:var(--paper-inset) }
 .utility-page .page-lead { color:var(--home-cream) }
 .utility-page .page-lead > .shell { max-width:87rem }
 .utility-page .search-layout { max-width:67rem }
+/* Keep the upper frame contained, with the paper extending beyond both edges. */
+@media screen and (min-width:768px) {
+  :is(.interior-page,.utility-page) :is(.masthead-inner,.interior-lead,.interior-article-lead,.interior-quick-lead,.article-lead,.page-lead,.quick-intro,.resource-intro) {
+    width:calc(100% - 4 * var(--paper-gutter));
+    max-width:var(--hero-max);
+    margin-inline:auto;
+  }
+  :is(.interior-page,.utility-page) .masthead-inner { padding-inline:clamp(1rem,3vw,3rem) }
+  .interior-page :is(.interior-lead-copy,.article-hero-grid) { margin-inline:clamp(1rem,4vw,4rem) }
+  .interior-page .article-hero-copy { padding-top:clamp(0rem,calc((100vw - 64rem) * .1),3.125rem) }
+  .interior-page .article-hero-grid { column-gap:min(3.4vw,3.4rem) }
+  .utility-page .page-lead > .shell { max-width:none; padding-inline:var(--paper-inset) }
+}
+/* Center the complete desktop header while preserving the lounge's generous spacing. */
+@media screen and (min-width:75.001rem) {
+  :is(.interior-page,.utility-page) .masthead-inner {
+    display:grid;
+    grid-template-columns:auto auto 17rem;
+    justify-content:space-between;
+    column-gap:2rem;
+    max-width:85rem;
+    padding-inline:0;
+  }
+  :is(.interior-page,.utility-page) .masthead .lounge-brand { margin-inline-end:0 }
+  :is(.interior-page,.utility-page) .masthead nav ul { flex-wrap:nowrap }
+  :is(.interior-page,.utility-page) .masthead-search { width:100% }
+}
+@media screen and (min-width:90rem) {
+  :is(.interior-page,.utility-page) .masthead-inner { grid-template-columns:auto auto 19.1875rem }
+  :is(.interior-page,.utility-page) .masthead .lounge-brand { gap:20px }
+  :is(.interior-page,.utility-page) .masthead .lounge-wordmark-name { font-size:50px }
+  :is(.interior-page,.utility-page) .masthead .lounge-wordmark-the { font-size:34px }
+  :is(.interior-page,.utility-page) .masthead .lounge-wordmark-caption { font-size:13px; letter-spacing:.18em }
+  :is(.interior-page,.utility-page) .masthead nav ul { gap:3.25rem }
+  :is(.interior-page,.utility-page) .masthead nav a { font-size:1.3125rem }
+  :is(.interior-page,.utility-page) .masthead-search input { font-size:1.1875rem }
+  :is(.interior-page,.utility-page) .masthead-search::before { left:-2.625rem }
+}
 @media (width < 768px) {
   .interior-page,.utility-page { --paper-gutter:0px }
 }
