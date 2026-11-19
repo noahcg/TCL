@@ -17,7 +17,7 @@ export default defineConfig({
   use: { baseURL, trace: 'retain-on-failure' },
   webServer: {
     command: 'npm run dev',
-    env: { PORT: '8869' },
+    env: { PORT: '8869', TCL_HOMEPAGE_MONTH: '2026-11' },
     url: baseURL,
     reuseExistingServer: false,
     timeout: 20_000,

@@ -58,3 +58,5 @@ Published slugs and article fragment IDs are stable interfaces. Renames require 
 The normal build reads local files and installed packages. Network access is needed for dependency/browser installation and optional legacy capture. The Python Oracle exporter is an optional owner-operated tool; its driver belongs in a local virtual environment rather than the site’s Node dependencies. Private migration exports and historical handoffs live in ignored `artifacts/` and are never copied to `dist/`.
 
 See [deployment](deployment.md) for configuration and [repository organization](repository.md) for file retention rules.
+
+The homepage feature catalog and monthly selection live in `content/homepage-feature.json` and `src/build/homepage-feature.mjs`. The Studio manages copy, queue order and pinning through authenticated endpoints. See [homepage rotation](homepage-rotation.md) for scheduled production rebuild setup.

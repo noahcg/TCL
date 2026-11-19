@@ -20,6 +20,24 @@
     <section class="intro" aria-labelledby="studio-title"><div><p class="eyebrow">A LITTLE RESEARCH. YOUR NEXT GREAT POST.</p><h1 id="studio-title">Fresh CSS, <em>on your radar.</em></h1><p class="intro-copy">Find what’s worth knowing. Turn it into something worth sharing.</p></div><div class="edition"><span>YOUR EDITOR’S DESK</span><strong id="today"></strong></div></section>
     <div id="connection" class="notice" role="status" hidden></div>
     <div id="message" class="notice" role="status" tabindex="-1" hidden></div>
+    <section class="homepage-panel" aria-labelledby="homepage-heading">
+      <p class="eyebrow">THE HOMEPAGE</p><h2 id="homepage-heading">A Closer Look</h2>
+      <p>Your monthly CSS feature. Edit the copy, arrange the rotation, or keep a favorite in place.</p>
+      <p id="homepage-status" role="status">Loading homepage settings…</p>
+      <form id="homepage-form" hidden>
+        <div class="homepage-fields"><div><label for="homepage-mode">How it changes</label><select id="homepage-mode"><option value="monthly">Rotate monthly</option><option value="manual">Keep one topic</option></select></div>
+        <div><label for="homepage-start">Rotation starts (UTC month)</label><input id="homepage-start" type="month" required></div>
+        <div><label for="homepage-pinned">Pinned topic</label><select id="homepage-pinned"></select></div></div>
+        <label for="homepage-queue">Rotation order</label><select id="homepage-queue" multiple size="3" aria-describedby="homepage-queue-help"></select>
+        <p id="homepage-queue-help">Select the topics to include. Use Move up / Move down to arrange them.</p>
+        <div class="homepage-actions"><button type="button" id="homepage-up" class="secondary">Move up</button><button type="button" id="homepage-down" class="secondary">Move down</button></div>
+        <div id="homepage-copy" class="homepage-fields"></div>
+        <h3>Coming up</h3><ol id="homepage-upcoming"></ol>
+        <p>Only curated, tested demos rotate. Saving rebuilds this computer’s preview. Publish the settings through the normal repository deployment to update the live site.</p>
+        <p>Monthly live refresh requires the scheduled deployment hook described in the homepage rotation setup guide.</p>
+        <div class="homepage-actions"><button class="primary" type="submit">Save & rebuild preview</button><a href="/#css-in-action" target="_blank" rel="noopener">View local feature</a></div>
+      </form>
+    </section>
     <div class="studio-grid">
       <aside class="research-panel" aria-labelledby="research-title">
         <div class="panel-heading"><span class="radar-icon" aria-hidden="true">◎</span><div><p class="eyebrow">THE RESEARCH DESK</p><h2 id="research-title">Cast your net.</h2></div></div>

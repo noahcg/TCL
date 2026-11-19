@@ -127,3 +127,28 @@ test('forced colors and reduced motion preserve the feature and keyboard focus',
   const results = await new AxeBuilder({ page }).include('.css-in-action').withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   expect(results.violations.map(item => item.id)).toEqual([]);
 });
+
+for (const id of ['fluid-type', 'aspect-ratio']) {
+  test(`${id} renders a working CSS-driven variation`, async ({ page }) => {
+    const { readFeature } = await import('../../src/build/homepage-feature.mjs');
+    const { cssInAction } = await import('../../src/build/css-in-action.mjs');
+    const config = await readFeature();
+    await page.route('**/', async route => {
+      if (new URL(route.request().url()).pathname !== '/') return route.continue();
+      const response = await route.fetch();
+      const html = (await response.text()).replace(/<section class="css-in-action"[\s\S]*?<\/section>/, cssInAction([], { config: { ...config, mode: 'manual', pinned: id } }));
+      await route.fulfill({ response, body: html });
+    });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/#css-in-action');
+    const slider = page.getByRole('slider', { name: 'Adjust container width' });
+    await slider.press('Home');
+    const size = () => page.locator('.css-in-action-card h4').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+    const small = await size();
+    if (id === 'aspect-ratio') expect(await page.locator('.css-in-action-art').evaluate(el => getComputedStyle(el).aspectRatio)).toBe('16 / 9');
+    await slider.press('End');
+    if (id === 'fluid-type') expect(await size()).toBeGreaterThan(small);
+    else expect(await page.locator('.css-in-action-art').evaluate(el => getComputedStyle(el).aspectRatio)).toBe('1 / 1');
+    await noOverflow(page);
+  });
+}

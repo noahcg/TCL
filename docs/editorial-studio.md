@@ -48,3 +48,7 @@ This uses your existing local Git identity and GitHub HTTPS/SSH authentication; 
 Research history and working drafts persist in ignored `.tcl-admin/state.json`. These files stay on this computer and are not a cross-device CMS. Saved content and generated article artwork live in the normal source folders for Git review. Back up `.tcl-admin/` separately if you want to retain research history.
 
 The server checks its exact loopback Host, rejects cross-site requests, and requires a per-process session token on API requests. This is a local tool: do not expose its port through a tunnel or reverse proxy. One studio server runs per workspace; subsequent launches reuse it. Stop a Terminal-owned server with Ctrl+C. Locks left by a stopped process are recovered automatically. Reload the browser after restarting the server to get a new session token.
+
+## Homepage feature dashboard
+
+The **A Closer Look** panel manages the homepage's lower feature: edit its explanation and demo copy, pin a favorite, or arrange the monthly rotation. It shows six upcoming months and rebuilds the local preview when saved. Restart the Studio after installing this update. See [homepage rotation setup](homepage-rotation.md) to activate unattended production rebuilds and publish settings.

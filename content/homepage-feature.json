@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "mode": "monthly",
+  "startMonth": "2026-11",
+  "pinned": "container-queries",
+  "queue": [
+    "container-queries",
+    "fluid-type",
+    "aspect-ratio"
+  ],
+  "features": {
+    "container-queries": {
+      "topic": "Container queries",
+      "headline": "Components that respond to their own space.",
+      "explanation": "Container queries let a component adapt to its available width instead of relying on the viewport.",
+      "demoTitle": "A little room for good ideas.",
+      "demoDescription": "A comfortable corner. A fresh perspective. Somewhere to stay curious."
+    },
+    "fluid-type": {
+      "topic": "Fluid typography",
+      "headline": "A little space. A different scale.",
+      "explanation": "Container units and clamp() let type grow with its surroundings while keeping a comfortable minimum and maximum size. Resize the card to see its headline scale.",
+      "demoTitle": "Good ideas grow with a little room.",
+      "demoDescription": "A comfortable corner. A fresh perspective. Somewhere to stay curious."
+    },
+    "aspect-ratio": {
+      "topic": "Aspect ratio",
+      "headline": "Give every image room to belong.",
+      "explanation": "Aspect-ratio gives an image a predictable frame. Here, a container query changes that frame from a wide view to a square as the card gains space.",
+      "demoTitle": "One space. A different perspective.",
+      "demoDescription": "A comfortable corner. A fresh perspective. Somewhere to stay curious."
+    }
+  }
+}

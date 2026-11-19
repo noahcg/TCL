@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, symlink, rm } from 'node:fs/promises';
 import { once } from 'node:events';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -18,6 +18,8 @@ const testStudio = test.extend({
     const quickWin = { ...draft, id: randomUUID(), slug: 'published-css-tip', title: 'Published CSS tip',
       publishedAt: '2026-01-02T12:00:00.000Z' };
     await mkdir(join(root, '.tcl-admin'));
+    await mkdir(join(root, 'content'));
+    await writeFile(join(root, 'content/homepage-feature.json'), await readFile('content/homepage-feature.json'));
     await symlink(join(process.cwd(), 'dist'), join(root, 'dist'));
     await writeFile(join(root, '.tcl-admin/state.json'), JSON.stringify({ version: 1, scans: [],
       drafts: [draft, article, quickWin], releases: [{ id: randomUUID(), draftId: article.id, status: 'submitted',
@@ -25,7 +27,7 @@ const testStudio = test.extend({
         createdAt: article.publishedAt, submittedAt: article.publishedAt, checks: 'Passed',
         config: { repository: 'test/lounge', branch: 'main' }, files: [], diff: '', pushed: [] }] }));
     let failPublication = false;
-    const server = await createAdminServer({ root, apiKey: 'test-only', inventoryLoader: async () => [],
+    const server = await createAdminServer({ root, homepageBuilder: async () => {}, apiKey: 'test-only', inventoryLoader: async () => [],
       publisher: async () => { if (failPublication) throw new Error('Publication failed for this test.'); },
       livePreparer: async () => {}, liveSubmitter: async () => {} });
     server.listen(0, '127.0.0.1');
@@ -97,4 +99,22 @@ testStudio('a failed publication stays in Drafts and does not inflate Published'
   await expect(page.getByRole('button', { name: 'Drafts 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#published-count')).toHaveText('2');
   await expect(page.locator('#board h3')).toHaveText(['A draft CSS tip']);
+});
+
+
+testStudio('homepage dashboard edits, pins and persists the curated rotation', async ({ page, studio }) => {
+  await page.goto(studio.url);
+  const panel = page.locator('.homepage-panel');
+  await expect(panel.getByRole('heading', { name: 'A Closer Look', exact: true })).toBeVisible();
+  await expect(page.locator('#homepage-form')).toBeVisible();
+  await page.locator('#homepage-mode').selectOption('manual');
+  await page.locator('#homepage-pinned').selectOption('fluid-type');
+  await page.locator('#home-fluid-type-headline').fill('Type with a little more room.');
+  await panel.getByRole('button', { name: 'Save & rebuild preview' }).click();
+  await expect(page.locator('#homepage-status')).toContainText('Saved and local preview rebuilt');
+  await expect(page.locator('#homepage-status')).toContainText('Fluid typography');
+  await page.reload();
+  await expect(page.locator('#homepage-mode')).toHaveValue('manual');
+  await expect(page.locator('#home-fluid-type-headline')).toHaveValue('Type with a little more room.');
+  await expect(page.locator('#homepage-upcoming li')).toHaveCount(6);
 });

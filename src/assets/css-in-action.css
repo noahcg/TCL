@@ -89,3 +89,26 @@
   .css-in-action-code .code-toolbar,.css-in-action-copy { border-color:CanvasText }
   .css-in-action-code .copy-feedback { color:CanvasText }
 }
+
+/* fluid-type start */
+[data-technique="fluid-type"] .css-in-action-card h4 {
+  font-size: clamp(1.75rem, 7cqi, 3.5rem);
+}
+/* fluid-type end */
+
+/* aspect-ratio start */
+[data-technique="aspect-ratio"] .css-in-action-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+[data-technique="aspect-ratio"] .css-in-action-art {
+  min-block-size: 0;
+  aspect-ratio: 16 / 9;
+}
+
+@container lounge-card (min-width: 28rem) {
+  [data-technique="aspect-ratio"] .css-in-action-art {
+    aspect-ratio: 1;
+  }
+}
+/* aspect-ratio end */

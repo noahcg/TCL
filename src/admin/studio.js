@@ -290,3 +290,48 @@ $('#approve-live').addEventListener('click', async () => {
   finally { sending = false; }
 });
 refresh();
+
+// This form has its own snapshot, so research polling never replaces unsaved edits.
+let homepageSettings;
+function renderHomepage(data) {
+  homepageSettings = data.config;
+  $('#homepage-mode').value = data.config.mode;
+  $('#homepage-start').value = data.config.startMonth;
+  const entries = Object.entries(data.config.features);
+  $('#homepage-pinned').innerHTML = entries.map(([id, item]) => `<option value="${escape(id)}">${escape(item.topic)}</option>`).join('');
+  $('#homepage-pinned').value = data.config.pinned;
+  const ordered = [...data.config.queue, ...entries.map(([id]) => id).filter(id => !data.config.queue.includes(id))];
+  $('#homepage-queue').innerHTML = ordered.map(id => `<option value="${escape(id)}"${data.config.queue.includes(id) ? ' selected' : ''}>${escape(data.config.features[id].topic)}</option>`).join('');
+  $('#homepage-copy').innerHTML = entries.map(([id, item]) => `<fieldset><legend>${escape(item.topic)}</legend>${['topic','headline','explanation','demoTitle','demoDescription'].map(key => `<label for="home-${id}-${key}">${escape(({demoTitle:'Demo title',demoDescription:'Demo description'})[key] || key[0].toUpperCase() + key.slice(1))}</label><textarea id="home-${id}-${key}" data-home-id="${id}" data-home-key="${key}" required maxlength="1000">${escape(item[key])}</textarea>`).join('')}</fieldset>`).join('');
+  $('#homepage-status').textContent = `Selected for this month: ${data.current.topic}. This reflects local settings; live settings update after publication.`;
+  $('#homepage-upcoming').innerHTML = data.upcoming.map(item => `<li>${escape(item.month)} · ${escape(item.topic)}</li>`).join('');
+  $('#homepage-form').hidden = false;
+}
+for (const direction of ['up', 'down']) $('#homepage-' + direction).addEventListener('click', () => {
+  const select = $('#homepage-queue');
+  const options = [...select.options];
+  for (const option of direction === 'up' ? options : options.reverse()) {
+    const neighbor = direction === 'up' ? option.previousElementSibling : option.nextElementSibling;
+    if (option.selected && neighbor && !neighbor.selected) {
+      if (direction === 'up') select.insertBefore(option, neighbor);
+      else select.insertBefore(neighbor, option);
+    }
+  }
+});
+$('#homepage-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = event.submitter;
+  button.disabled = true;
+  try {
+    const config = structuredClone(homepageSettings);
+    config.mode = $('#homepage-mode').value;
+    config.startMonth = $('#homepage-start').value;
+    config.pinned = $('#homepage-pinned').value;
+    config.queue = [...$('#homepage-queue').selectedOptions].map(option => option.value);
+    for (const field of document.querySelectorAll('[data-home-id]')) config.features[field.dataset.homeId][field.dataset.homeKey] = field.value;
+    renderHomepage(await api('homepage-feature', { config, expected: homepageSettings }));
+    $('#homepage-status').textContent += ' Saved and local preview rebuilt.';
+  } catch (error) { $('#homepage-status').textContent = error.message; }
+  finally { button.disabled = false; }
+});
+api('homepage-feature').then(renderHomepage).catch(error => { $('#homepage-status').textContent = error.message; });

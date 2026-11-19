@@ -1,3 +1,7 @@
+import { readFeature, validateFeature, featureDashboard } from '../build/homepage-feature.mjs';
+import { atomicWrite } from './store.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
@@ -26,6 +30,7 @@ async function readJson(request) {
 }
 
 export async function createAdminServer({ root = process.cwd(), apiKey = process.env.OPENAI_API_KEY,
+  homepageBuilder = root => promisify(execFile)(process.execPath, ['scripts/build.mjs'], { cwd: root, timeout: 120000 }),
   model = process.env.TCL_EDITOR_MODEL || 'gpt-6.2-astra', scanner = scanWeb, generator = generateDraft,
   inventoryLoader = () => loadContent(null, { includeUnpublished: true }), publisher, livePreparer, liveSubmitter } = {}) {
   const token = randomBytes(32).toString('hex');
@@ -62,7 +67,7 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
     let url;
     try { url = new URL(request.url, `http://${expectedHost}`); } catch { return send(400, { error: 'Invalid URL.' }); }
     if (['GET', 'HEAD'].includes(request.method) && url.pathname === '/admin/health') {
-      return send(200, { app: 'cascade-lounge-editorial-studio', workspace: resolve(root), pid: process.pid, busy: job?.status === 'running' });
+      return send(200, { app: 'cascade-lounge-editorial-studio', workspace: resolve(root), pid: process.pid, busy: job?.status === 'running' || mutating });
     }
     if (url.pathname.startsWith('/admin/api/')) {
       const supplied = Buffer.from(request.headers['x-admin-token'] || '');
@@ -75,12 +80,29 @@ export async function createAdminServer({ root = process.cwd(), apiKey = process
             inventory: inventory.map(({ title, type, path, status }) => ({ title, type, path, status })) });
         } catch { return send(500, { error: 'Could not load content. Check the studio terminal.' }); }
       }
+      if (request.method === 'GET' && url.pathname === '/admin/api/homepage-feature') {
+        try { return send(200, featureDashboard(await readFeature(root))); }
+        catch (error) { return send(400, { error: error.message }); }
+      }
       if (request.method !== 'POST') return send(405, { error: 'Method not allowed.' });
       if (!request.headers['content-type']?.startsWith('application/json')) return send(415, { error: 'JSON is required.' });
       if (job?.status === 'running' || mutating) return send(409, { error: 'Another task is running. Wait for it to finish.' });
       mutating = true;
       try {
         const body = await readJson(request);
+        if (url.pathname === '/admin/api/homepage-feature') {
+          const previous = await readFeature(root);
+          if (JSON.stringify(body.expected) !== JSON.stringify(previous)) throw new Error('The homepage settings changed. Reload this panel before saving.');
+          const config = validateFeature(body.config);
+          const file = join(root, 'content/homepage-feature.json');
+          await atomicWrite(file, config);
+          try { const build = homepageBuilder(root); pendingJob = build.catch(() => {}); await build; }
+          catch {
+            if (JSON.stringify(await readFeature(root)) !== JSON.stringify(config)) throw new Error('The build failed and settings changed outside Studio. Your newer changes were preserved.');
+            await atomicWrite(file, previous); throw new Error('The preview build failed. Settings were restored.');
+          }
+          return send(200, featureDashboard(config));
+        }
         if (url.pathname === '/admin/api/scan') {
           if (!apiKey) throw new Error('Set OPENAI_API_KEY in .env.local, then restart the studio.');
           runJob('scan', async () => {

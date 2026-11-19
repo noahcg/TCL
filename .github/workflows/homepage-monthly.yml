@@ -1,0 +1,40 @@
+name: Refresh monthly homepage feature
+on:
+  schedule:
+    - cron: '23 10 1 * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: monthly-homepage
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.repository == 'noahcg/thecascadelounge'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run verify
+      - name: Request production rebuild
+        env:
+          DEPLOY_HOOK: ${{ secrets.TCL_HOMEPAGE_DEPLOY_HOOK }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFeature } from './src/build/homepage-feature.mjs';
+          if ((await readFeature()).mode !== 'monthly') {
+            console.log('Manual mode: no monthly deployment needed.');
+            process.exit(0);
+          }
+          if (!process.env.DEPLOY_HOOK) throw new Error('Configure TCL_HOMEPAGE_DEPLOY_HOOK in repository Actions secrets.');
+          const url = new URL(process.env.DEPLOY_HOOK);
+          if (url.protocol !== 'https:' || url.hostname !== 'api.vercel.com' || !url.pathname.startsWith('/v1/integrations/deploy/')) throw new Error('Expected a Vercel deployment hook.');
+          const response = await fetch(url, { method: 'POST', signal: AbortSignal.timeout(30000) });
+          if (!response.ok) throw new Error('Production rebuild request failed.');
+          console.log('Monthly production rebuild requested. Check Vercel for completion.');
+          JS
