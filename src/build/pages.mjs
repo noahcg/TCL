@@ -13,7 +13,7 @@ const dateFormat = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'l
 function loungeBrand(extraClass = '', current = true) {
   return `<a class="lounge-brand${extraClass ? ` ${extraClass}` : ''}" href="/"${current ? ' aria-current="page"' : ''} aria-label="The Cascade Lounge">
     <span class="lounge-brand-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <span class="lounge-wordmark" aria-hidden="true"><span class="lounge-wordmark-the">The</span><span class="lounge-wordmark-name">Cascade Lounge</span><span class="lounge-brand-star"></span><span class="lounge-wordmark-caption">THE CSS LOUNGE</span></span>
+    <span class="lounge-wordmark" aria-hidden="true"><span class="lounge-wordmark-the">The</span><span class="lounge-wordmark-name">Cascade Lounge</span><span class="lounge-brand-star"></span><span class="lounge-wordmark-caption">DESIGN · COLOR · LAYOUT</span></span>
   </a>`;
 }
 
