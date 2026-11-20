@@ -20,6 +20,10 @@ function loungeBrand(extraClass = '', current = true) {
 }
 
 const iconPaths = {
+  selectors: '<path d="m8 5-6 7 6 7m8-14 6 7-6 7M14 3l-4 18"/>',
+  motion: '<path d="M3 6h10M3 12h6M3 18h10"/><path d="m15 7 6 5-6 5Z"/>',
+  typography: '<path d="M3 6h14M10 6v15M6 21h8m2-9h7m-3.5 0v9M18 21h4"/>',
+  forms: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 12 3 3 7-7"/>',
   search: '<circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/>',
   arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
   external: '<path d="M7 17 17 7M7 7h10v10"/>',
@@ -211,7 +215,6 @@ export function articlesPage(entries) {
   const display = articleDisplay[featured?.slug] || {};
   return `${interiorLead('Articles', 'In-depth CSS for real-world builders.', 'Guides, deep dives, and thoughtful explorations of modern CSS.', 'archive-lead', 'In-depth CSS for <span class="title-phrase">real-world builders.</span>')}
   <div class="interior-paper archive-sheet">
-    ${topicNavigation('archive-topic-navigation')}
     ${featured ? `<a class="archive-feature${featured.image ? '' : ' without-thumbnail'}" href="${featured.path}" aria-labelledby="archive-feature-title">
       ${featured.image ? `<img src="${e(featured.image.path)}" width="${featured.image.width}" height="${featured.image.height}" alt="${e(featured.image.alt)}" fetchpriority="high">` : ''}
       <div class="archive-feature-copy"><p class="interior-eyebrow">Featured</p><h2 id="archive-feature-title">${e(featured.title)}</h2><p class="archive-feature-deck">${e(display.deck || featured.summary || '')}</p><div class="entry-meta">${dateLabel(featured.date)}<span aria-hidden="true">·</span>${readingTime(featured)}</div></div>
@@ -224,6 +227,7 @@ export function articlesPage(entries) {
         <div class="entry-meta">${dateLabel(entry.date)}<span aria-hidden="true">·</span>${readingTime(entry)}</div>${icon('arrow', 'row-arrow')}
       </a></li>`;
     }).join('')}</ul></section>
+    ${topicNavigation('archive-topic-navigation')}
   </div>`;
 }
 
@@ -488,8 +492,22 @@ export function notFound() {
     <div class="interior-paper"><div class="shell sections"><a class="text-link" href="/articles/">Browse articles ${forward}</a></div></div>`;
 }
 
+const topicNavigationDisplay = {
+  'responsive-layout': { label:'Layout', icon:'layers' },
+  'selectors-and-cascade': { label:'Selectors & cascade', icon:'selectors' },
+  'animation-and-scrolling': { label:'Motion & scrolling', icon:'motion' },
+  'typography-and-color': { label:'Type & color', icon:'typography' },
+  'forms-and-accessibility': { label:'Forms & accessibility', icon:'forms' },
+};
+
 function topicNavigation(className = '') {
-  return `<nav class="topic-navigation ${className}" aria-label="Learn CSS by topic"><p class="interior-eyebrow">Find your next CSS idea</p><h2><a href="/topics/">Learn CSS by topic</a></h2><ul>${topics.map(topic => `<li><a href="${topicPath(topic)}">${e(topic.title)}</a></li>`).join('')}</ul></nav>`;
+  return `<nav class="topic-navigation ${className}" aria-label="Learn CSS by topic">
+    <div class="topic-navigation-intro"><p class="topic-navigation-kicker">A little further</p><h2>Where curiosity<br> takes you next.</h2><p>Explore the lounge by topic.</p></div>
+    <ul>${topics.map(topic => {
+      const display = topicNavigationDisplay[topic.slug];
+      return `<li><a href="${topicPath(topic)}" aria-label="${e(topic.title)}"><span class="topic-navigation-icon">${icon(display.icon)}</span><span>${e(display.label)}</span></a></li>`;
+    }).join('')}<li><a class="topic-navigation-all" href="/topics/">Browse all CSS topics</a></li></ul>
+  </nav>`;
 }
 
 function relatedReading(entry, entries) {

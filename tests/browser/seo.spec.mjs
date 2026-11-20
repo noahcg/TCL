@@ -45,3 +45,26 @@ test('previews stay noindex and the legacy terminology correction is visible', a
   await expect(note).toContainText('text-box-trim');
   await expect(note.getByRole('link',{name:'current text-box-trim example'})).toHaveAttribute('href','/quick-wins/trim-unwanted-spacing-from-text-edges/');
 });
+
+test('topic browsing follows the article collection and remains compact and usable', async ({ page }, testInfo) => {
+  for (const width of [1440,768,390,320]) {
+    await page.setViewportSize({width,height:1000});
+    await page.goto('/articles/');
+    const navigation=page.getByRole('navigation',{name:'Learn CSS by topic',exact:true});
+    const collection=await page.locator('.archive-list').boundingBox();
+    const panel=await navigation.boundingBox();
+    expect(panel.y).toBeGreaterThan(collection.y+collection.height);
+    await expect(navigation.getByRole('link')).toHaveCount(6);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1)).toBe(true);
+    await navigation.scrollIntoViewIfNeeded();
+    if (width===1440 || width===390) await navigation.screenshot({path:testInfo.outputPath(`topic-navigation-${width}.png`)});
+    const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+    expect(results.violations).toEqual([]);
+    await navigation.getByRole('link',{name:'CSS Selectors and the Cascade',exact:true}).click();
+    await expect(page).toHaveURL(/\/topics\/selectors-and-cascade\/$/);
+  }
+  await page.setViewportSize({width:320,height:900});
+  await page.goto('/articles/');
+  await page.evaluate(()=>{ document.documentElement.style.fontSize='200%'; });
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1)).toBe(true);
+});
