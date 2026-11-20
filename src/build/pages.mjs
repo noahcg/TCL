@@ -89,7 +89,8 @@ export function page({ path, title, intro, body, siteUrl, robots, homepage = fal
   const url = siteUrl && path ? new URL(path, siteUrl).href : null;
   const imageUrl = siteUrl && image ? new URL(image.path, siteUrl).href : null;
   const interior = interiorVariant(path);
-  const stageArt = interior && interior !== 'quick-index' && (interior === 'articles-index' ? 'articles' : interior === 'resources-index' ? 'resources' : interior.startsWith('quick') ? 'quick-win' : 'article');
+  const collection = ['/articles/', '/quick-wins/', '/resources/'].includes(path) ? ' collection-page' : '';
+  const stageArt = interior && (interior === 'articles-index' ? 'articles' : interior === 'resources-index' ? 'resources' : interior.startsWith('quick') ? 'quick-win' : 'article');
   return `<!doctype html>
 <html lang="en" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
@@ -134,9 +135,9 @@ ${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resourc
 <script type="module" src="/assets/site.js"></script>
 ${analytics ? '<script type="module" src="/assets/analytics.js"></script>' : ''}
 </head>
-<body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}` : 'utility-page'}">
+<body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}${collection}` : 'utility-page'}">
 <a class="skip" href="#main-content">Skip to content</a>
-${!homepage && interior !== 'quick-index' ? '<div class="page-art" aria-hidden="true"></div>' : ''}
+${!homepage ? '<div class="page-art" aria-hidden="true"></div>' : ''}
 ${masthead(path)}
 <main id="main-content" tabindex="-1">${body}</main>
 ${footer(path)}
@@ -188,8 +189,8 @@ export function home(entries) {
 const articleDisplay = {
   'container-query-units': {
     category: 'Layout',
-    deck: 'The missing half of component-responsive CSS.',
-    lede: 'Container query units (CQ units) let components respond to the size of their container, not the viewport. They’re a powerful addition to modern CSS, and they open up new, more predictable layout patterns.',
+    deck: 'Size typography and spacing relative to a component’s container.',
+    lede: 'Container query units (CQ units) size typography, spacing, and other lengths relative to a containing element. Use them to adapt a component wherever it appears in a layout.',
   },
   'modern-resets': { category: 'Styling', deck: 'A practical approach to cleaner, more predictable foundations.' },
 };
@@ -201,10 +202,21 @@ function readingTime(entry) {
   return `<span class="reading-time" title="Estimated at 200 words per minute">Est. ${Math.max(1, Math.ceil(words / 200))} min read</span>`;
 }
 
-function interiorLead(kicker, title, deck, extraClass = '', titleHTML = '') {
+function interiorLead(title, deck, extraClass = '', { kicker = '', titleHTML = '' } = {}) {
   return `<header class="interior-lead ${extraClass}"><div class="interior-lead-copy">
-    <p class="interior-kicker">${e(kicker)}</p><h1>${titleHTML || e(title)}</h1><p class="interior-deck">${e(deck)}</p>
+    ${kicker ? `<p class="interior-kicker">${e(kicker)}</p>` : ''}<h1>${titleHTML || e(title)}</h1><p class="interior-deck">${e(deck)}</p>
   </div></header>`;
+}
+
+function archiveEntryCopy(entry, titleId, featured = false) {
+  const presentation = articleDisplay[entry.slug] || {};
+  const summary = presentation.deck || entry.summary;
+  const label = featured ? 'Featured' : presentation.category;
+  const meta = [dateLabel(entry.date), readingTime(entry)];
+  return `${label ? `<p class="archive-label">${e(label)}</p>` : ''}
+    <h2 id="${e(titleId)}"><a href="${e(entry.path)}">${e(entry.title)}<span class="archive-arrow" aria-hidden="true">${icon('arrow')}</span></a></h2>
+    <p class="archive-meta">${meta.filter(Boolean).join(' <span aria-hidden="true">·</span> ')}</p>
+    ${summary ? `<p class="archive-summary">${e(summary).replace(/`([^`\r\n]+)`/g, '<code>$1</code>')}</p>` : ''}`;
 }
 
 export function articlesPage(entries) {
@@ -212,21 +224,15 @@ export function articlesPage(entries) {
   const rest = entries.filter(entry => entry !== featured);
   const reset = rest.find(entry => entry.slug === 'modern-resets');
   const ordered = reset ? [reset, ...rest.filter(entry => entry !== reset)] : rest;
-  const display = articleDisplay[featured?.slug] || {};
-  return `${interiorLead('Articles', 'In-depth CSS for real-world builders.', 'Guides, deep dives, and thoughtful explorations of modern CSS.', 'archive-lead', 'In-depth CSS for <span class="title-phrase">real-world builders.</span>')}
+  return `${interiorLead('In-depth CSS for real-world builders.', 'Guides, deep dives, and thoughtful explorations of modern CSS.', 'collection-lead', { kicker:'Articles', titleHTML:'In-depth CSS for <span class="title-phrase">real-world builders.</span>' })}
   <div class="interior-paper archive-sheet">
-    ${featured ? `<a class="archive-feature${featured.image ? '' : ' without-thumbnail'}" href="${featured.path}" aria-labelledby="archive-feature-title">
+    ${featured ? `<article class="archive-feature${featured.image ? '' : ' without-thumbnail'}" aria-labelledby="archive-feature-title">
       ${featured.image ? `<img src="${e(featured.image.path)}" width="${featured.image.width}" height="${featured.image.height}" alt="${e(featured.image.alt)}" fetchpriority="high">` : ''}
-      <div class="archive-feature-copy"><p class="interior-eyebrow">Featured</p><h2 id="archive-feature-title">${e(featured.title)}</h2><p class="archive-feature-deck">${e(display.deck || featured.summary || '')}</p><div class="entry-meta">${dateLabel(featured.date)}<span aria-hidden="true">·</span>${readingTime(featured)}</div></div>
-      <span class="circle-arrow">${icon('arrow')}</span>
-    </a>` : ''}
-    <section class="archive-list" aria-label="All articles"><ul>${ordered.map(entry => {
-      const presentation = articleDisplay[entry.slug] || {};
-      return `<li><a class="archive-row" href="${entry.path}" aria-labelledby="archive-${entry.slug}">
-        <div>${presentation.category ? `<p class="interior-eyebrow">${e(presentation.category)}</p>` : ''}<h2 id="archive-${entry.slug}">${e(entry.title)}</h2>${presentation.deck || entry.summary ? `<p>${e(presentation.deck || entry.summary)}</p>` : ''}</div>
-        <div class="entry-meta">${dateLabel(entry.date)}<span aria-hidden="true">·</span>${readingTime(entry)}</div>${icon('arrow', 'row-arrow')}
-      </a></li>`;
-    }).join('')}</ul></section>
+      <div>${archiveEntryCopy(featured, 'archive-feature-title', true)}</div>
+    </article>` : ''}
+    ${ordered.length ? `<section class="archive-list" aria-label="All articles"><ul role="list">
+      ${ordered.map(entry => `<li class="archive-row">${archiveEntryCopy(entry, `archive-${entry.slug}`)}</li>`).join('')}
+    </ul></section>` : ''}
     ${topicNavigation('archive-topic-navigation')}
   </div>`;
 }
@@ -247,42 +253,40 @@ const topicLabel = tag => tag === 'typography' ? 'Typography' : tag.charAt(0).to
 function quickPreview(entry, type) {
   const id = `quick-preview-${entry.slug}`;
   const previews = {
-    snap: `<div class="qp-snap" role="region" aria-label="Scroll snap preview" tabindex="0"><span>01</span><span>02</span><span>03</span></div><span class="quick-preview-hint" aria-hidden="true">Scroll. Snap. Repeat. ↔</span>`,
-    scroll: `<div class="qp-scroll"><div class="qp-scroll-window" role="region" aria-label="Smooth scrolling preview" tabindex="0"><span>Start here</span><span>A little further</span><span id="${id}-end">Nice landing.</span></div><a href="#${id}-end" aria-label="Jump to the last preview panel">Jump down ${icon('arrow')}</a></div>`,
+    snap: `<div class="qp-snap" role="region" aria-label="Scroll snap preview" tabindex="0"><span>01</span><span>02</span><span>03</span></div><span class="quick-preview-hint" aria-hidden="true">Scroll the panels</span>`,
+    scroll: `<div class="qp-scroll"><div class="qp-scroll-window" role="region" aria-label="Smooth scrolling preview" tabindex="0"><span>First section</span><span>Second section</span><span id="${id}-end">Last section</span></div><a href="#${id}-end" aria-label="Jump to the last preview panel">Jump down ${icon('arrow')}</a></div>`,
     has: `<div class="qp-has"><div class="qp-has-target" id="${id}"><span>A simple card</span></div><label class="quick-has-control" hidden><input type="checkbox" data-quick-has="${id}">Include an image</label></div>`,
-    viewport: '<div class="qp-viewport" aria-hidden="true"><div class="qp-phone"><i></i><span>100<span>dvh</span></span></div><div class="qp-phone qp-phone-short"><i></i><span>100<span>dvh</span></span></div><span class="qp-viewport-caption">Room for real life.</span></div>',
-    balance: '<div class="qp-balance" aria-hidden="true"><p>A little balance goes a long way.</p><i></i><i></i></div>',
-    focus: '<div class="qp-focus"><span aria-hidden="true">Good focus stands out.</span><input type="text" aria-label="Focus indicator preview" placeholder="Tab into this field"></div>',
-    gutter: '<div class="qp-gutter" aria-hidden="true"><div><i></i><i></i><i></i><i></i><b></b></div><span>Same space.<br>Less shifting.</span></div>',
-    trim: '<div class="qp-trim" aria-hidden="true"><span>Aa</span><i></i><i></i><b>Just the right edges.</b></div>',
+    viewport: '<div class="qp-viewport" aria-hidden="true"><div class="qp-phone"><i></i><span>100<span>dvh</span></span></div><div class="qp-phone qp-phone-short"><i></i><span>100<span>dvh</span></span></div><span class="qp-viewport-caption">Dynamic viewport height</span></div>',
+    balance: '<div class="qp-balance" aria-hidden="true"><p>Balanced text avoids short last lines.</p><i></i><i></i></div>',
+    focus: '<div class="qp-focus"><span aria-hidden="true">Keyboard focus</span><input type="text" aria-label="Focus indicator preview" placeholder="Tab into this field"></div>',
+    gutter: '<div class="qp-gutter" aria-hidden="true"><div><i></i><i></i><i></i><i></i><b></b></div><span>Reserved<br>scrollbar space</span></div>',
+    trim: '<div class="qp-trim" aria-hidden="true"><span>Aa</span><i></i><i></i><b>Trimmed text edges.</b></div>',
     fluid: '<div class="qp-fluid" aria-hidden="true"><span>Aa</span><span>Aa</span><span>Aa</span><i></i></div>',
   };
-  return `<div class="quick-visual quick-visual-${type || 'fluid'}">${previews[type] || previews.fluid}</div>`;
+  return previews[type] ? `<div class="quick-visual quick-visual-${type}">${previews[type]}</div>` : '';
 }
 
 export function quickPage(entries) {
   const tags = [...new Set(entries.flatMap(item => item.tags))].sort();
   const counts = new Map(tags.map(tag => [tag, entries.filter(entry => entry.tags.includes(tag)).length]));
-  return `<header class="quick-intro"><div><p class="quick-kicker">The CSS toolkit</p><h1>Quick Wins<span aria-hidden="true">✳</span></h1><p class="quick-intro-copy">Small techniques. A few lines of CSS. A better next project.</p></div>
-    <div class="quick-intro-aside" aria-hidden="true"><span>${String(entries.length).padStart(2, '0')}</span><p>good ideas,<br>ready to borrow.</p></div></header>
+  return `${interiorLead('Quick Wins', 'Short CSS examples you can try, copy, and adapt.', 'collection-lead')}
     <div class="interior-paper quick-workbench">
       <form class="topic-filter quick-controls" role="search" aria-label="Filter Quick Wins" action="/quick-wins/" method="get" hidden>
         <fieldset class="quick-topics"><legend>Filter by topic</legend><div class="quick-topic-options">${[['', 'All wins', entries.length], ...tags.map(tag => [tag, topicLabel(tag), counts.get(tag)])].map(([value, label, count]) => `<label class="quick-topic"><input type="radio" name="topic" value="${e(value)}"${value === '' ? ' checked' : ''}><span>${e(label)}</span><span class="quick-topic-count" aria-hidden="true">${count}</span></label>`).join('')}</div></fieldset>
         <div class="quick-find"><label for="quick-query">Find a quick win</label><div>${icon('search')}<input type="search" id="quick-query" name="q" maxlength="100" placeholder="Try clamp, focus, or layout"></div></div>
         <p class="status quick-result-count" role="status"></p>
       </form>
-      <ul class="quick-list quick-grid">${entries.map((entry, index) => {
+      <ul class="quick-list quick-grid">${entries.map(entry => {
         const display = quickPresentation[entry.slug] || {};
         const topic = entry.tags[0] || 'css';
         const token = display.token || entry.code?.match(/^\s*([a-z][a-z-]*)\s*:/m)?.[1] || 'CSS';
         return `<li data-topics="${e(JSON.stringify(entry.tags))}" data-quick-search="${displayText([entry.title, entry.summary, entry.note, entry.code, ...entry.tags].filter(Boolean).join(' '))}">
         <article class="quick-card" data-tone="${e(topic)}" aria-labelledby="quick-${entry.slug}">
-          <div class="quick-card-meta"><span class="quick-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="quick-topic-name">${e(topicLabel(topic))}</span>${entry.difficulty ? `<span class="quick-level">${e(entry.difficulty)}</span>` : ''}</div>
-          ${quickPreview(entry, display.preview)}
+          <div class="quick-card-meta"><span class="quick-topic-name">${e(topicLabel(topic))}</span>${entry.difficulty ? `<span class="quick-level">${e(entry.difficulty)}</span>` : ''}</div>
           <div class="quick-card-copy"><p class="quick-token">${e(token)}</p><h2 id="quick-${entry.slug}"><a href="${entry.path}">${e(entry.title)}</a></h2><p class="quick-summary">${displayText(entry.summary || '')}</p></div>
+          ${quickPreview(entry, display.preview)}
           ${entry.code ? codeControls(`<pre><code class="language-css">${e(entry.code)}</code></pre>`) : ''}
-          ${entry.note ? `<details class="quick-note"><summary>Good to know</summary><p>${displayText(entry.note)}</p></details>` : ''}
-          <div class="quick-card-footer">${dateLabel(entry.date)}<a href="${entry.path}" aria-label="Read ${e(entry.title)}">The technique ${icon('arrow')}</a></div>
+          <div class="quick-card-footer">${entry.note ? `<details class="quick-note"><summary>Good to know</summary><p>${displayText(entry.note)}</p></details>` : ''}<a href="${entry.path}" aria-label="Read ${e(entry.title)}">Read example</a></div>
         </article></li>`;
       }).join('')}</ul>
       <div class="quick-empty" hidden><h2>No quick wins found.</h2><p>Try a different word or explore all the techniques.</p><button type="button" data-clear-quick>Clear filters</button></div>
@@ -290,34 +294,30 @@ export function quickPage(entries) {
 }
 
 const resourceCategories = [
-  { id: 'documentation', title: 'Documentation', description: 'Go straight to the source.', icon: 'book' },
-  { id: 'tools', title: 'Tools', description: 'A little help at the workbench.', icon: 'tool' },
-  { id: 'patterns', title: 'Patterns', description: 'Good ideas, put into practice.', icon: 'layers' },
-  { id: 'community', title: 'Community', description: 'Find your kind of CSS people.', icon: 'people' },
+  { id: 'documentation', title: 'Documentation', description: 'Specifications and platform references.', icon: 'book' },
+  { id: 'tools', title: 'Tools', description: 'Inspect and debug CSS in the browser.', icon: 'tool' },
+  { id: 'patterns', title: 'Patterns', description: 'Layout guides and interface examples.', icon: 'layers' },
+  { id: 'community', title: 'Community', description: 'Tutorials, experiments, and developer research.', icon: 'people' },
 ];
 
 const resourceNotes = {
-  'mdn-web-docs': { mark: 'm', label: 'The everyday reference', use: 'Syntax, browser support, and the web platform', note: 'The tab to keep open. Clear explanations, practical examples, and a dependable reference for the web platform.' },
-  'css-tricks': { mark: '*', label: 'The pattern library', use: 'Practical patterns and approachable explanations', note: 'Where documentation meets the day job. Practical guides and front-end ideas to bring into your next project.' },
-  'kevin-powell': { mark: 'KP', label: 'Watch & learn', use: 'Making modern CSS feel approachable', note: 'Pull up a video and work through it. Practical explanations of layout, responsiveness, and the CSS you use every day.' },
-  'ahmad-shadeed': { mark: 'AS', label: 'Read & understand', use: 'Visual explanations of layouts and edge cases', note: 'For the moments when seeing it makes it click. Thoughtful visual breakdowns of real interfaces and their tricky details.' },
-  'lynn-fisher': { mark: 'LF', label: 'Explore & get inspired', use: 'Creative CSS, interaction, and visual storytelling', note: 'A reminder that the web can be wonderfully unexpected. Explore the playful side of design, interaction, and CSS.' },
-  'state-of-css-devographics': { mark: '{ }', label: 'Take the pulse', use: 'CSS adoption, trends, and developer perspectives', note: 'Step back from the code. An annual look at the features developers use, the friction they feel, and where CSS is heading.' },
+  'mdn-web-docs': { note: 'CSS syntax, browser support tables, and examples for the web platform.' },
+  'css-tricks': { note: 'Front-end articles, CSS layout guides, and reusable interface patterns.' },
+  'kevin-powell': { note: 'Video tutorials on CSS layout, responsive design, and modern browser features.' },
+  'ahmad-shadeed': { note: 'Illustrated articles on responsive layouts, interface details, and CSS edge cases.' },
+  'lynn-fisher': { note: 'CSS experiments, interactive websites, and visual design projects.' },
+  'state-of-css-devographics': { note: 'An annual survey of CSS feature adoption and developer experience.' },
 };
 
 function resourceItem(entry) {
   const notes = resourceNotes[entry.slug] || {};
-  const featured = entry.slug === 'mdn-web-docs';
   const host = new URL(entry.url).hostname.replace(/^www\./, '');
-  const save = `<button class="resource-save" type="button" data-save-resource="${e(entry.slug)}" aria-label="Keep ${e(entry.title)} close" aria-pressed="false" hidden>${icon('bookmark')}<span>Keep close</span></button>`;
-  return `<li class="resource-entry${featured ? ' resource-spotlight' : ''}" data-resource="${e(entry.slug)}" data-resource-title="${e(entry.title)}" data-resource-search="${e([entry.title, entry.summary, notes.label, notes.use, notes.note, host].filter(Boolean).join(' '))}">
+  const save = `<button class="resource-save" type="button" data-save-resource="${e(entry.slug)}" aria-label="Save ${e(entry.title)}" aria-pressed="false" hidden>${icon('bookmark')}<span>Save</span></button>`;
+  return `<li class="resource-entry" data-resource="${e(entry.slug)}" data-resource-title="${e(entry.title)}" data-resource-search="${e([entry.title, entry.summary, notes.note, host].filter(Boolean).join(' '))}">
     <article class="resource-record" aria-labelledby="resource-title-${entry.slug}">
-      ${featured ? '<div class="reference-art" aria-hidden="true"><div class="reference-volume"><span class="reference-edition">THE WEB PLATFORM</span><span class="reference-letter">m<span>_</span></span><span class="reference-cover-title">The web,<br>explained.</span><span class="reference-cover-foot">MDN WEB DOCS</span></div><span class="reference-art-caption">A well-thumbed essential.</span></div>' : `<div class="resource-monogram resource-monogram-${e(entry.slug)}" aria-hidden="true">${e(notes.mark || entry.title.split(/\s+/).map(word => word[0]).slice(0, 2).join(''))}</div>`}
       <div class="resource-record-copy">
-        <p class="resource-label">${e(notes.label || entry.kind || 'From the collection')}</p>
         <h3 id="resource-title-${entry.slug}"><a href="${e(entry.path || entry.url)}">${e(entry.title)}</a></h3>
         <p class="resource-description">${e(notes.note || entry.summary || '')}</p>
-        ${notes.use ? `<p class="resource-use"><span>Best for</span> ${e(notes.use)}</p>` : ''}
         <div class="resource-record-actions"><a class="resource-visit" href="${e(entry.url)}" aria-label="Visit ${e(entry.title)}">${e(host)}</a>${save}</div>
       </div>
     </article>
@@ -332,15 +332,10 @@ export function resourcesPage(entries) {
   }
   if (!groups.get('tools').length) groups.get('tools').push({
     slug: 'chrome-devtools-css-guide', title: 'Chrome DevTools CSS guide', kind: 'Official documentation',
-    url: 'https://developer.chrome.com/docs/devtools/css/', summary: 'The official CSS guide for Chrome DevTools. A reference to reach for while working in the browser.',
+    url: 'https://developer.chrome.com/docs/devtools/css/', summary: 'The official guide to inspecting and debugging CSS with Chrome DevTools.',
   });
   const total = [...groups.values()].reduce((sum, group) => sum + group.length, 0);
-  return `<header class="resource-intro">
-      <p class="resource-overline">Resources <span aria-hidden="true">/</span> The reading room</p>
-      <h1>Trusted CSS resources <em>in one place.</em></h1>
-      <p class="resource-intro-deck">Reliable references, useful tools, and people worth learning from. Pull up a chair.</p>
-      <a class="resource-intro-link" href="#reading-room">Explore the collection</a>
-    </header>
+  return `${interiorLead('CSS resources', 'Documentation, tools, tutorials, and independent work from across the CSS community.', 'collection-lead')}
     <div class="interior-paper resource-paper reading-room" id="reading-room">
       <aside class="resource-sidebar">
         <div class="resource-sidebar-inner">
@@ -351,15 +346,14 @@ export function resourcesPage(entries) {
         </div>
       </aside>
       <div class="resource-library">
-        <div class="resource-library-heading"><div><p class="resource-overline">Handpicked, not exhaustive</p><h2>A few good tabs.</h2></div><p class="resource-total">${total} resources.<br>Plenty to explore.</p></div>
-        <form class="resource-find" role="search" aria-label="Filter resources" action="/resources/" method="get" hidden><label class="visually-hidden" for="resource-query">Search the reading room</label>${icon('search')}<input type="search" id="resource-query" name="q" maxlength="100" placeholder="Find a reference, a person, an idea…"><button type="button" data-clear-resource-query hidden>Clear</button></form>
-        <p class="resource-results" role="status">${total} resources on the shelves</p>
+        <div class="resource-library-heading"><div><h2>Resource directory</h2></div><p class="resource-total">${total} resources</p></div>
+        <form class="resource-find" role="search" aria-label="Filter resources" action="/resources/" method="get" hidden><label class="visually-hidden" for="resource-query">Search resources</label>${icon('search')}<input type="search" id="resource-query" name="q" maxlength="100" placeholder="Search resources…"><button type="button" data-clear-resource-query hidden>Clear</button></form>
+        <p class="resource-results" role="status">${total} resources available</p>
         <div class="resource-shelves">${resourceCategories.map(category => `<section class="resource-section" id="${category.id}" aria-labelledby="resource-${category.id}">
           <header class="resource-section-heading"><div><h2 id="resource-${category.id}">${category.title}</h2><p>${category.description}</p></div><span class="resource-section-count" aria-label="${groups.get(category.id).length} ${groups.get(category.id).length === 1 ? 'resource' : 'resources'}">${String(groups.get(category.id).length).padStart(2, '0')}</span></header>
           <ul class="resource-directory">${groups.get(category.id).map(resourceItem).join('')}</ul>
         </section>`).join('')}</div>
         <div class="resource-empty" hidden><span aria-hidden="true">${icon('book')}</span><h2>No resources found.</h2><p>Try another word or browse the whole collection.</p><button type="button" data-reset-resources>Explore all resources</button></div>
-        <div class="resource-colophon"><p>Good resources become old friends.</p><span>Find one. Keep it close. Come back often.</span></div>
       </div>
     </div>`;
 }
@@ -406,7 +400,7 @@ function articleHero(entry) {
   return `<header class="interior-article-lead${entry.image ? ' has-cover' : ''}">
     <nav class="article-breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/articles/">Articles</a></li>${display.category ? `<li>${e(display.category)}</li>` : ''}<li aria-current="location">${e(entry.title)}</li></ol></nav>
     <div class="article-hero-grid">
-      <div class="article-hero-copy">${display.category ? `<p class="article-category">${e(display.category)}</p>` : ''}
+      <div class="article-hero-copy">
         <h1 id="article-title">${e(entry.title)}</h1>
         ${display.deck || entry.summary ? `<p class="interior-deck">${e(display.deck || entry.summary)}</p>` : ''}
         <div class="article-hero-meta"><div class="entry-meta">${entry.author ? `<span>By ${e(entry.author)}</span>` : ''}${dateLabel(entry.date)}<span aria-hidden="true">·</span>${readingTime(entry)}${entry.updatedAt ? `<span>Updated ${dateLabel(new Date(entry.updatedAt).toISOString().slice(0, 10))}</span>` : ''}</div>${articleActions(entry)}</div>
@@ -427,7 +421,7 @@ function quickHero(entry) {
 function quickShowcase() {
   return `<section class="quick-showcase" aria-labelledby="quick-idea">
     <div class="quick-idea"><h2 id="quick-idea">The idea</h2><p>Use CSS scroll snap to create a clean, aligned slideshow — no JavaScript required.</p></div>
-    <div class="code-block showcase-code"><div class="code-toolbar"><span class="code-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="code-language">CSS</span><button class="copy code-copy-icon" type="button" aria-label="Copy code" hidden>${icon('copy')}</button></div><pre tabindex="0">${highlightCode('.container {\n  scroll-snap-type: x mandatory;\n  overflow-x: auto;\n  display: flex;\n  gap: 1rem;\n}')}</pre></div>
+    <div class="code-block showcase-code"><div class="code-toolbar"><span class="code-language">CSS</span><button class="copy code-copy-icon" type="button" aria-label="Copy code" hidden>${icon('copy')}</button></div><pre tabindex="0">${highlightCode('.container {\n  scroll-snap-type: x mandatory;\n  overflow-x: auto;\n  display: flex;\n  gap: 1rem;\n}')}</pre></div>
   </section>`;
 }
 
@@ -456,9 +450,9 @@ export function detail(entry, entries = []) {
       ${showcase ? quickShowcase() : ''}
     <div class="shell article-layout${contents ? ' with-contents' : ''}">
       ${contents ? `<nav class="contents" aria-label="On this page"><details open>
-        <summary id="contents-title"><span class="contents-eyebrow">Reading guide</span><span class="contents-heading">On this page</span><span class="contents-toggle" aria-hidden="true">${icon('arrow')}</span></summary>
+        <summary id="contents-title"><span class="contents-heading">On this page</span><span class="contents-toggle" aria-hidden="true">${icon('arrow')}</span></summary>
         <div class="contents-meta"><span>${names.length} sections</span><span class="contents-progress" aria-hidden="true">01 / ${String(names.length).padStart(2, '0')}</span></div>
-        <ul>${names.map((item, index) => `<li><a href="#${e(encodeURIComponent(item.id))}"><span class="contents-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span>${e(item.title)}</span></a></li>`).join('')}</ul>
+        <ul>${names.map(item => `<li><a href="#${e(encodeURIComponent(item.id))}"><span>${e(item.title)}</span></a></li>`).join('')}</ul>
         <a class="contents-top" href="#article-title">Back to article ${icon('up', 'link-icon')}</a>
       </details></nav>` : ''}
       <div class="prose">
@@ -493,19 +487,19 @@ export function notFound() {
 }
 
 const topicNavigationDisplay = {
-  'responsive-layout': { label:'Layout', icon:'layers' },
-  'selectors-and-cascade': { label:'Selectors & cascade', icon:'selectors' },
-  'animation-and-scrolling': { label:'Motion & scrolling', icon:'motion' },
-  'typography-and-color': { label:'Type & color', icon:'typography' },
-  'forms-and-accessibility': { label:'Forms & accessibility', icon:'forms' },
+  'responsive-layout': { label:'Layout' },
+  'selectors-and-cascade': { label:'Selectors & cascade' },
+  'animation-and-scrolling': { label:'Motion & scrolling' },
+  'typography-and-color': { label:'Type & color' },
+  'forms-and-accessibility': { label:'Forms & accessibility' },
 };
 
 function topicNavigation(className = '') {
   return `<nav class="topic-navigation ${className}" aria-label="Learn CSS by topic">
-    <div class="topic-navigation-intro"><p class="topic-navigation-kicker">A little further</p><h2>Where curiosity<br> takes you next.</h2><p>Explore the lounge by topic.</p></div>
+    <div class="topic-navigation-intro"><h2>CSS topics</h2></div>
     <div class="topic-navigation-menu"><ul>${topics.map(topic => {
       const display = topicNavigationDisplay[topic.slug];
-      return `<li><a href="${topicPath(topic)}" aria-label="${e(topic.title)}"><span class="topic-navigation-icon">${icon(display.icon)}</span><span>${e(display.label)}</span></a></li>`;
+      return `<li><a href="${topicPath(topic)}" aria-label="${e(topic.title)}"><span>${e(display.label)}</span></a></li>`;
     }).join('')}<li><a class="topic-navigation-all" href="/topics/">Browse all CSS topics</a></li></ul></div>
   </nav>`;
 }
@@ -514,12 +508,12 @@ function relatedReading(entry, entries) {
   const groups = entryTopics(entry);
   const related = relatedEntries(entry, entries);
   if (!groups.length && !related.length) return '';
-  return `<aside class="related-reading" aria-labelledby="related-title"><p class="interior-eyebrow">Keep exploring</p><h2 id="related-title">Related CSS guides</h2><ul>${related.map(other => `<li><a href="${e(other.path)}">${e(other.title)}</a><p>${e(seoMetadata(other.path, other.title, other.summary, other).description)}</p></li>`).join('')}</ul>${groups.length ? `<nav aria-label="Related CSS topics">${groups.map(topic => `<a href="${topicPath(topic)}">${e(topic.title)}</a>`).join('')}</nav>` : ''}</aside>`;
+  return `<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">Related CSS guides</h2><ul>${related.map(other => `<li><a href="${e(other.path)}">${e(other.title)}</a><p>${e(seoMetadata(other.path, other.title, other.summary, other).description)}</p></li>`).join('')}</ul>${groups.length ? `<nav aria-label="Related CSS topics">${groups.map(topic => `<a href="${topicPath(topic)}">${e(topic.title)}</a>`).join('')}</nav>` : ''}</aside>`;
 }
 
 export function topicsPage() {
-  return `${interiorLead('The CSS reading room', 'Learn CSS by topic', 'Choose a problem, follow a learning path, and put the examples to work.')}
-  <div class="interior-paper topic-paper"><section class="topic-introduction"><h2>A starting point for your next front-end project</h2><p>Use these reading paths to connect a CSS concept to a practical interface problem. Each collection brings together in-depth articles and short, reusable examples. Start with layout and the cascade, then explore motion, typography and accessible controls as your project needs them.</p></section><div class="topic-grid">${topics.map(topic => `<section class="topic-card"><h2><a href="${topicPath(topic)}">${e(topic.title)}</a></h2><p>${e(topic.description)}</p><a class="text-link" href="${topicPath(topic)}">Explore this CSS topic</a></section>`).join('')}</div></div>`;
+  return `${interiorLead('Learn CSS by topic', 'Choose a problem, follow a learning path, and put the examples to work.')}
+  <div class="interior-paper topic-paper"><div class="topic-grid">${topics.map(topic => `<section class="topic-card"><h2><a href="${topicPath(topic)}">${e(topic.title)}</a></h2><p>${e(topic.description)}</p><a class="text-link" href="${topicPath(topic)}">Explore this CSS topic</a></section>`).join('')}</div></div>`;
 }
 
 export function topicPage(topic, entries) {
@@ -528,5 +522,5 @@ export function topicPage(topic, entries) {
     const list = members.filter(entry => entry.type === type);
     return list.length ? `<section class="topic-reading-list"><h2>${title}</h2><ul>${list.map(entry => `<li><h3><a href="${e(entry.path)}">${e(entry.title)}</a></h3><p>${e(seoMetadata(entry.path,entry.title,entry.summary,entry).description)}</p></li>`).join('')}</ul></section>` : '';
   };
-  return `${interiorLead('CSS learning path',topic.title,topic.description)}<div class="interior-paper topic-paper"><nav class="topic-breadcrumbs" aria-label="Breadcrumb"><a href="/topics/">All CSS topics</a><span aria-current="page">${e(topic.title)}</span></nav><div class="topic-guide"><div class="topic-introduction"><h2>Where to begin</h2><p>${e(topic.intro)}</p>${topic.sections.map(part => `<h2>${e(part.title)}</h2><p>${e(part.text)}</p>`).join('')}</div><div>${section('article','In-depth CSS guides')}${section('quick-win','CSS snippets to try')}</div></div>${topicNavigation()}</div>`;
+  return `${interiorLead(topic.title,topic.description)}<div class="interior-paper topic-paper"><nav class="topic-breadcrumbs" aria-label="Breadcrumb"><a href="/topics/">All CSS topics</a><span aria-current="page">${e(topic.title)}</span></nav><div class="topic-guide"><div class="topic-introduction"><h2>Where to begin</h2><p>${e(topic.intro)}</p>${topic.sections.map(part => `<h2>${e(part.title)}</h2><p>${e(part.text)}</p>`).join('')}</div><div>${section('article','In-depth CSS guides')}${section('quick-win','CSS snippets to try')}</div></div>${topicNavigation()}</div>`;
 }
