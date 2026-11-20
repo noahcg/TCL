@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>A Small Color Desk — Nudeps Research Example</title>
+  <link rel="stylesheet" href="/client_modules/open-props/open-props.min.css">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/importmap.js"></script>
+  <script type="module" src="/main.js"></script>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">The Cascade Lounge · research example</p>
+    <h1>A small color desk</h1>
+    <p>Native modules, local dependencies, and a little room to experiment.</p>
+    <label for="hue">Palette hue</label>
+    <input id="hue" type="range" min="0" max="360" value="35" disabled aria-describedby="palette-help">
+    <p id="palette-help">The static palette stays visible if JavaScript is unavailable. When the module loads, use the slider to calculate new hex values.</p>
+    <div class="palette">
+      <article class="swatch-card" data-lightness="0.86"><div class="swatch swatch-light" aria-hidden="true"></div><h2>Light</h2><code>Static preview</code></article>
+      <article class="swatch-card" data-lightness="0.68"><div class="swatch swatch-middle" aria-hidden="true"></div><h2>Middle</h2><code>Static preview</code></article>
+      <article class="swatch-card" data-lightness="0.46"><div class="swatch swatch-deep" aria-hidden="true"></div><h2>Deep</h2><code>Static preview</code></article>
+    </div>
+    <p id="palette-status" role="status">Static preview. Color.js has not enhanced the controls yet.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #17261d;
+  background: #f7eddf;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+main {
+  max-width: 65rem;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 5vw, 4rem);
+}
+
+h1 { font: 600 clamp(2.5rem, 6vw, 5rem)/1.05 Georgia, serif; }
+
+h2 { font-size: 1.125rem; }
+
+p { max-width: 60ch; line-height: 1.6; }
+
+.eyebrow { font-size: .875rem; letter-spacing: .08em; }
+
+label { display: block; margin-top: 2rem; font-weight: 650; }
+
+input { width: 100%; min-height: 44px; accent-color: #9e470d; }
+
+:focus-visible { outline: 3px solid #9e470d; outline-offset: 4px; }
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1.25rem;
+  margin-block: 2rem;
+}
+
+.swatch-card {
+  padding: 1rem;
+  border: 1px solid #ccb998;
+  border-radius: 1rem;
+  background: #fff7eb;
+}
+
+.swatch { min-height: 10rem; border-radius: .5rem; background: var(--swatch-color); }
+
+.swatch-light { --swatch-color: hsl(35 40% 86%); }
+
+.swatch-middle { --swatch-color: hsl(35 40% 64%); }
+
+.swatch-deep { --swatch-color: hsl(35 40% 38%); }
+
+code { font-size: 1rem; overflow-wrap: anywhere; }
+
+#palette-help { font-size: .9375rem; }
+
+@media (forced-colors: active) {
+  :root, .swatch-card { color: CanvasText; background: Canvas; }
+  .swatch-card, .swatch { border: 1px solid CanvasText; }
+}

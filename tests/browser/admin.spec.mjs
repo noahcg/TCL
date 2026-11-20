@@ -218,3 +218,35 @@ testStudio('article previews open the executable demo without changing the saved
   await page.reload();
   await expect(page.locator('#homepage-quick-demo')).toHaveValue('container-queries');
 });
+
+testStudio('dense research history groups unique sources and contains every expanded link', async ({ page, studio }, testInfo) => {
+  const hosts=['developer.mozilla.org','ishadeed.com','web.dev'];
+  const sources=Array.from({length:45},(_,index)=>({title:index===0?'A very long source title '+ 'reference'.repeat(24):`CSS layout reference ${index+1}`,url:`https://${hosts[index%3]}/guides/layout-${index+1}`}));
+  const scanId=randomUUID();
+  await page.route('**/admin/api/state',async route=>{
+    const response=await route.fetch();const data=await response.json();
+    data.scans=[{id:scanId,createdAt:'2026-11-18T12:00:00Z',ideas:[],focus:'Responsive components and conditional border radius',days:30,sourceIds:['mdn','ahmad','webdev','kevin'],sources:[...sources,sources[0],sources[0]]}];
+    await route.fulfill({response,json:data});
+  });
+  for(const width of [1440,1050,780,390]) {
+    await page.setViewportSize({width,height:1000});await page.goto(studio.url);
+    await page.locator('#scan-history > summary').click();
+    const entry=page.locator('.history-entry');
+    await expect(entry.locator('.history-coverage .coverage-missing')).toContainText('Kevin Powell');
+    const summary=entry.getByText('View 45 sources across 3 sites',{exact:true});
+    await expect(summary).toBeVisible();
+    await expect(entry.locator('.history-source-groups')).toBeHidden();
+    await summary.focus();await page.keyboard.press('Enter');
+    await expect(entry.locator('.history-source-group')).toHaveCount(3);
+    await expect(entry.locator('.history-source-group a')).toHaveCount(45);
+    expect(new Set(await entry.locator('a').evaluateAll(links=>links.map(link=>link.href))).size).toBe(45);
+    expect(await entry.evaluate(element=>element.scrollWidth <= element.clientWidth+1)).toBe(true);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1)).toBe(true);
+    if(width===1440 || width===390) await entry.screenshot({path:testInfo.outputPath(`research-history-${width}.png`)});
+    const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+    expect(results.violations).toEqual([]);
+    await page.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+    const box=await entry.evaluate(element=>({width:element.clientWidth,scroll:element.scrollWidth,children:[...element.querySelectorAll('*')].filter(child=>child.getBoundingClientRect().right>element.getBoundingClientRect().right+1).map(child=>child.className||child.tagName)}));
+    expect(box.scroll <= box.width+1,`${width}: ${JSON.stringify(box)}`).toBe(true);
+  }
+});

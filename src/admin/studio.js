@@ -37,6 +37,23 @@ function links(sources) {
   return sources.map(source => `<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer" title="${escape(source.title)}">${escape(new URL(source.url).hostname.replace(/^www\./, ''))}</a>`).join('');
 }
 
+function historySources(sources) {
+  const unique = [...new Map(sources.map(source => [source.url, source])).values()];
+  const groups = new Map();
+  for (const source of unique) {
+    const url = new URL(source.url);
+    const host = url.hostname.replace(/^www\./, '');
+    if (!groups.has(host)) groups.set(host, []);
+    let fallback = url.pathname.split('/').filter(Boolean).pop() || host;
+    try { fallback = decodeURIComponent(fallback); } catch { /* Keep malformed escapes readable. */ }
+    fallback = fallback.replace(/[-_]/g, ' ');
+    const title = source.title && source.title !== url.hostname && source.title !== source.url ? source.title : fallback;
+    groups.get(host).push({ ...source, title });
+  }
+  if (!unique.length) return '';
+  return `<details class="history-sources"><summary>View ${unique.length} ${unique.length === 1 ? 'source' : 'sources'} across ${groups.size} ${groups.size === 1 ? 'site' : 'sites'}</summary><div class="history-source-groups">${[...groups].map(([host, entries]) => `<section class="history-source-group"><h4>${escape(host)} <span>${entries.length}</span></h4><ul>${entries.map(source => `<li><a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.title)}</a></li>`).join('')}</ul></section>`).join('')}</div></details>`;
+}
+
 function actionDisabled(needsAI = false) { return busy || (needsAI && !state.configured) ? ' disabled' : ''; }
 
 function render() {
@@ -83,7 +100,10 @@ function render() {
   $('#scan-history').hidden = !state.scans.length;
   $('#history-list').innerHTML = state.scans.map(scan => {
     const selected = state.sources.filter(source => scan.sourceIds.includes(source.id));
-    return `<div class="history-entry"><strong>${escape(dateLabel(scan.createdAt))} · ${scan.ideas.length} ideas</strong><p>${escape(scan.focus || 'Modern CSS, across the board')} · ${scan.days}-day window</p><p>${selected.map(source => `${escape(source.name)}: ${scan.sources.some(link => { const host = new URL(link.url).hostname; return host === source.domain || host.endsWith('.' + source.domain); }) ? 'sources found' : 'no cited results'}`).join(' · ')}</p><div>${links(scan.sources)}</div></div>`;
+    return `<div class="history-entry"><h3>${escape(dateLabel(scan.createdAt))} · ${scan.ideas.length} ideas</h3><p>${escape(scan.focus || 'Modern CSS, across the board')} · ${scan.days}-day window</p><ul class="history-coverage">${selected.map(source => {
+      const found = scan.sources.some(link => { const host = new URL(link.url).hostname; return host === source.domain || host.endsWith('.' + source.domain); });
+      return `<li${found ? '' : ' class="coverage-missing"'}><strong>${escape(source.name)}</strong><span>${found ? 'Sources found' : 'No cited results'}</span></li>`;
+    }).join('')}</ul>${historySources(scan.sources)}</div>`;
   }).join('');
 }
 
