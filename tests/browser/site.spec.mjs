@@ -23,7 +23,7 @@ test('every article has a unique loaded hero and the archive feature uses the sa
   expect(new Set(images.values()).size).toBe(articles.length);
   await page.goto('/articles/');
   const feature = page.locator('.archive-feature');
-  expect(await feature.locator('img').getAttribute('src')).toBe(images.get(await feature.getAttribute('href')));
+  expect(await feature.locator('img').getAttribute('src')).toBe(images.get(await feature.getByRole('link').getAttribute('href')));
 });
 
 test('article syntax highlighting is rendered in HTML and copies the original code', async ({ page }) => {
@@ -75,9 +75,9 @@ test('wide interior layouts cap the header and hero inside the broader paper', a
     await page.setViewportSize({ width, height: 1200 });
     for (const [path, lead] of [
       ['/articles/sibling-index/', '.interior-article-lead'],
-      ['/articles/', '.interior-lead'],
-      ['/quick-wins/', '.quick-intro'],
-      ['/resources/', '.resource-intro'],
+      ['/articles/', '.collection-lead'],
+      ['/quick-wins/', '.collection-lead'],
+      ['/resources/', '.collection-lead'],
       ['/search/', '.page-lead'],
     ]) {
       await page.goto(path);
@@ -94,6 +94,27 @@ test('wide interior layouts cap the header and hero inside the broader paper', a
         await page.screenshot({ path: testInfo.outputPath('wide-article.png') });
       }
     }
+  }
+});
+
+test('collection pages align the hero and the start of the rounded body', async ({ page }) => {
+  for (const width of [320, 390, 768, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    const layouts = [];
+    for (const path of ['/articles/', '/quick-wins/', '/resources/']) {
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const lead = await page.locator('.collection-lead').boundingBox();
+      const copy = await page.locator('.collection-lead .interior-lead-copy').boundingBox();
+      const paper = await page.locator('.interior-paper').evaluate(element => {
+        const { top, left, width } = element.getBoundingClientRect();
+        const { borderTopLeftRadius, paddingTop, paddingLeft } = getComputedStyle(element);
+        return { top, left, width, borderTopLeftRadius, paddingTop, paddingLeft };
+      });
+      layouts.push({ lead, copyLeft: copy.x, paper });
+    }
+    expect(layouts[1], `Quick Wins at ${width}px`).toEqual(layouts[0]);
+    expect(layouts[2], `Resources at ${width}px`).toEqual(layouts[0]);
   }
 });
 
@@ -189,8 +210,9 @@ test('home leads to an article with a directly addressable section', async ({ pa
   await page.goto('/');
   await page.getByRole('link', { name: 'Browse articles', exact: true }).click();
   await expect(page).toHaveURL(/\/articles\/$/);
-  const destination = await page.locator('.archive-feature').getAttribute('href');
-  await page.locator('.archive-feature').click();
+  const featuredTitle = page.locator('.archive-feature').getByRole('link');
+  const destination = await featuredTitle.getAttribute('href');
+  await featuredTitle.click();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   const contents = page.getByRole('navigation', { name: 'On this page' });
   if (await contents.locator('details:not([open])').count()) await contents.locator('summary').click();
@@ -221,7 +243,7 @@ for (const method of ['pointer', 'keyboard']) {
     await page.goto('/');
     await activate(page.getByRole('link', { name: 'Browse articles', exact: true }));
     await expect(page).toHaveURL(/\/articles\/$/);
-    for (const [name, path, heading] of [['Articles', '/articles/', 'In-depth CSS for real-world builders.'], ['Quick Wins', '/quick-wins/', 'Quick Wins'], ['Resources', '/resources/', 'Trusted CSS resources in one place.']]) {
+    for (const [name, path, heading] of [['Articles', '/articles/', 'In-depth CSS for real-world builders.'], ['Quick Wins', '/quick-wins/', 'Quick Wins'], ['Resources', '/resources/', 'CSS resources']]) {
       await page.goto('/');
       const link = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name, exact: true });
       await expect(link).toHaveAttribute('href', path);
@@ -322,16 +344,42 @@ for (const path of ['/', '/articles/', '/articles/container-query-units/', '/qui
 
 test('curated archive links retain the complete published collection', async ({ page }) => {
   await page.goto('/articles/');
-  const feature = page.getByRole('link', { name: 'Sizing Components with Container Query Units', exact: true });
-  await expect(feature).toHaveAttribute('href', '/articles/container-query-units/');
-  await expect(feature.locator('time')).toHaveAttribute('datetime', '2026-04-09');
+  const containerUnits = page.getByRole('link', { name: 'Sizing Components with Container Query Units', exact: true });
+  await expect(containerUnits).toHaveAttribute('href', '/articles/container-query-units/');
+  const entry = page.locator('.archive-feature,.archive-row').filter({ has: containerUnits });
+  await expect(entry.locator('time')).toHaveAttribute('datetime', '2026-04-09');
   await expect(page.locator('.archive-list a').first()).toHaveAttribute('href', '/articles/modern-resets/');
   expect(await page.locator('.archive-feature,.archive-row').count()).toBe(articles.length);
-  await feature.press('Enter');
+  await containerUnits.press('Enter');
   await expect(page).toHaveURL(/\/articles\/container-query-units\/$/);
   await page.goto('/articles/');
   await page.getByRole('link', { name: 'Rethinking CSS Resets for Modern CSS', exact: true }).click();
   await expect(page).toHaveURL(/\/articles\/modern-resets\/$/);
+});
+
+test('article archive keeps metadata by its title and leaves surrounding space inactive', async ({ page }) => {
+  await page.goto('/articles/');
+  for (const entry of [page.locator('.archive-feature'), page.locator('.archive-row').first()]) {
+    const heading = entry.getByRole('heading', { level: 2 });
+    const title = heading.getByRole('link');
+    const metadata = entry.locator('.archive-meta');
+    const headingBox = await heading.boundingBox();
+    const metadataBox = await metadata.boundingBox();
+    expect(Math.abs(headingBox.x - metadataBox.x)).toBeLessThan(1);
+    const gap = metadataBox.y - (headingBox.y + headingBox.height);
+    expect(gap).toBeGreaterThanOrEqual(0);
+    expect(gap).toBeLessThan(12);
+    await expect(metadata.locator('time')).toBeVisible();
+    await expect(metadata.locator('.reading-time')).toBeVisible();
+    await expect(entry.getByRole('link')).toHaveCount(1);
+    await metadata.click();
+    await expect(page).toHaveURL(/\/articles\/$/);
+    expect(await title.evaluate(link => {
+      const text = document.createRange();
+      text.selectNode(link.firstChild);
+      return Math.abs(link.getBoundingClientRect().width - text.getBoundingClientRect().width);
+    })).toBeLessThan(1);
+  }
 });
 
 test('Quick Win showcase copies the expanded example and preserves its source snippet', async ({ page }) => {
@@ -477,7 +525,7 @@ test('Quick Wins is a compact three-column toolkit with copyable source snippets
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.quickCopied = text; } } });
   });
   await page.goto('/quick-wins/');
-  expect((await page.locator('.quick-workbench').boundingBox()).y).toBeLessThan(360);
+  expect((await page.locator('.quick-workbench').boundingBox()).y).toBeLessThan(440);
   const cards = page.locator('.quick-card');
   await expect(cards).toHaveCount(quickWins.length);
   const first = await cards.nth(0).boundingBox();

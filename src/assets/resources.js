@@ -32,7 +32,7 @@ if (room) {
     for (const button of buttons) {
       const kept = saved.has(button.dataset.saveResource);
       button.setAttribute('aria-pressed', String(kept));
-      button.querySelector('span').textContent = kept ? 'Kept close' : 'Keep close';
+      button.querySelector('span').textContent = kept ? 'Saved' : 'Save';
       button.hidden = !storageAvailable;
     }
     shortlist.hidden = !storageAvailable;
@@ -56,12 +56,12 @@ if (room) {
     }
     toggle.setAttribute('aria-pressed', String(savedOnly));
     clear.hidden = !query.value;
-    status.textContent = `${count} ${count === 1 ? 'resource' : 'resources'} ${savedOnly ? 'in your shortlist' : 'on the shelves'}`;
+    status.textContent = `${count} ${count === 1 ? 'resource' : 'resources'} ${savedOnly ? 'in your shortlist' : 'available'}`;
     empty.hidden = count > 0;
     const unfilledShortlist = savedOnly && saved.size === 0 && words.length === 0;
-    empty.querySelector('h2').textContent = unfilledShortlist ? 'Your shelf is waiting.' : 'No resources found.';
+    empty.querySelector('h2').textContent = unfilledShortlist ? 'No saved resources.' : 'No resources found.';
     empty.querySelector('p').textContent = unfilledShortlist
-      ? 'Use “Keep close” on any resource to make it part of your shortlist.'
+      ? 'Use “Save” to add resources to your shortlist.'
       : 'Try another word or browse the whole collection.';
     if (updateURL) {
       const url = new URL(location.href);

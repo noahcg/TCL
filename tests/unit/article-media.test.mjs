@@ -52,7 +52,7 @@ test('The latest article is featured automatically regardless of collection orde
   const collection = [earlierToday, older, newest];
   assert.equal(featuredArticle(collection), newest);
   const html = articlesPage(collection);
-  assert.match(html, /id="archive-feature-title">The newest CSS article<\/h2>/);
+  assert.match(html, /id="archive-feature-title"><a href="\/articles\/newest\/">The newest CSS article<span class="archive-arrow"/);
   assert.deepEqual(collection, [earlierToday, older, newest]);
 });
 
