@@ -11,7 +11,7 @@ import { articlesPage, detail, home, notFound, page, quickPage, resourcesPage, s
 import { topics, topicPath, topicEntries, seoMetadata, sitemapXml, atomFeed } from '../src/build/seo.mjs';
 
 const directory = resolve(process.env.TCL_OUTPUT_DIRECTORY || 'dist');
-const { publishing, siteUrl } = buildEnvironment();
+const { publishing, siteUrl, gaMeasurementId } = buildEnvironment();
 const analytics = publishing && process.env.VERCEL_ENV === 'production';
 
 const loaded = await loadContent();
@@ -69,7 +69,7 @@ for (const route of routes) {
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, page({
     ...route, image: route.image || homeShareImage, siteUrl: publishing ? siteUrl : null,
-    analytics,
+    analytics, gaMeasurementId,
     robots: route.noIndex || !publishing ? 'noindex, follow' : null,
   }));
 }

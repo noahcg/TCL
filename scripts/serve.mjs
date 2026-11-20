@@ -4,7 +4,7 @@ import { extname, join, resolve, sep } from 'node:path';
 
 const root = resolve('dist');
 const headers = {
-  'content-security-policy': "default-src 'self'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' https:; form-action 'self'",
+  'content-security-policy': "default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com; base-uri 'none'; frame-ancestors 'none'; object-src 'none'; img-src 'self' https:; form-action 'self'",
   'x-content-type-options': 'nosniff',
 };
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

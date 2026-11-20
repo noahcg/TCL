@@ -82,7 +82,7 @@ function credit(entry) {
   return `<footer class="credit">${attribution ? `<p>${e(attribution)}</p>` : ''}${source ? `<p>Source <a href="${e(source)}">${e(new URL(source).hostname)}</a></p>` : ''}</footer>`;
 }
 
-export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article, entry = article, items = [], breadcrumbs = [], analytics = false }) {
+export function page({ path, title, intro, body, siteUrl, robots, homepage = false, image, article, entry = article, items = [], breadcrumbs = [], analytics = false, gaMeasurementId = null }) {
   const seo = seoMetadata(path, title, intro, entry);
   const metadata = `${seo.title} · ${site}`;
   const description = seo.description;
@@ -133,7 +133,7 @@ ${homepage ? '<link rel="stylesheet" href="/assets/css-in-action.css"><link rel=
 ${interior === 'quick-index' ? '<link rel="stylesheet" href="/assets/quick-wins.css">' : ''}
 ${interior === 'resources-index' ? '<link rel="stylesheet" href="/assets/resources.css">\n<script type="module" src="/assets/resources.js"></script>' : ''}
 <script type="module" src="/assets/site.js"></script>
-${analytics ? '<script type="module" src="/assets/analytics.js"></script>' : ''}
+${analytics || gaMeasurementId ? `<script type="module" src="/assets/analytics.js"${analytics ? ' data-vercel="true"' : ''}${gaMeasurementId ? ` data-ga-measurement-id="${e(gaMeasurementId)}"` : ''}></script>` : ''}
 </head>
 <body class="site-page ${homepage ? 'home-page' : interior ? `interior-page ${interior}${collection}` : 'utility-page'}">
 <a class="skip" href="#main-content">Skip to content</a>
