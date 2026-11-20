@@ -68,3 +68,47 @@ test('topic browsing follows the article collection and remains compact and usab
   await page.evaluate(()=>{ document.documentElement.style.fontSize='200%'; });
   expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1)).toBe(true);
 });
+
+
+test('topic cards keep whole words and comfortable widths between breakpoints', async ({ page }, testInfo) => {
+  for (const width of [320,390,480,544,640,720,768,1024,1119,1120,1121,1280,1440]) {
+    await page.setViewportSize({width,height:1000});
+    await page.goto('/');
+    const navigation=page.getByRole('navigation',{name:'Learn CSS by topic',exact:true});
+    const geometry=await navigation.locator('ul').evaluate(list => {
+      const links=[...list.querySelectorAll('a')];
+      const widths=links.map(link=>link.getBoundingClientRect().width);
+      const columns=getComputedStyle(list).gridTemplateColumns.split(' ').length;
+      const splitWords=[];
+      for (const link of links) {
+        const walker=document.createTreeWalker(link,NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node=walker.nextNode())) {
+          for (const word of node.textContent.matchAll(/\S+/g)) {
+            const range=document.createRange();
+            range.setStart(node,word.index); range.setEnd(node,word.index+word[0].length);
+            if (range.getClientRects().length>1) splitWords.push(word[0]);
+          }
+        }
+      }
+      return {widths,columns,splitWords};
+    });
+    expect(geometry.columns).toBeLessThanOrEqual(3);
+    expect(geometry.widths.every(width=>width>=200)).toBe(true);
+    expect(geometry.splitWords).toEqual([]);
+    if ([390,544,768,1440].includes(width)) {
+      await navigation.scrollIntoViewIfNeeded();
+      await navigation.screenshot({path:testInfo.outputPath(`comfortable-topics-${width}.png`)});
+    }
+  }
+  for (const width of [320,544,768,1088]) {
+    await page.setViewportSize({width,height:1000});
+    await page.goto('/');
+    await page.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1)).toBe(true);
+    const links=page.getByRole('navigation',{name:'Learn CSS by topic',exact:true}).getByRole('link');
+    for (const link of await links.all()) {
+      expect(await link.evaluate(element=>element.scrollWidth <= element.clientWidth+1)).toBe(true);
+    }
+  }
+});

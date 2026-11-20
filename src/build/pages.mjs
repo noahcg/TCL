@@ -503,10 +503,10 @@ const topicNavigationDisplay = {
 function topicNavigation(className = '') {
   return `<nav class="topic-navigation ${className}" aria-label="Learn CSS by topic">
     <div class="topic-navigation-intro"><p class="topic-navigation-kicker">A little further</p><h2>Where curiosity<br> takes you next.</h2><p>Explore the lounge by topic.</p></div>
-    <ul>${topics.map(topic => {
+    <div class="topic-navigation-menu"><ul>${topics.map(topic => {
       const display = topicNavigationDisplay[topic.slug];
       return `<li><a href="${topicPath(topic)}" aria-label="${e(topic.title)}"><span class="topic-navigation-icon">${icon(display.icon)}</span><span>${e(display.label)}</span></a></li>`;
-    }).join('')}<li><a class="topic-navigation-all" href="/topics/">Browse all CSS topics</a></li></ul>
+    }).join('')}<li><a class="topic-navigation-all" href="/topics/">Browse all CSS topics</a></li></ul></div>
   </nav>`;
 }
 
